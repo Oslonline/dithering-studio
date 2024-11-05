@@ -19,9 +19,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
     }
   };
 
-  const fileExtension = fileName?.split(".").pop();
-  const baseName = fileName && fileName.length > 12 ? `${fileName.slice(0, 4)}[...]${fileName.slice(-4)}` : fileName;
-  const displayedFileName = fileExtension && !baseName?.endsWith(`.${fileExtension}`) ? `${baseName}.${fileExtension}` : baseName;
+  if (!fileName) return null;
+
+  const fileExtension = fileName.split(".").pop();
+  const nameWithoutExtension = fileName.slice(0, fileName.length - fileExtension!.length - 1);
+  const displayedFileName = nameWithoutExtension.length > 12 ? `${nameWithoutExtension.slice(0, 4)}[...]${nameWithoutExtension.slice(-4)}.${fileExtension}` : fileName;
 
   return (
     <div className="flex items-center gap-2">
