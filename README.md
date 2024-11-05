@@ -2,7 +2,8 @@
 
 Dithering effect on image online using the Floyd Steinberg algorithm.
 - Adjustable threshold.
-- Save final result as png.
+- Adjustable preview & download resolution.
+- Download final result as png.
 - Choose between effect patterns (experimental).
 
 Made with React & Tailwindcss.
@@ -10,7 +11,7 @@ Made with React & Tailwindcss.
 # Run
 
 **Clone the repository:**
-`git clone `
+`git clone git@github.com:Oslonline/steinberg-image.git`
 
 **Install dependencies:**
 `npm install`
