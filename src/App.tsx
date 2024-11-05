@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import ImageUploader from "./components/ImageUploader";
 import PatternDrawer from "./components/PatternDrawer";
+import { FiDownload } from "react-icons/fi";
 
 const App: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -119,19 +120,24 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="box-border flex min-h-screen flex-col items-center gap-12 bg-slate-900 p-4 text-gray-100 md:max-h-screen md:flex-row md:gap-0">
+    <div className="box-border flex min-h-screen flex-col items-center gap-12 bg-slate-950 p-4 text-gray-100 md:max-h-screen md:flex-row md:gap-0">
       <div className="flex w-1/2 flex-col items-center gap-6">
         {image && <img src={image} alt="Preview" className="h-auto max-h-72 max-w-[33%] lg:max-h-80 2xl:max-h-96" />}
         <div className="flex w-fit flex-col gap-2">
           <ImageUploader setImage={setImage} />
-          <select className="rounded px-2 py-1 text-gray-950" onChange={(e) => setPattern(e.target.value)} value={pattern}>
-            <option value="1">default (dither)</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">Bayer</option>
-          </select>
+          <div className="flex flex-col">
+            <label htmlFor="pattern-select" className="text-sm italic">
+              Pattern (experimental)
+            </label>
+            <select id="pattern-select" className="rounded px-2 py-1 text-gray-950" onChange={(e) => setPattern(e.target.value)} value={pattern}>
+              <option value="1">default (dither)</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">Bayer</option>
+            </select>
+          </div>
           <div className="flex flex-col">
             <label htmlFor="threshold-input" className="text-sm italic">
               Threshold
@@ -140,23 +146,23 @@ const App: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <label htmlFor="preview-resolution" className="text-sm italic">
-              Preview Resolution
+              Preview Resolution (width px)
             </label>
-            <input className="text-gray-950 px-1 py-0.5" id="preview-resolution" min={100} type="number" value={previewResolution} onChange={(e) => setPreviewResolution(Number(e.target.value))} />
+            <input className="px-1 py-0.5 text-gray-950" id="preview-resolution" min={100} type="number" value={previewResolution} onChange={(e) => setPreviewResolution(Number(e.target.value))} />
           </div>
           <div className="flex flex-col">
             <label htmlFor="download-resolution" className="text-sm italic">
-              Download Resolution
+              Download Resolution (width px)
             </label>
-            <input className="text-gray-950 px-1 py-0.5" id="download-resolution" min={100} type="number" value={downloadResolution} onChange={(e) => setDownloadResolution(Number(e.target.value))} />
+            <input className="px-1 py-0.5 text-gray-950" id="download-resolution" min={100} type="number" value={downloadResolution} onChange={(e) => setDownloadResolution(Number(e.target.value))} />
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="rounded bg-blue-300 px-2 py-1 text-gray-950 duration-100 hover:bg-blue-400" onClick={applyDitheringEffect}>
+          <button className="rounded bg-blue-400 px-2 py-1 text-gray-950 duration-100 hover:bg-blue-500" onClick={applyDitheringEffect}>
             Apply Dithering Effect
           </button>
-          <button className="rounded bg-blue-300 px-2 py-1 text-gray-950 duration-100 hover:bg-blue-400" onClick={downloadImage}>
-            Save as PNG
+          <button className="flex items-center gap-1 rounded bg-blue-400 px-2 py-1 text-gray-950 duration-100 hover:bg-blue-500" onClick={downloadImage}>
+            <FiDownload /> <p>Save as PNG</p>
           </button>
         </div>
       </div>
