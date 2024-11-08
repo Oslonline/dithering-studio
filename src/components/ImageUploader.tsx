@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import { FaImage } from "react-icons/fa";
 
 interface ImageUploaderProps {
   setImage: (image: string | null) => void;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
-  const [fileName, setFileName] = useState<string | null>(null);
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFileName(file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
         setImage(e.target?.result as string);
@@ -19,19 +16,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
     }
   };
 
-  if (!fileName) return null;
-
-  const fileExtension = fileName.split(".").pop();
-  const nameWithoutExtension = fileName.slice(0, fileName.length - fileExtension!.length - 1);
-  const displayedFileName = nameWithoutExtension.length > 12 ? `${nameWithoutExtension.slice(0, 4)}[...]${nameWithoutExtension.slice(-4)}.${fileExtension}` : fileName;
-
   return (
-    <div className="flex items-center gap-2">
-      <label htmlFor="file-upload" className="cursor-pointer rounded bg-blue-400 px-2 py-1 text-gray-950 duration-100 hover:bg-blue-500">
-        Choose Image
+    <div className="flex w-full items-center justify-center gap-2">
+      <label htmlFor="file-upload" className="flex h-1/3 w-1/3 cursor-pointer flex-col items-center justify-center rounded border bg-neutral-800 p-4 text-gray-50 duration-150 hover:bg-neutral-700 md:border-2">
+        <FaImage className="text-3xl md:text-4xl lg:text-6xl" />
+        <p className="font-mono text-lg lg:text-2xl">Upload Image</p>
       </label>
       <input id="file-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-      {displayedFileName && <p className="mt-2 line-clamp-1 text-gray-600">{displayedFileName}</p>}
     </div>
   );
 };
