@@ -1,8 +1,8 @@
-const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: string) => {
+const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number) => {
   const imageData = new ImageData(data, width, height);
 
   switch (pattern) {
-    case "2":
+    case 2:
       for (let y = 0; y < height; y += 2) {
         for (let x = 0; x < width; x += 2) {
           const pxIndex = (y * width + x) * 4;
@@ -14,7 +14,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
       }
       break;
 
-    case "3":
+    case 3:
       for (let y = 0; y < height; y += 4) {
         for (let x = 0; x < width; x += 4) {
           const pxIndex = (y * width + x) * 4;
@@ -26,7 +26,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
       }
       break;
 
-    case "4":
+    case 4:
       for (let y = 0; y < height; y += 2) {
         for (let x = 0; x < width; x += 2) {
           const pxIndex = (y * width + x) * 4;
@@ -45,7 +45,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
       }
       break;
 
-    case "5":
+    case 5:
       for (let y = 0; y < height; y += 4) {
         for (let x = y % 8 === 0 ? 0 : 2; x < width; x += 4) {
           const pxIndex = (y * width + x) * 4;
@@ -57,7 +57,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
       }
       break;
 
-    case "6":
+    case 6:
       const bayerMatrix = [
         [0, 8, 2, 10],
         [12, 4, 14, 6],
