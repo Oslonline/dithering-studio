@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 
 const InfiniteImageScroll: React.FC = () => {
-  const NUM_IMAGES = 8;
+  const NUM_IMAGES = 12;
   const [images, setImages] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -10,10 +10,15 @@ const InfiniteImageScroll: React.FC = () => {
     for (let i = 1; i <= NUM_IMAGES; i++) {
       imageArray.push(`/hero/hero-${i}.webp`);
     }
+    // Shuffle images randomly
+    for (let i = imageArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [imageArray[i], imageArray[j]] = [imageArray[j], imageArray[i]];
+    }
     setImages(imageArray);
 
     const container = containerRef.current;
-    const scrollSpeed = 1;
+    const scrollSpeed = 1.5;
     const scroll = () => {
       if (container) {
         container.scrollLeft += scrollSpeed;
