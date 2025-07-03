@@ -10,6 +10,10 @@ export const patternOptions = [
   { value: 9, label: "Halftone (experimental)" },
   { value: 10, label: "Random threshold (experimental)" },
   { value: 11, label: "Dot diffusion (simple, experimental)" },
+  { value: 12, label: "Sierra Lite" },
+  { value: 13, label: "Two-Row Sierra" },
+  { value: 14, label: "Stevenson-Arce" },
+  { value: 15, label: "Threshold (binary)" },
 ];
 
 const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number, threshold: number = 128) => {
@@ -249,6 +253,50 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
         out[pxIndex + 3] = 255;
       }
+    }
+    return new ImageData(out, width, height);
+  }
+
+  // Sierra Lite
+  if (pattern === 12) {
+    // Matrix: [0, 0, 2], [1, 1, 0] / 4
+    const matrix = [
+      [0, 0, 2],
+      [1, 1, 0],
+    ];
+    return errorDiffusion(matrix, 4, true);
+  }
+
+  // Two-Row Sierra
+  if (pattern === 13) {
+    // Matrix: [0, 0, 0, 4, 3], [1, 2, 3, 2, 1] / 16
+    const matrix = [
+      [0, 0, 0, 4, 3],
+      [1, 2, 3, 2, 1],
+    ];
+    return errorDiffusion(matrix, 16, true);
+  }
+
+  // Stevenson-Arce
+  if (pattern === 14) {
+    // Matrix: [0,0,0,0,0,32,0,0,0,0,0],
+    //         [12,0,26,0,30,0,30,0,26,0,12],
+    //         [0,12,0,26,0,12,0,26,0,12,0] / 200
+    const matrix = [
+      [0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0],
+      [12, 0, 26, 0, 30, 0, 30, 0, 26, 0, 12],
+      [0, 12, 0, 26, 0, 12, 0, 26, 0, 12, 0],
+    ];
+    return errorDiffusion(matrix, 200, false);
+  }
+
+  // Simple Threshold (binary)
+  if (pattern === 15) {
+    const out = new Uint8ClampedArray(data);
+    for (let i = 0; i < out.length; i += 4) {
+      const value = out[i] < threshold ? 0 : 255;
+      out[i] = out[i + 1] = out[i + 2] = value;
+      out[i + 3] = 255;
     }
     return new ImageData(out, width, height);
   }
