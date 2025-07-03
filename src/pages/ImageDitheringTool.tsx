@@ -1,11 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import ImageUploader from "../components/ImageUploader";
-import PatternDrawer, { patternOptions } from "../components/PatternDrawer";
+import PatternDrawer from "../components/PatternDrawer";
 import { Link } from "react-router-dom";
 import { PiFilePngFill } from "react-icons/pi";
 import { VscDebugRestart } from "react-icons/vsc";
 import { FaFileImage } from "react-icons/fa";
 import { Helmet } from "react-helmet-async";
+
+const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -14,6 +16,8 @@ const ImageDitheringTool: React.FC = () => {
   const [previewResolution, setPreviewResolution] = useState<number>(350);
   const [hasAppliedDithering, setHasAppliedDithering] = useState<boolean>(false);
   const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg">("png");
+  const [invert, setInvert] = useState(false);
+  const [serpentine, setSerpentine] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalDimensions = useRef({ width: 0, height: 0 });
   const thresholdDisabled = pattern === 2 || pattern === 8;
@@ -23,7 +27,7 @@ const ImageDitheringTool: React.FC = () => {
     if (image) {
       applyDitheringEffect();
     }
-  }, [image, pattern, threshold, previewResolution]);
+  }, [image, pattern, threshold, previewResolution, invert, serpentine]);
 
   const applyDitheringEffect = () => {
     const canvas = canvasRef.current;
@@ -70,7 +74,8 @@ const ImageDitheringTool: React.FC = () => {
           }
 
           // Apply selected pattern (PatternDrawer handles all except 1)
-          const patternData = PatternDrawer(data, displayWidth, displayHeight, pattern, threshold);
+          let patternData = PatternDrawer(data, displayWidth, displayHeight, pattern, threshold, { invert, serpentine: isErrorDiffusion(pattern) ? serpentine : false });
+
           ctx.putImageData(patternData, 0, 0);
 
           setHasAppliedDithering(true);
@@ -141,7 +146,7 @@ const ImageDitheringTool: React.FC = () => {
           <div className="flex w-full flex-col items-center justify-center px-2 py-8 md:w-1/2 md:py-0">
             <div className="flex w-full flex-col items-center gap-4">
               <img src={image} alt="Preview of uploaded" className="h-auto w-40 rounded shadow-lg" />
-              <section className="flex w-full flex-col gap-3 rounded border border-neutral-800 bg-neutral-900/60 p-4" aria-label="Dithering controls">
+              <section className="flex w-full flex-col gap-4 rounded border border-neutral-800 bg-neutral-900/60 p-4" aria-label="Dithering controls">
                 <div className="flex flex-col gap-2">
                   <label htmlFor="pattern-select" className="font-mono text-xs">
                     Pattern
@@ -170,6 +175,9 @@ const ImageDitheringTool: React.FC = () => {
                     </optgroup>
                   </select>
                 </div>
+
+                <hr />
+
                 <div className="flex flex-col gap-2">
                   <label htmlFor="threshold-input" className="flex items-center gap-2 font-mono text-xs">
                     Threshold
@@ -183,6 +191,29 @@ const ImageDitheringTool: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <label htmlFor="invert-output" className="flex items-center gap-2 font-mono text-xs">
+                      Invert Output
+                    </label>
+                    <span className="text-xs italic text-gray-400">White becomes black, black becomes white</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input id="invert-output" type="checkbox" checked={invert} onChange={(e) => setInvert(e.target.checked)} className="accent-blue-800" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <label htmlFor="serpentine-scan" className="flex items-center gap-2 font-mono text-xs">
+                      Serpentine Scanning
+                      {!isErrorDiffusion(pattern) && <span className="rounded bg-neutral-700 px-2 py-0.5 text-xs text-gray-300">Only for error diffusion patterns</span>}
+                    </label>
+                    {isErrorDiffusion(pattern) && <span className="text-xs italic text-gray-400">Alternates scan direction for each row</span>}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input id="serpentine-scan" type="checkbox" checked={serpentine} onChange={(e) => setSerpentine(e.target.checked)} className={`accent-blue-800 ${!isErrorDiffusion(pattern) ? "cursor-not-allowed" : ""}`} disabled={!isErrorDiffusion(pattern)} />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
                   <label htmlFor="preview-resolution" className="font-mono text-xs">
                     Resolution (px)
                   </label>
@@ -193,12 +224,14 @@ const ImageDitheringTool: React.FC = () => {
                     <span>2048</span>
                   </div>
                 </div>
+
+                <hr />
+
                 <div className="flex items-end gap-2 pt-2">
                   <button className="rounded border border-red-600 px-3 py-2 font-mono text-gray-950 duration-100 hover:bg-red-400" onClick={resetSettings} title="Reset">
                     <VscDebugRestart className="text-xl text-red-600" />
                   </button>
                   <button className={`flex items-center gap-1 rounded border bg-blue-800 px-4 py-1.5 font-mono text-gray-50 duration-100 ${!hasAppliedDithering ? "cursor-not-allowed opacity-70" : "hover:bg-blue-600"}`} onClick={downloadImage} disabled={!hasAppliedDithering} title="Download">
-                    {downloadFormat === "png" ? <PiFilePngFill className="md:text-xl" /> : <FaFileImage className="md:text-xl" />}
                     <span>Save as {downloadFormat.toUpperCase()}</span>
                   </button>
                   <div className="relative">

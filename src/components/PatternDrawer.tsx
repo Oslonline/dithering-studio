@@ -20,18 +20,19 @@ export const patternOptions = [
   { value: 11, label: "Dot diffusion (simple, experimental)" },
 ];
 
-const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number, threshold: number = 128) => {
+const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number, threshold: number = 128, options?: { invert?: boolean; serpentine?: boolean }) => {
   // For Floyd-Steinberg, the main algorithm is handled outside.
   if (pattern === 1) {
     return new ImageData(data, width, height);
   }
 
   // Helper for error diffusion
-  const errorDiffusion = (matrix: number[][], divisor: number, serpentine = false) => {
+  const errorDiffusion = (matrix: number[][], divisor: number, serpentineDefault = false) => {
     const out = new Uint8ClampedArray(data);
+    const useSerpentine = options?.serpentine ?? serpentineDefault;
     for (let y = 0; y < height; y++) {
       const yOffset = y * width * 4;
-      const leftToRight = !serpentine || y % 2 === 0;
+      const leftToRight = !useSerpentine || y % 2 === 0;
       for (let x = leftToRight ? 0 : width - 1; leftToRight ? x < width : x >= 0; leftToRight ? x++ : x--) {
         const pxIndex = yOffset + x * 4;
         const oldPixel = out[pxIndex];
@@ -51,6 +52,14 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
             }
           }
         }
+      }
+    }
+    // Invert if needed
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
       }
     }
     return new ImageData(out, width, height);
@@ -75,6 +84,13 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         const value = brightness < t ? 0 : 255;
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
         out[pxIndex + 3] = 255;
+      }
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
       }
     }
     return new ImageData(out, width, height);
@@ -182,6 +198,13 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         const value = brightness < t ? 0 : 255;
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
         out[pxIndex + 3] = 255;
+      }
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
       }
     }
     return new ImageData(out, width, height);
@@ -302,11 +325,26 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
       out[i] = out[i + 1] = out[i + 2] = value;
       out[i + 3] = 255;
     }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
+      }
+    }
     return new ImageData(out, width, height);
   }
 
   // fallback: just return as is
-  return new ImageData(data, width, height);
+  let result = new ImageData(data, width, height);
+  if (options?.invert) {
+    for (let i = 0; i < result.data.length; i += 4) {
+      result.data[i] = 255 - result.data[i];
+      result.data[i + 1] = 255 - result.data[i + 1];
+      result.data[i + 2] = 255 - result.data[i + 2];
+    }
+  }
+  return result;
 };
 
 export default PatternDrawer;
