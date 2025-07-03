@@ -1,19 +1,23 @@
 export const patternOptions = [
+  // Error diffusion (most popular first)
   { value: 1, label: "Floyd-Steinberg (classic)" },
-  { value: 2, label: "Bayer 4x4 (ordered)" },
   { value: 3, label: "Atkinson" },
   { value: 4, label: "Burkes" },
   { value: 5, label: "Stucki" },
   { value: 6, label: "Sierra" },
-  { value: 7, label: "Jarvis-Judice-Ninke" },
-  { value: 8, label: "Bayer 8x8 (ordered)" },
-  { value: 9, label: "Halftone (experimental)" },
-  { value: 10, label: "Random threshold (experimental)" },
-  { value: 11, label: "Dot diffusion (simple, experimental)" },
   { value: 12, label: "Sierra Lite" },
   { value: 13, label: "Two-Row Sierra" },
   { value: 14, label: "Stevenson-Arce" },
+  { value: 7, label: "Jarvis-Judice-Ninke" },
+  // Ordered dithering
+  { value: 2, label: "Bayer 4x4 (ordered)" },
+  { value: 8, label: "Bayer 8x8 (ordered)" },
+  // Simple threshold
   { value: 15, label: "Threshold (binary)" },
+  // Experimental/other
+  { value: 9, label: "Halftone (experimental)" },
+  { value: 10, label: "Random threshold (experimental)" },
+  { value: 11, label: "Dot diffusion (simple, experimental)" },
 ];
 
 const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number, threshold: number = 128) => {
