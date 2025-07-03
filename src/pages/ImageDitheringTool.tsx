@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { PiFilePngFill } from "react-icons/pi";
 import { VscDebugRestart } from "react-icons/vsc";
 import { FaFileImage } from "react-icons/fa";
+import { Helmet } from "react-helmet-async";
 
 const ImageDitheringTool: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -111,80 +112,97 @@ const ImageDitheringTool: React.FC = () => {
   };
 
   return (
-    <div id="tool" className="flex min-h-screen w-full flex-col items-center justify-center bg-neutral-950 text-gray-100 md:flex-row">
-      <Link className="fixed left-4 top-4 font-mono underline md:text-lg lg:left-6 lg:top-6" to="/">
-        Home
-      </Link>
-      {!image && (
-        <div className="flex w-full flex-1 items-center justify-center">
-          <ImageUploader setImage={handleImageChange} />
-        </div>
-      )}
-      {image && (
-        <div className="flex w-full flex-col items-center justify-center px-2 py-8 md:w-1/2 md:py-0">
-          <div className="flex w-full flex-col items-center gap-4">
-            <img src={image} alt="Preview" className="h-auto w-40 rounded shadow-lg" />
-            <div className="flex w-full flex-col gap-3 rounded border border-neutral-800 bg-neutral-900/60 p-4">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="pattern-select" className="font-mono text-xs">
-                  Pattern
-                </label>
-                <select id="pattern-select" className="rounded px-2 py-1 text-gray-950 hover:cursor-pointer" onChange={(e) => setPattern(Number(e.target.value))} value={pattern}>
-                  {patternOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="threshold-input" className="flex items-center gap-2 font-mono text-xs">
-                  Threshold
-                  {thresholdDisabled && <span className="rounded bg-neutral-700 px-2 py-0.5 text-xs text-gray-300">Disabled for this pattern</span>}
-                </label>
-                <input className={`w-full accent-blue-800 ${thresholdDisabled ? "cursor-not-allowed opacity-50" : ""}`} id="threshold-input" onChange={(e) => setThreshold(Number(e.target.value))} value={threshold} type="range" min={0} max={255} step={1} disabled={thresholdDisabled} />
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>0</span>
-                  <span>{threshold}</span>
-                  <span>255</span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="preview-resolution" className="font-mono text-xs">
-                  Resolution (px)
-                </label>
-                <input className="w-full accent-blue-800" id="preview-resolution" type="range" min={32} max={2048} step={1} value={previewResolution} onChange={(e) => setPreviewResolution(Number(e.target.value))} />
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>32</span>
-                  <span>{previewResolution}</span>
-                  <span>2048</span>
-                </div>
-              </div>
-              <div className="flex items-end gap-2 pt-2">
-                <button className="rounded border border-red-600 px-3 py-2 font-mono text-gray-950 duration-100 hover:bg-red-400" onClick={resetSettings} title="Reset">
-                  <VscDebugRestart className="text-xl text-red-600" />
-                </button>
-                <button className={`flex items-center gap-1 rounded border bg-blue-800 px-4 py-1.5 font-mono text-gray-50 duration-100 ${!hasAppliedDithering ? "cursor-not-allowed opacity-70" : "hover:bg-blue-600"}`} onClick={downloadImage} disabled={!hasAppliedDithering} title="Download">
-                  {downloadFormat === "png" ? <PiFilePngFill className="md:text-xl" /> : <FaFileImage className="md:text-xl" />}
-                  <span>Save as {downloadFormat.toUpperCase()}</span>
-                </button>
-                <div className="relative">
-                  <select className="rounded border border-gray-300 px-1 py-0.5 text-sm text-gray-950 hover:cursor-pointer focus:outline-none" value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value as "png" | "jpeg")} title="Download format">
-                    <option value="png">PNG</option>
-                    <option value="jpeg">JPEG</option>
+    <>
+      <Helmet>
+        <title>Image Dithering Tool | Floyd Steinberg & Custom Patterns</title>
+        <meta name="description" content="Apply dithering effects to your images using Floyd Steinberg algorithm, custom patterns and other popular algorithms. Download your dithered images instantly, no upload required." />
+        <meta property="og:title" content="Image Dithering Tool" />
+        <meta property="og:description" content="Apply dithering effects to your images using Floyd Steinberg algorithm, custom patterns and other popular algorithms. Download your dithered images instantly." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://yourdomain.com/Dithering" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Image Dithering Tool" />
+        <meta name="twitter:description" content="Apply dithering effects to your images using Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
+        <link rel="canonical" href="https://yourdomain.com/Dithering" />
+      </Helmet>
+      <div id="tool" className="flex min-h-screen w-full flex-col items-center justify-center bg-neutral-950 text-gray-100 md:flex-row">
+        <Link className="fixed left-4 top-4 font-mono underline md:text-lg lg:left-6 lg:top-6" to="/">
+          Home
+        </Link>
+        {!image && (
+          <div className="flex w-full flex-1 items-center justify-center">
+            <main>
+              <h1 className="sr-only">Image Dithering Tool</h1>
+              <ImageUploader setImage={handleImageChange} />
+            </main>
+          </div>
+        )}
+        {image && (
+          <div className="flex w-full flex-col items-center justify-center px-2 py-8 md:w-1/2 md:py-0">
+            <div className="flex w-full flex-col items-center gap-4">
+              <img src={image} alt="Preview of uploaded" className="h-auto w-40 rounded shadow-lg" />
+              <section className="flex w-full flex-col gap-3 rounded border border-neutral-800 bg-neutral-900/60 p-4" aria-label="Dithering controls">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="pattern-select" className="font-mono text-xs">
+                    Pattern
+                  </label>
+                  <select id="pattern-select" className="rounded px-2 py-1 text-gray-950 hover:cursor-pointer" onChange={(e) => setPattern(Number(e.target.value))} value={pattern}>
+                    {patternOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
-              </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="threshold-input" className="flex items-center gap-2 font-mono text-xs">
+                    Threshold
+                    {thresholdDisabled && <span className="rounded bg-neutral-700 px-2 py-0.5 text-xs text-gray-300">Disabled for this pattern</span>}
+                  </label>
+                  <input className={`w-full accent-blue-800 ${thresholdDisabled ? "cursor-not-allowed opacity-50" : ""}`} id="threshold-input" onChange={(e) => setThreshold(Number(e.target.value))} value={threshold} type="range" min={0} max={255} step={1} disabled={thresholdDisabled} />
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>0</span>
+                    <span>{threshold}</span>
+                    <span>255</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="preview-resolution" className="font-mono text-xs">
+                    Resolution (px)
+                  </label>
+                  <input className="w-full accent-blue-800" id="preview-resolution" type="range" min={32} max={2048} step={1} value={previewResolution} onChange={(e) => setPreviewResolution(Number(e.target.value))} />
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>32</span>
+                    <span>{previewResolution}</span>
+                    <span>2048</span>
+                  </div>
+                </div>
+                <div className="flex items-end gap-2 pt-2">
+                  <button className="rounded border border-red-600 px-3 py-2 font-mono text-gray-950 duration-100 hover:bg-red-400" onClick={resetSettings} title="Reset">
+                    <VscDebugRestart className="text-xl text-red-600" />
+                  </button>
+                  <button className={`flex items-center gap-1 rounded border bg-blue-800 px-4 py-1.5 font-mono text-gray-50 duration-100 ${!hasAppliedDithering ? "cursor-not-allowed opacity-70" : "hover:bg-blue-600"}`} onClick={downloadImage} disabled={!hasAppliedDithering} title="Download">
+                    {downloadFormat === "png" ? <PiFilePngFill className="md:text-xl" /> : <FaFileImage className="md:text-xl" />}
+                    <span>Save as {downloadFormat.toUpperCase()}</span>
+                  </button>
+                  <div className="relative">
+                    <select className="rounded border border-gray-300 px-1 py-0.5 text-sm text-gray-950 hover:cursor-pointer focus:outline-none" value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value as "png" | "jpeg")} title="Download format">
+                      <option value="png">PNG</option>
+                      <option value="jpeg">JPEG</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
-        </div>
-      )}
-      {image && (
-        <div className="flex w-full flex-1 items-center justify-center p-2 md:w-1/2">
-          <canvas ref={canvasRef} className="canvas max-h-[80vh] w-full rounded border border-neutral-800 bg-neutral-900 object-contain shadow-lg md:w-auto md:max-w-full" />
-        </div>
-      )}
-    </div>
+        )}
+        {image && (
+          <div className="flex w-full flex-1 items-center justify-center p-2 md:w-1/2">
+            <canvas ref={canvasRef} className="canvas max-h-[80vh] w-full rounded border border-neutral-800 bg-neutral-900 object-contain shadow-lg md:w-auto md:max-w-full" aria-label="Dithered image preview" />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
