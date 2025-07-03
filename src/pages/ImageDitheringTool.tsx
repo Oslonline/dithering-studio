@@ -2,9 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import ImageUploader from "../components/ImageUploader";
 import PatternDrawer from "../components/PatternDrawer";
 import { Link } from "react-router-dom";
-import { PiFilePngFill } from "react-icons/pi";
 import { VscDebugRestart } from "react-icons/vsc";
-import { FaFileImage } from "react-icons/fa";
 import { Helmet } from "react-helmet-async";
 
 const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14].includes(p);
