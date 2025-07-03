@@ -147,11 +147,27 @@ const ImageDitheringTool: React.FC = () => {
                     Pattern
                   </label>
                   <select id="pattern-select" className="rounded px-2 py-1 text-gray-950 hover:cursor-pointer" onChange={(e) => setPattern(Number(e.target.value))} value={pattern}>
-                    {patternOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
+                    <optgroup label="-- Error Diffusion --">
+                      <option value={1}>Floyd-Steinberg (classic)</option>
+                      <option value={3}>Atkinson</option>
+                      <option value={4}>Burkes</option>
+                      <option value={5}>Stucki</option>
+                      <option value={6}>Sierra</option>
+                      <option value={12}>Sierra Lite</option>
+                      <option value={13}>Two-Row Sierra</option>
+                      <option value={14}>Stevenson-Arce</option>
+                      <option value={7}>Jarvis-Judice-Ninke</option>
+                    </optgroup>
+                    <optgroup label="-- Ordered Dithering --">
+                      <option value={2}>Bayer 4x4 (ordered)</option>
+                      <option value={8}>Bayer 8x8 (ordered)</option>
+                    </optgroup>
+                    <optgroup label="-- Other / Experimental --">
+                      <option value={15}>Threshold (binary)</option>
+                      <option value={9}>Halftone (experimental)</option>
+                      <option value={10}>Random threshold (experimental)</option>
+                      <option value={11}>Dot diffusion (simple, experimental)</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div className="flex flex-col gap-2">
