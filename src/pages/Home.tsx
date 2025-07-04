@@ -28,6 +28,12 @@ const Home: React.FC = () => {
           Start dithering
         </Link>
       </div>
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center p-4 text-xs text-gray-400">
+        <p>By Oslo418 -&nbsp;</p>
+        <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com">
+          Portfolio
+        </a>
+      </div>
     </>
   );
 };
