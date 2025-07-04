@@ -51,21 +51,33 @@ const ImageDitheringTool: React.FC = () => {
 
           // Only apply Floyd-Steinberg if pattern 1
           if (pattern === 1) {
+            const serp = serpentine;
             for (let y = 0; y < displayHeight; y++) {
-              for (let x = 0; x < displayWidth; x++) {
+              const leftToRight = !serp || y % 2 === 0;
+              for (let x = leftToRight ? 0 : displayWidth - 1; leftToRight ? x < displayWidth : x >= 0; leftToRight ? x++ : x--) {
                 const pxIndex = (y * displayWidth + x) * 4;
                 const brightness = (data[pxIndex] + data[pxIndex + 1] + data[pxIndex + 2]) / 3;
-                const newColor = brightness < threshold ? 0 : 255;
-                const error = brightness - newColor;
+                let newColor = brightness < threshold ? 0 : 255;
+                if (invert) newColor = 255 - newColor;
+                const error = brightness - (invert ? 255 - newColor : newColor);
                 data[pxIndex] = newColor;
                 data[pxIndex + 1] = newColor;
                 data[pxIndex + 2] = newColor;
                 // Floyd-Steinberg error diffusion
-                if (x < displayWidth - 1) data[pxIndex + 4] += (error * 7) / 16;
-                if (y < displayHeight - 1) {
-                  if (x > 0) data[pxIndex + displayWidth * 4 - 4] += (error * 3) / 16;
-                  data[pxIndex + displayWidth * 4] += (error * 5) / 16;
-                  if (x < displayWidth - 1) data[pxIndex + displayWidth * 4 + 4] += (error * 1) / 16;
+                if (leftToRight) {
+                  if (x < displayWidth - 1) data[pxIndex + 4] += (error * 7) / 16;
+                  if (y < displayHeight - 1) {
+                    if (x > 0) data[pxIndex + displayWidth * 4 - 4] += (error * 3) / 16;
+                    data[pxIndex + displayWidth * 4] += (error * 5) / 16;
+                    if (x < displayWidth - 1) data[pxIndex + displayWidth * 4 + 4] += (error * 1) / 16;
+                  }
+                } else {
+                  if (x > 0) data[pxIndex - 4] += (error * 7) / 16;
+                  if (y < displayHeight - 1) {
+                    if (x < displayWidth - 1) data[pxIndex + displayWidth * 4 + 4] += (error * 3) / 16;
+                    data[pxIndex + displayWidth * 4] += (error * 5) / 16;
+                    if (x > 0) data[pxIndex + displayWidth * 4 - 4] += (error * 1) / 16;
+                  }
                 }
               }
             }
