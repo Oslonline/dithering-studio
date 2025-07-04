@@ -245,7 +245,7 @@ const ImageDitheringTool: React.FC = () => {
         )}
         {image && (
           <div className="flex w-full flex-1 items-center justify-center p-2 md:w-1/2">
-            <canvas ref={canvasRef} className="canvas max-h-[80vh] w-full rounded border border-neutral-800 bg-neutral-900 object-contain shadow-lg md:w-auto md:max-w-full" aria-label="Dithered image preview" />
+            <canvas ref={canvasRef} className="canvas h-auto max-h-[80vh] w-full object-contain shadow-lg md:min-h-[80vh] md:w-auto md:max-w-full" aria-label="Dithered image preview" />
           </div>
         )}
       </div>
