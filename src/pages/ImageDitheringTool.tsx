@@ -74,7 +74,7 @@ const ImageDitheringTool: React.FC = () => {
           </header>
           <div className="flex-1 overflow-y-auto px-4 pb-6">
             {!image && (
-              <div className="min-panel space-y-3 p-4">
+              <div className="relative min-panel space-y-3 p-4">
                 <h2 className="font-anton text-xl leading-tight">Dithering Studio</h2>
                 <p className="text-[11px] leading-relaxed text-gray-400">Drop or select an image in the main area to begin. Your picture never leaves this window.</p>
                 <ul className="ml-4 list-disc space-y-1 text-[10px] text-gray-500">
@@ -83,6 +83,7 @@ const ImageDitheringTool: React.FC = () => {
                   <li>Invert or enable serpentine scanning.</li>
                   <li>Download instantly as PNG or JPEG.</li>
                 </ul>
+                <Link to="/Algorithms" className="clean-btn mt-2 w-full text-[11px] text-center">Explore Algorithms</Link>
               </div>
             )}
             {image && (
@@ -250,7 +251,7 @@ const ImageDitheringTool: React.FC = () => {
                   </div>
                   <p className="text-[10px] text-gray-500">Pixel width used for processing & download.</p>
                 </div>
-                <div className="flex items-stretch gap-2">
+        <div className="flex items-stretch gap-2">
                   <button className="clean-btn flex items-center gap-1 border-dashed px-2 text-[11px] opacity-70 transition hover:opacity-100" onClick={resetAll} title="Reset all settings" style={{ flex: "0 0 auto" }}>
                     ↺
                   </button>
@@ -269,6 +270,7 @@ const ImageDitheringTool: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                <Link to="/Algorithms" className="clean-btn w-full text-[11px] text-center">Explore Algorithms</Link>
               </div>
             )}
           </div>

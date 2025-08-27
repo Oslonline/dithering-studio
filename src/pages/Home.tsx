@@ -25,9 +25,10 @@ const Home: React.FC = () => {
           <p className="mx-auto max-w-xl px-2 text-[11px] leading-snug text-gray-400 md:text-xs">100% client‑side. Tune threshold, resolution, invert & serpentine scan. Download instantly as PNG or JPEG.</p>
         </header>
         <InfiniteImageScroll />
-        <Link className="clean-btn clean-btn-primary relative !px-8 !py-4 !text-[14px] after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-white/5 after:ring-inset hover:shadow-xl focus-visible:shadow-[var(--shadow-focus)]" to="/Dithering">
-          Start Dithering
-        </Link>
+          <div className="mt-6 flex flex-wrap gap-3 text-[11px]">
+            <Link to="/Dithering" className="clean-btn clean-btn-primary">Open Dithering Tool</Link>
+            <Link to="/Algorithms" className="clean-btn">Explore Algorithms</Link>
+          </div>
       </div>
       <div className="absolute right-0 bottom-0 left-0 flex items-center justify-center p-4 text-xs text-gray-400">
         <p>By&nbsp;</p>
