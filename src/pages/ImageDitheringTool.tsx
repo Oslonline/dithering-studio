@@ -285,27 +285,13 @@ const ImageDitheringTool: React.FC = () => {
             </div>
           )}
           {image && (
-            <div className="flex h-full w-full items-center justify-center">
-              <div
-                className="canvas-frame flex items-center justify-center bg-black"
-                style={{
-                  width: 'min(100%, 960px)',
-                  height: 'min(85vh, 640px)',
-                  overflow: 'hidden',
-                }}
-              >
+            <div className="flex h-full w-full items-center justify-center overflow-auto">
+              <div className="canvas-frame flex items-center justify-center p-2" style={{ background: 'transparent', border: 'none' }}>
                 <canvas
                   ref={canvasRef}
                   className={`pixelated ${canvasUpdatedFlag ? 'updated' : ''}`}
                   aria-label="Dithered image preview"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    display: 'block'
-                  }}
+                  style={{ display:'block' }}
                 />
               </div>
             </div>

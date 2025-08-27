@@ -179,10 +179,7 @@ html, body {
   image-rendering: crisp-edges;
 }
 
-.canvas-frame {
-  border:1px solid var(--c-border);
 
-}
 /* Removed highlight flash to avoid perceived brightness flicker */
 .canvas-frame.updated { box-shadow:none; }
 

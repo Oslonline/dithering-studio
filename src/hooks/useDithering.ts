@@ -23,6 +23,14 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const baseImageRef = useRef<HTMLImageElement | null>(null);
   const renderTokenRef = useRef(0);
   const [renderBump, setRenderBump] = useState(0);
+  const [layoutTick, setLayoutTick] = useState(0);
+
+  // Resize listener to adapt displayed canvas size to viewport
+  useEffect(() => {
+    const onResize = () => setLayoutTick((v) => v + 1);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   useEffect(() => {
     if (!image) {
       baseImageRef.current = null;
@@ -58,8 +66,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
 
     const token = ++renderTokenRef.current;
 
-    const width = Math.min(Math.max(16, workingResolution), img.width);
-    const height = Math.round((width / img.width) * img.height);
+  const width = Math.min(Math.max(16, workingResolution), img.width);
+  const height = Math.round((width / img.width) * img.height);
 
     if (procCanvas.width !== width || procCanvas.height !== height) {
       procCanvas.width = width;
@@ -90,13 +98,30 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     displayCtx.putImageData(out, 0, 0);
     displayCanvas.classList.add("pixelated");
 
+    // Responsive display sizing independent of internal resolution
+    const ow = originalDimensions.current.width || width;
+    const oh = originalDimensions.current.height || height;
+    if (ow && oh) {
+      const aside = document.querySelector('aside');
+      const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const maxW = Math.min(viewportW - sidebarWidth - 40, 1280); // padding allowance
+      const maxH = viewportH - 140; // leave room for header/margins
+      let dispW = Math.min(maxW, maxH * (ow / oh));
+      if (dispW < 120) dispW = 120; // guard tiny
+      const dispH = dispW * (oh / ow);
+      displayCanvas.style.width = dispW + 'px';
+      displayCanvas.style.height = dispH + 'px';
+    }
+
     procCtx.putImageData(out, 0, 0);
 
     setHasApplied(true);
     setCanvasUpdatedFlag(true);
     const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
     return () => clearTimeout(t);
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId]);
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;
