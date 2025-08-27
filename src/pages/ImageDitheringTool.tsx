@@ -1,169 +1,97 @@
-import { useRef, useState, useEffect } from "react";
-import ImageUploader from "../components/ImageUploader";
-import PatternDrawer from "../components/PatternDrawer";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { VscDebugRestart } from "react-icons/vsc";
 import { Helmet } from "react-helmet-async";
+import ImageUploader from "../components/ImageUploader";
+import { patternMeta } from "../components/PatternDrawer";
+import useDithering from "../hooks/useDithering";
 
 const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
+  // UI state
   const [image, setImage] = useState<string | null>(null);
   const [pattern, setPattern] = useState<number>(1);
   const [threshold, setThreshold] = useState<number>(128);
-  const [previewResolution, setPreviewResolution] = useState<number>(350);
-  const [hasAppliedDithering, setHasAppliedDithering] = useState<boolean>(false);
+  const [workingResolution, setWorkingResolution] = useState<number>(512);
+  const [workingResInput, setWorkingResInput] = useState<string>("512");
   const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg">("png");
   const [invert, setInvert] = useState(false);
   const [serpentine, setSerpentine] = useState(true);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const originalDimensions = useRef({ width: 0, height: 0 });
+  const [showThresholdBubble, setShowThresholdBubble] = useState(false);
   const thresholdDisabled = pattern === 2 || pattern === 8;
 
-  // Apply dithering automatically on change
-  useEffect(() => {
-    if (image) {
-      applyDitheringEffect();
-    }
-  }, [image, pattern, threshold, previewResolution, invert, serpentine]);
+  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, resetCanvas } = useDithering({
+    image,
+    pattern,
+    threshold,
+    workingResolution,
+    invert,
+    serpentine,
+    isErrorDiffusion: isErrorDiffusion(pattern),
+  });
 
-  const applyDitheringEffect = () => {
-    const canvas = canvasRef.current;
-    if (canvas && image) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        const img = new window.Image();
-        img.src = image;
-        img.onload = () => {
-          originalDimensions.current.width = img.width;
-          originalDimensions.current.height = img.height;
+  const handleImageChange = (img: string | null) => setImage(img);
 
-          const aspectRatio = img.width / img.height;
-          const displayWidth = Math.min(previewResolution, img.width);
-          const displayHeight = displayWidth / aspectRatio;
-          canvas.width = displayWidth;
-          canvas.height = displayHeight;
-
-          ctx.drawImage(img, 0, 0, displayWidth, displayHeight);
-
-          const imageData = ctx.getImageData(0, 0, displayWidth, displayHeight);
-          const data = imageData.data;
-
-          // Only apply Floyd-Steinberg if pattern 1
-          if (pattern === 1) {
-            const serp = serpentine;
-            for (let y = 0; y < displayHeight; y++) {
-              const leftToRight = !serp || y % 2 === 0;
-              for (let x = leftToRight ? 0 : displayWidth - 1; leftToRight ? x < displayWidth : x >= 0; leftToRight ? x++ : x--) {
-                const pxIndex = (y * displayWidth + x) * 4;
-                const brightness = (data[pxIndex] + data[pxIndex + 1] + data[pxIndex + 2]) / 3;
-                let newColor = brightness < threshold ? 0 : 255;
-                if (invert) newColor = 255 - newColor;
-                const error = brightness - (invert ? 255 - newColor : newColor);
-                data[pxIndex] = newColor;
-                data[pxIndex + 1] = newColor;
-                data[pxIndex + 2] = newColor;
-                // Floyd-Steinberg error diffusion
-                if (leftToRight) {
-                  if (x < displayWidth - 1) data[pxIndex + 4] += (error * 7) / 16;
-                  if (y < displayHeight - 1) {
-                    if (x > 0) data[pxIndex + displayWidth * 4 - 4] += (error * 3) / 16;
-                    data[pxIndex + displayWidth * 4] += (error * 5) / 16;
-                    if (x < displayWidth - 1) data[pxIndex + displayWidth * 4 + 4] += (error * 1) / 16;
-                  }
-                } else {
-                  if (x > 0) data[pxIndex - 4] += (error * 7) / 16;
-                  if (y < displayHeight - 1) {
-                    if (x < displayWidth - 1) data[pxIndex + displayWidth * 4 + 4] += (error * 3) / 16;
-                    data[pxIndex + displayWidth * 4] += (error * 5) / 16;
-                    if (x > 0) data[pxIndex + displayWidth * 4 - 4] += (error * 1) / 16;
-                  }
-                }
-              }
-            }
-          }
-
-          // Apply selected pattern (PatternDrawer handles all except 1)
-          let patternData = PatternDrawer(data, displayWidth, displayHeight, pattern, threshold, { invert, serpentine: isErrorDiffusion(pattern) ? serpentine : false });
-
-          ctx.putImageData(patternData, 0, 0);
-
-          setHasAppliedDithering(true);
-        };
-        img.onerror = (err) => {
-          setHasAppliedDithering(false);
-          console.error("Error loading image", err);
-        };
-      }
-    }
-  };
-
-  const downloadImage = () => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const link = document.createElement("a");
-      link.download = `dithering-effect.${downloadFormat}`;
-      link.href = canvas.toDataURL(`image/${downloadFormat}`);
-      link.click();
-    }
-  };
-
-  const handleImageChange = (image: string | null) => {
-    setImage(image);
-    setHasAppliedDithering(false);
-  };
-
-  const resetSettings = () => {
+  const resetAll = () => {
     setImage(null);
     setPattern(1);
     setThreshold(128);
-    setPreviewResolution(350);
-    setHasAppliedDithering(false);
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    setWorkingResolution(512);
+    setWorkingResInput("512");
+    setInvert(false);
+    setSerpentine(true);
+    resetCanvas();
+  };
+
+  const downloadImage = () => {
+    const canvas = processedCanvasRef.current || canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement("a");
+    link.download = `dithering-effect.${downloadFormat}`;
+    link.href = canvas.toDataURL(`image/${downloadFormat}`);
+    link.click();
   };
 
   return (
     <>
       <Helmet>
-        <title>Image Dithering Tool | Floyd Steinberg & Custom Patterns</title>
-        <meta name="description" content="Apply dithering effects to your images using Floyd Steinberg algorithm, custom patterns and other popular algorithms. Download your dithered images instantly, no upload required." />
-        <meta property="og:title" content="Image Dithering Tool" />
-        <meta property="og:description" content="Apply dithering effects to your images using Floyd Steinberg algorithm, custom patterns and other popular algorithms. Download your dithered images instantly." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://yourdomain.com/Dithering" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Image Dithering Tool" />
-        <meta name="twitter:description" content="Apply dithering effects to your images using Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
+        <title>Image Dithering Tool | Multi Algorithm (Floyd–Steinberg, Bayer, Sierra)</title>
+        <meta name="description" content="Client-side image dithering: Floyd–Steinberg, Atkinson, Stucki, Sierra family, Jarvis, Bayer ordered, halftone & more." />
         <link rel="canonical" href="https://yourdomain.com/Dithering" />
       </Helmet>
-      <div id="tool" className="flex min-h-screen w-full flex-col items-center justify-center bg-neutral-950 text-gray-100 md:flex-row">
-        <Link className="fixed left-4 top-4 font-mono underline md:text-lg lg:left-6 lg:top-6" to="/">
-          Home
-        </Link>
-        {!image && (
-          <div className="flex w-full flex-1 items-center justify-center">
-            <main>
-              <h1 className="sr-only">Image Dithering Tool</h1>
-              <ImageUploader setImage={handleImageChange} />
-            </main>
-          </div>
-        )}
-        {image && (
-          <div className="flex w-full flex-col items-center justify-center px-2 py-8 md:w-1/2 md:py-0">
-            <div className="flex w-full flex-col items-center gap-4">
-              <img src={image} alt="Preview of uploaded" className="h-auto w-40 rounded shadow-lg" />
-              <section className="flex w-full flex-col gap-4 rounded border border-neutral-800 bg-neutral-900/60 p-4" aria-label="Dithering controls">
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="pattern-select" className="font-mono text-xs">
-                    Pattern
-                  </label>
-                  <select id="pattern-select" className="rounded px-2 py-1 text-gray-950 hover:cursor-pointer" onChange={(e) => setPattern(Number(e.target.value))} value={pattern}>
-                    <optgroup label="-- Error Diffusion --">
-                      <option value={1}>Floyd-Steinberg (classic)</option>
+      <div id="tool" className="flex min-h-screen w-full flex-col md:flex-row">
+        <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r">
+          <header className="flex items-center justify-between px-4 pb-3 pt-4">
+            <h1 className="font-mono text-xs tracking-wide text-gray-300">Dithering Studio</h1>
+            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">
+              Home
+            </Link>
+          </header>
+          <div className="flex-1 overflow-y-auto px-4 pb-6">
+            {!image && (
+              <div className="min-panel space-y-3 p-4">
+                <h2 className="font-anton text-xl leading-tight">Dithering Studio</h2>
+                <p className="text-[11px] leading-relaxed text-gray-400">Drop or select an image in the main area to begin. Your picture never leaves this window.</p>
+                <ul className="ml-4 list-disc space-y-1 text-[10px] text-gray-500">
+                  <li>Choose algorithm & tweak threshold.</li>
+                  <li>Adjust working resolution (internal quality).</li>
+                  <li>Invert or enable serpentine scanning.</li>
+                  <li>Download instantly as PNG or JPEG.</li>
+                </ul>
+              </div>
+            )}
+            {image && (
+              <div className="space-y-6">
+                <div className="min-panel space-y-2 p-4">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="pattern-select" className="font-mono text-[11px] tracking-wide text-gray-300">
+                      Algorithm
+                    </label>
+                    <span className="badge">{patternMeta[pattern]?.category}</span>
+                  </div>
+                  <select id="pattern-select" className="clean-input" value={pattern} onChange={(e) => setPattern(Number(e.target.value))}>
+                    <optgroup label="Error Diffusion">
+                      <option value={1}>Floyd-Steinberg</option>
                       <option value={3}>Atkinson</option>
                       <option value={4}>Burkes</option>
                       <option value={5}>Stucki</option>
@@ -173,93 +101,174 @@ const ImageDitheringTool: React.FC = () => {
                       <option value={14}>Stevenson-Arce</option>
                       <option value={7}>Jarvis-Judice-Ninke</option>
                     </optgroup>
-                    <optgroup label="-- Ordered Dithering --">
-                      <option value={2}>Bayer 4x4 (ordered)</option>
-                      <option value={8}>Bayer 8x8 (ordered)</option>
+                    <optgroup label="Ordered">
+                      <option value={2}>Bayer 4×4</option>
+                      <option value={8}>Bayer 8×8</option>
                     </optgroup>
-                    <optgroup label="-- Other / Experimental --">
-                      <option value={15}>Threshold (binary)</option>
-                      <option value={9}>Halftone (experimental)</option>
-                      <option value={10}>Random threshold (experimental)</option>
-                      <option value={11}>Dot diffusion (simple, experimental)</option>
+                    <optgroup label="Other / Experimental">
+                      <option value={15}>Binary Threshold</option>
+                      <option value={9}>Halftone</option>
+                      <option value={10}>Random Threshold</option>
+                      <option value={11}>Dot Diffusion (simple)</option>
                     </optgroup>
                   </select>
+                  <p className="text-[11px] leading-snug text-gray-400">
+                    {patternMeta[pattern]?.description}
+                    {patternMeta[pattern]?.note && <span className="ml-1 italic text-gray-500">{patternMeta[pattern]?.note}</span>}
+                  </p>
                 </div>
-
-                <hr />
-
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="threshold-input" className="flex items-center gap-2 font-mono text-xs">
-                    Threshold
-                    {thresholdDisabled && <span className="rounded bg-neutral-700 px-2 py-0.5 text-xs text-gray-300">Disabled for this pattern</span>}
-                  </label>
-                  <input className={`w-full accent-blue-800 ${thresholdDisabled ? "cursor-not-allowed opacity-50" : ""}`} id="threshold-input" onChange={(e) => setThreshold(Number(e.target.value))} value={threshold} type="range" min={0} max={255} step={1} disabled={thresholdDisabled} />
-                  <div className="flex justify-between text-xs text-gray-400">
+                <div className="min-panel space-y-2 p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[11px] tracking-wide text-gray-300">Luminance Threshold</span>
+                    {thresholdDisabled && <span className="badge">Auto</span>}
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="threshold-input"
+                      type="range"
+                      min={0}
+                      max={255}
+                      step={1}
+                      value={threshold}
+                      disabled={thresholdDisabled}
+                      className="clean-range"
+                      onChange={(e) => setThreshold(Number(e.target.value))}
+                      onMouseDown={() => setShowThresholdBubble(true)}
+                      onMouseUp={() => setShowThresholdBubble(false)}
+                      onMouseLeave={() => setShowThresholdBubble(false)}
+                      onTouchStart={() => setShowThresholdBubble(true)}
+                      onTouchEnd={() => setShowThresholdBubble(false)}
+                    />
+                    {showThresholdBubble && !thresholdDisabled && (
+                      <span className="value-bubble" style={{ left: `${(threshold / 255) * 100}%` }}>
+                        {threshold}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex justify-between text-[10px] text-gray-500">
                     <span>0</span>
                     <span>{threshold}</span>
                     <span>255</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <label htmlFor="invert-output" className="flex items-center gap-2 font-mono text-xs">
-                      Invert Output
-                    </label>
-                    <span className="text-xs italic text-gray-400">White becomes black, black becomes white</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input id="invert-output" type="checkbox" checked={invert} onChange={(e) => setInvert(e.target.checked)} className="accent-blue-800" />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <label htmlFor="serpentine-scan" className="flex items-center gap-2 font-mono text-xs">
-                      Serpentine Scanning
-                      {!isErrorDiffusion(pattern) && <span className="rounded bg-neutral-700 px-2 py-0.5 text-xs text-gray-300">Only for error diffusion patterns</span>}
-                    </label>
-                    {isErrorDiffusion(pattern) && <span className="text-xs italic text-gray-400">Alternates scan direction for each row</span>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input id="serpentine-scan" type="checkbox" checked={serpentine} onChange={(e) => setSerpentine(e.target.checked)} className={`accent-blue-800 ${!isErrorDiffusion(pattern) ? "cursor-not-allowed" : ""}`} disabled={!isErrorDiffusion(pattern)} />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="preview-resolution" className="font-mono text-xs">
-                    Resolution (px)
-                  </label>
-                  <input className="w-full accent-blue-800" id="preview-resolution" type="range" min={32} max={2048} step={1} value={previewResolution} onChange={(e) => setPreviewResolution(Number(e.target.value))} />
-                  <div className="flex justify-between text-xs text-gray-400">
-                    <span>32</span>
-                    <span>{previewResolution}</span>
-                    <span>2048</span>
-                  </div>
-                </div>
-
-                <hr />
-
-                <div className="flex items-end gap-2 pt-2">
-                  <button className="rounded border border-red-600 px-3 py-2 font-mono text-gray-950 duration-100 hover:bg-red-400" onClick={resetSettings} title="Reset">
-                    <VscDebugRestart className="text-xl text-red-600" />
+                <div className="flex gap-2">
+                  <button onClick={() => setInvert((v) => !v)} className={`clean-btn flex-1 ${invert ? "border-blue-600 text-blue-400" : ""}`} title="Invert black & white output">
+                    {invert ? "Inverted" : "Invert"}
                   </button>
-                  <button className={`flex items-center gap-1 rounded border bg-blue-800 px-4 py-1.5 font-mono text-gray-50 duration-100 ${!hasAppliedDithering ? "cursor-not-allowed opacity-70" : "hover:bg-blue-600"}`} onClick={downloadImage} disabled={!hasAppliedDithering} title="Download">
-                    <span>Save as {downloadFormat.toUpperCase()}</span>
+                  <button onClick={() => isErrorDiffusion(pattern) && setSerpentine((v) => !v)} disabled={!isErrorDiffusion(pattern)} className={`clean-btn flex-1 ${serpentine && isErrorDiffusion(pattern) ? "border-blue-600 text-blue-400" : ""}`} title="Alternate scan direction">
+                    Serpentine
                   </button>
-                  <div className="relative">
-                    <select className="rounded border border-gray-300 px-1 py-0.5 text-sm text-gray-950 hover:cursor-pointer focus:outline-none" value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value as "png" | "jpeg")} title="Download format">
-                      <option value="png">PNG</option>
-                      <option value="jpeg">JPEG</option>
-                    </select>
+                </div>
+                <div className="min-panel space-y-3 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] tracking-wide text-gray-300">Working Resolution</span>
+                    <span className="text-[10px] text-gray-500">{workingResolution}px</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <input
+                        type="range"
+                        min={32}
+                        max={2048}
+                        step={16}
+                        value={workingResolution}
+                        className="clean-range"
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setWorkingResolution(val);
+                          setWorkingResInput(String(val));
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        className="clean-input w-24"
+                        value={workingResInput}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          // Allow empty for editing
+                          if (v === "") {
+                            setWorkingResInput("");
+                            return;
+                          }
+                          if (/^\d+$/.test(v)) {
+                            let num = parseInt(v, 10);
+                            num = Math.min(4096, Math.max(16, num));
+                            setWorkingResInput(String(num));
+                            setWorkingResolution(num);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (workingResInput === "") {
+                            setWorkingResInput(String(workingResolution));
+                          }
+                        }}
+                        aria-label="Working resolution in pixels"
+                      />
+                      <span className="text-[10px] text-gray-500">px width</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-gray-500">Pixel width used for processing & download.</p>
+                </div>
+                <div className="flex items-stretch gap-2">
+                  <button className="clean-btn flex items-center gap-1 border-dashed px-2 text-[11px] opacity-70 transition hover:opacity-100" onClick={resetAll} title="Reset all settings" style={{ flex: "0 0 auto" }}>
+                    ↺
+                  </button>
+                  <div className="group relative flex-1">
+                    <button className="clean-btn clean-btn-primary w-full justify-center pr-12" disabled={!hasApplied} onClick={downloadImage} title={`Download image as ${downloadFormat.toUpperCase()}`}>
+                      Download
+                    </button>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-1">
+                      <div className="relative">
+                        <select aria-label="Download format" className="download-format-select pr-5" value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value as "png" | "jpeg")} disabled={!hasApplied}>
+                          <option value="png">PNG</option>
+                          <option value="jpeg">JPEG</option>
+                        </select>
+                        <span className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-blue-200 opacity-80">▾</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </section>
+              </div>
+            )}
+          </div>
+        </aside>
+        <main className="flex flex-1 items-center justify-center p-4">
+          {!image && (
+            <div className="w-full max-w-lg">
+              <ImageUploader setImage={handleImageChange} />
             </div>
-          </div>
-        )}
-        {image && (
-          <div className="flex w-full flex-1 items-center justify-center p-2 md:w-1/2">
-            <canvas ref={canvasRef} className="canvas h-auto max-h-[80vh] w-full object-contain shadow-lg md:min-h-[80vh] md:w-auto md:max-w-full" aria-label="Dithered image preview" />
-          </div>
-        )}
+          )}
+          {image && (
+            <div className="flex h-full w-full items-center justify-center">
+              <div
+                className="canvas-frame flex items-center justify-center bg-black"
+                style={{
+                  width: 'min(100%, 960px)',
+                  height: 'min(85vh, 640px)',
+                  overflow: 'hidden',
+                }}
+              >
+                <canvas
+                  ref={canvasRef}
+                  className={`pixelated ${canvasUpdatedFlag ? 'updated' : ''}`}
+                  aria-label="Dithered image preview"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    display: 'block'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </>
   );
