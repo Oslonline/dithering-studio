@@ -144,11 +144,8 @@ const AlgorithmExplorer: React.FC = () => {
         <header className="flex items-center justify-between px-4 pt-4 pb-3">
           <h1 className="font-mono text-xs tracking-wide text-gray-300">Algorithms</h1>
           <div className="flex items-center gap-2">
-            <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">
-              Tool
-            </Link>
-              <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
-              <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
+            <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">Tool</Link>
+            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
           </div>
         </header>
         <div className="flex-1 space-y-2 overflow-y-auto px-4 pb-4">
@@ -168,10 +165,6 @@ const AlgorithmExplorer: React.FC = () => {
             <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
             <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
           </div>
-            <div className="mb-6">
-              <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
-              <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
-            </div>
           <section className="mb-8 grid gap-6 md:grid-cols-2">
             <div>
               <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Characteristics</h3>
