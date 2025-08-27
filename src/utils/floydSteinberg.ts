@@ -1,4 +1,3 @@
-// Floyd–Steinberg dithering (returns monochrome RGBA buffer)
 
 interface Params {
 	data: Uint8ClampedArray;
@@ -7,7 +6,7 @@ interface Params {
 	threshold: number;
 	invert: boolean;
 	serpentine: boolean;
-	palette?: [number, number, number][]; // optional palette; if present ignore threshold and map to nearest color
+	palette?: [number, number, number][]; // if set: color diffusion, else threshold mono
 }
 
 const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, palette }: Params): Uint8ClampedArray => {

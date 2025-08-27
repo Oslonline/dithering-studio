@@ -25,7 +25,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const [renderBump, setRenderBump] = useState(0);
   const [layoutTick, setLayoutTick] = useState(0);
 
-  // Resize listener to adapt displayed canvas size to viewport
+  // Track resize for responsive scaling
   useEffect(() => {
     const onResize = () => setLayoutTick((v) => v + 1);
     window.addEventListener('resize', onResize);
@@ -84,13 +84,29 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const srcData = src.data;
 
     let out: ImageData;
-    if (pattern === 1) {
-      const palette = findPalette(paletteId || null)?.colors;
-      const processed = floydSteinberg({ data: srcData, width, height, threshold, invert, serpentine, palette });
+    const palette = findPalette(paletteId || null)?.colors || null;
+  if (pattern === 1) {
+      const processed = floydSteinberg({ data: srcData, width, height, threshold, invert, serpentine, palette: palette || undefined });
       out = new ImageData(width, height);
       out.data.set(processed);
-    } else {
+  } else {
       out = PatternDrawer(srcData, width, height, pattern, threshold, { invert, serpentine: isErrorDiffusion ? serpentine : false });
+  if (palette) {
+        const d = out.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i], g = d[i + 1], b = d[i + 2];
+          let best = 0; let bestDist = Infinity;
+          for (let p = 0; p < palette.length; p++) {
+            const pr = palette[p][0], pg = palette[p][1], pb = palette[p][2];
+            const dr = r - pr, dg = g - pg, db = b - pb;
+            const dist = dr*dr + dg*dg + db*db;
+            if (dist < bestDist) { bestDist = dist; best = p; }
+          }
+          d[i] = palette[best][0];
+          d[i + 1] = palette[best][1];
+          d[i + 2] = palette[best][2];
+        }
+      }
     }
 
   if (token !== renderTokenRef.current) return;
@@ -98,7 +114,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     displayCtx.putImageData(out, 0, 0);
     displayCanvas.classList.add("pixelated");
 
-    // Responsive display sizing independent of internal resolution
+  // Responsive sizing
     const ow = originalDimensions.current.width || width;
     const oh = originalDimensions.current.height || height;
     if (ow && oh) {
@@ -106,10 +122,10 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
       const viewportW = window.innerWidth;
       const viewportH = window.innerHeight;
-      const maxW = Math.min(viewportW - sidebarWidth - 40, 1280); // padding allowance
-      const maxH = viewportH - 140; // leave room for header/margins
+  const maxW = Math.min(viewportW - sidebarWidth - 40, 1280);
+  const maxH = viewportH - 140;
       let dispW = Math.min(maxW, maxH * (ow / oh));
-      if (dispW < 120) dispW = 120; // guard tiny
+  if (dispW < 120) dispW = 120;
       const dispH = dispW * (oh / ow);
       displayCanvas.style.width = dispW + 'px';
       displayCanvas.style.height = dispH + 'px';

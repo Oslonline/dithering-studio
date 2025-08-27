@@ -131,7 +131,7 @@ const ImageDitheringTool: React.FC = () => {
                 </div>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">Palette (Floyd–Steinberg only)</label>
+                    <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">Palette (applies to all)</label>
                     {paletteId && <button className="clean-btn px-2 py-0 text-[10px]" onClick={() => setPaletteId(null)}>Clear</button>}
                   </div>
                   <select
@@ -152,7 +152,7 @@ const ImageDitheringTool: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  <p className="text-[10px] text-gray-500">Quantizes colors to nearest palette entry with error diffusion.</p>
+                  <p className="text-[10px] text-gray-500">Color-quantizes using palette-aware diffusion (Floyd–Steinberg) or post-quantization for other modes.</p>
                 </div>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center gap-2">
