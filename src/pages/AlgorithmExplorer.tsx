@@ -50,7 +50,7 @@ const AlgorithmExplorer: React.FC = () => {
     grd.addColorStop(1, "#fff");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, w, h);
-    const rg = ctx.createRadialGradient(w * 0.7, h * 0.3, 10, w * 0.7, h * 0.3, w * 0.8);
+  const rg = ctx.createRadialGradient(w * 0.7, h * 0.3, 10, w * 0.7, h * 0.3, w * 0.8);
     rg.addColorStop(0, "rgba(255,255,255,0.6)");
     rg.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = rg;
@@ -147,9 +147,8 @@ const AlgorithmExplorer: React.FC = () => {
             <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">
               Tool
             </Link>
-            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">
-              Home
-            </Link>
+              <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
+              <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
           </div>
         </header>
         <div className="flex-1 space-y-2 overflow-y-auto px-4 pb-4">
@@ -169,6 +168,10 @@ const AlgorithmExplorer: React.FC = () => {
             <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
             <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
           </div>
+            <div className="mb-6">
+              <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
+              <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
+            </div>
           <section className="mb-8 grid gap-6 md:grid-cols-2">
             <div>
               <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Characteristics</h3>
