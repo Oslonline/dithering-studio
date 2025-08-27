@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import PatternDrawer from "../components/PatternDrawer";
 import floydSteinberg from "../utils/floydSteinberg";
+import { findPalette } from "../utils/palettes";
 
 interface Params {
   image: string | null;
@@ -10,9 +11,10 @@ interface Params {
   invert: boolean;
   serpentine: boolean;
   isErrorDiffusion: boolean;
+  paletteId?: string | null;
 }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -75,7 +77,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
 
     let out: ImageData;
     if (pattern === 1) {
-      const processed = floydSteinberg({ data: srcData, width, height, threshold, invert, serpentine });
+      const palette = findPalette(paletteId || null)?.colors;
+      const processed = floydSteinberg({ data: srcData, width, height, threshold, invert, serpentine, palette });
       out = new ImageData(width, height);
       out.data.set(processed);
     } else {
@@ -93,7 +96,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     setCanvasUpdatedFlag(true);
     const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
     return () => clearTimeout(t);
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump]);
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;

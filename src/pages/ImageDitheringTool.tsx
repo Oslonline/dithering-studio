@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/ImageUploader";
 import { patternMeta } from "../components/PatternDrawer";
 import useDithering from "../hooks/useDithering";
+import { predefinedPalettes } from "../utils/palettes";
 
 const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14].includes(p);
 
@@ -15,10 +16,11 @@ const ImageDitheringTool: React.FC = () => {
   const [workingResolution, setWorkingResolution] = useState<number>(512);
   const [workingResInput, setWorkingResInput] = useState<string>("512");
   const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg">("png");
+  const [paletteId, setPaletteId] = useState<string | null>(null);
   const [invert, setInvert] = useState(false);
   const [serpentine, setSerpentine] = useState(true);
   const [showThresholdBubble, setShowThresholdBubble] = useState(false);
-  const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold;
+  const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold || !!paletteId;
 
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, resetCanvas } = useDithering({
     image,
@@ -28,6 +30,7 @@ const ImageDitheringTool: React.FC = () => {
     invert,
     serpentine,
     isErrorDiffusion: isErrorDiffusion(pattern),
+    paletteId,
   });
 
   const handleImageChange = (img: string | null) => setImage(img);
@@ -40,8 +43,15 @@ const ImageDitheringTool: React.FC = () => {
     setWorkingResInput("512");
     setInvert(false);
     setSerpentine(true);
+  setPaletteId(null);
     resetCanvas();
   };
+
+  // When palette toggles on, ensure invert is off (avoid confusing color inversion)
+  if (paletteId && invert) {
+    // simple synchronous safeguard (not using effect to keep minimal)
+    setInvert(false);
+  }
 
   const downloadImage = () => {
     const canvas = processedCanvasRef.current || canvasRef.current;
@@ -120,6 +130,31 @@ const ImageDitheringTool: React.FC = () => {
                   </p>
                 </div>
                 <div className="min-panel space-y-2 p-4">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">Palette (Floyd–Steinberg only)</label>
+                    {paletteId && <button className="clean-btn px-2 py-0 text-[10px]" onClick={() => setPaletteId(null)}>Clear</button>}
+                  </div>
+                  <select
+                    id="palette-select"
+                    className="clean-input"
+                    value={paletteId ?? ""}
+                    onChange={(e) => setPaletteId(e.target.value === "" ? null : e.target.value)}
+                  >
+                    <option value="">None (Binary BW)</option>
+                    {predefinedPalettes.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                  {paletteId && (
+                    <div className="flex flex-wrap gap-1">
+                      {predefinedPalettes.find(p => p.id === paletteId)?.colors.map((c,i) => (
+                        <span key={i} className="inline-block h-4 w-4 rounded-sm border border-neutral-600" style={{ background:`rgb(${c[0]},${c[1]},${c[2]})` }} />
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-[10px] text-gray-500">Quantizes colors to nearest palette entry with error diffusion.</p>
+                </div>
+                <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[11px] tracking-wide text-gray-300">Luminance Threshold</span>
                     {thresholdDisabled && <span className="badge">Auto</span>}
@@ -133,7 +168,7 @@ const ImageDitheringTool: React.FC = () => {
                       step={1}
                       value={threshold}
                       disabled={thresholdDisabled}
-                      className="clean-range"
+                      className={`clean-range ${thresholdDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
                       onChange={(e) => setThreshold(Number(e.target.value))}
                       onMouseDown={() => setShowThresholdBubble(true)}
                       onMouseUp={() => setShowThresholdBubble(false)}
@@ -147,14 +182,19 @@ const ImageDitheringTool: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <div className="flex justify-between text-[10px] text-gray-500">
+                  <div className={`flex justify-between text-[10px] ${thresholdDisabled ? 'text-gray-600' : 'text-gray-500'}`}>
                     <span>0</span>
                     <span>{threshold}</span>
                     <span>255</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setInvert((v) => !v)} className={`clean-btn flex-1 ${invert ? "border-blue-600 text-blue-400" : ""}`} title="Invert black & white output">
+                  <button
+                    onClick={() => !paletteId && setInvert((v) => !v)}
+                    disabled={!!paletteId}
+                    className={`clean-btn flex-1 ${invert ? "border-blue-600 text-blue-400" : ""} ${paletteId ? "opacity-40 cursor-not-allowed" : ""}`}
+                    title={paletteId ? "Invert disabled when palette active" : "Invert black & white output"}
+                  >
                     {invert ? "Inverted" : "Invert"}
                   </button>
                   <button onClick={() => isErrorDiffusion(pattern) && setSerpentine((v) => !v)} disabled={!isErrorDiffusion(pattern)} className={`clean-btn flex-1 ${serpentine && isErrorDiffusion(pattern) ? "border-blue-600 text-blue-400" : ""}`} title="Alternate scan direction">
