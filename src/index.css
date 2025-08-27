@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+.font-anton { font-family: 'Anton', sans-serif; }
+
 
 :root {
   --c-bg: #0a0a0a;
@@ -174,16 +175,10 @@ html, body {
   background:#182030;
 }
 
-.pixelated {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
+.pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
 
-
-/* Removed highlight flash to avoid perceived brightness flicker */
 .canvas-frame.updated { box-shadow:none; }
 
-/* Embedded download format select */
 .download-format-select {
   margin:3px 4px 3px 0;
   height:calc(100% - 6px);
