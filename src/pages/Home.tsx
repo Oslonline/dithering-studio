@@ -19,30 +19,20 @@ const Home: React.FC = () => {
         <link rel="canonical" href="https://steinberg-image.vercel.app/" />
       </Helmet>
       <div className="flex max-h-screen min-h-screen flex-col items-center justify-center gap-5 bg-neutral-950 p-4 text-neutral-50 md:gap-7">
-        <header className="text-center space-y-1">
-          <h1 className="font-anton text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl">
-            Multi‑Algorithm Image Dithering
-          </h1>
-          <h2 className="text-[11px] md:text-xs 2xl:text-sm tracking-wide text-gray-300">
-            Floyd–Steinberg · Atkinson · Stucki · Sierra · Bayer · Halftone & more
-          </h2>
-          <p className="mx-auto max-w-xl px-2 text-[11px] leading-snug text-gray-400 md:text-xs">
-            100% client‑side. Tune threshold, resolution, invert & serpentine scan.
-            Download instantly as PNG or JPEG.
-          </p>
+        <header className="space-y-1 text-center">
+          <h1 className="font-anton text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl">Multi‑Algorithm Image Dithering</h1>
+          <h2 className="text-[11px] tracking-wide text-gray-300 md:text-xs 2xl:text-sm">Floyd–Steinberg · Atkinson · Stucki · Sierra · Bayer · Halftone & more</h2>
+          <p className="mx-auto max-w-xl px-2 text-[11px] leading-snug text-gray-400 md:text-xs">100% client‑side. Tune threshold, resolution, invert & serpentine scan. Download instantly as PNG or JPEG.</p>
         </header>
         <InfiniteImageScroll />
-        <Link
-          className="clean-btn clean-btn-primary !text-[14px] !px-8 !py-4 hover:shadow-xl focus-visible:shadow-[var(--shadow-focus)] relative after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-inset after:ring-white/5"
-          to="/Dithering"
-        >
+        <Link className="clean-btn clean-btn-primary relative !px-8 !py-4 !text-[14px] after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-white/5 after:ring-inset hover:shadow-xl focus-visible:shadow-[var(--shadow-focus)]" to="/Dithering">
           Start Dithering
         </Link>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center p-4 text-xs text-gray-400">
-        <p>By Oslo418 -&nbsp;</p>
+      <div className="absolute right-0 bottom-0 left-0 flex items-center justify-center p-4 text-xs text-gray-400">
+        <p>By&nbsp;</p>
         <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com">
-          Portfolio
+          Oslo418
         </a>
       </div>
     </>
