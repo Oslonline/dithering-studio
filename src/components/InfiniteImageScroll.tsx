@@ -10,7 +10,6 @@ const InfiniteImageScroll: React.FC = () => {
     for (let i = 1; i <= NUM_IMAGES; i++) {
       imageArray.push(`/hero/hero-${i}.webp`);
     }
-    // Shuffle images randomly
     for (let i = imageArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [imageArray[i], imageArray[j]] = [imageArray[j], imageArray[i]];
@@ -39,7 +38,6 @@ const InfiniteImageScroll: React.FC = () => {
         {images.map((src, index) => (
           <img key={index} src={src} alt={`hero-${index + 1}`} className="h-72 object-cover md:h-96 xl:h-[425px]" />
         ))}
-        {/* Repeat the images for continuous scrolling */}
         {images.map((src, index) => (
           <img key={`repeat-${index}`} src={src} alt={`repeat-hero-${index + 1}`} className="h-72 object-cover md:h-96 xl:h-[425px]" />
         ))}
