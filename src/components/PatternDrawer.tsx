@@ -135,7 +135,8 @@ const PatternDrawer = (
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pxIndex = (y * width + x) * 4;
-        const oldPixel = out[pxIndex];
+  let oldPixel = out[pxIndex];
+  if (options?.invert) oldPixel = 255 - oldPixel;
         const newPixel = oldPixel < threshold ? 0 : 255;
         const error = (oldPixel - newPixel) / 8;
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newPixel;
@@ -329,6 +330,13 @@ const PatternDrawer = (
         }
       }
     }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
+      }
+    }
     return buildImageData(out, width, height);
   }
 
@@ -343,6 +351,13 @@ const PatternDrawer = (
         out[pxIndex + 3] = 255;
       }
     }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
+      }
+    }
     return buildImageData(out, width, height);
   }
 
@@ -355,6 +370,13 @@ const PatternDrawer = (
         const value = out[pxIndex] < mask ? 0 : 255;
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
         out[pxIndex + 3] = 255;
+      }
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
       }
     }
     return buildImageData(out, width, height);

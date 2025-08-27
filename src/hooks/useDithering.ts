@@ -91,7 +91,9 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       out.data.set(processed);
   } else {
 
-  out = PatternDrawer(srcData, width, height, pattern, threshold, { invert: !palette ? invert : false, serpentine: isErrorDiffusion ? serpentine : false });
+  // Invert allowed when no palette is active (palette path handles color domain separately)
+  const allowInvert = !palette;
+  out = PatternDrawer(srcData, width, height, pattern, threshold, { invert: allowInvert && invert, serpentine: isErrorDiffusion ? serpentine : false });
       if (palette) {
         const d = out.data;
         const bias = (threshold - 128) / 255 * 64;
