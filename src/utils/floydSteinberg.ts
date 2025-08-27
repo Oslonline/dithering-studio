@@ -56,17 +56,21 @@ const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, pa
 		}
 	}
 } else {
-	// Palette diffusion: propagate RGB error instead of luminance only
+	// Palette diffusion with threshold as brightness bias
 	const work = new Float32Array(data.length);
 	for (let i = 0; i < data.length; i++) work[i] = data[i];
+	const bias = (threshold - 128) / 255 * 64;
 	for (let y = 0; y < height; y++) {
 		const serp = serpentine && (y & 1) === 1;
 		if (!serp) {
 			for (let x = 0; x < width; x++) {
 				const base = (y * width + x) * 4;
-				const r = work[base];
-				const g = work[base + 1];
-				const b = work[base + 2];
+				let r = work[base];
+				let g = work[base + 1];
+				let b = work[base + 2];
+				r = Math.max(0, Math.min(255, r + bias));
+				g = Math.max(0, Math.min(255, g + bias));
+				b = Math.max(0, Math.min(255, b + bias));
 				let best = 0; let bestDist = Infinity;
 				for (let i = 0; i < palette.length; i++) {
 					const pr = palette[i][0], pg = palette[i][1], pb = palette[i][2];
@@ -90,9 +94,12 @@ const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, pa
 		} else {
 			for (let x = width - 1; x >= 0; x--) {
 				const base = (y * width + x) * 4;
-				const r = work[base];
-				const g = work[base + 1];
-				const b = work[base + 2];
+				let r = work[base];
+				let g = work[base + 1];
+				let b = work[base + 2];
+				r = Math.max(0, Math.min(255, r + bias));
+				g = Math.max(0, Math.min(255, g + bias));
+				b = Math.max(0, Math.min(255, b + bias));
 				let best = 0; let bestDist = Infinity;
 				for (let i = 0; i < palette.length; i++) {
 					const pr = palette[i][0], pg = palette[i][1], pb = palette[i][2];
