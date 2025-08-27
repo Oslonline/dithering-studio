@@ -90,11 +90,16 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       out = new ImageData(width, height);
       out.data.set(processed);
   } else {
-      out = PatternDrawer(srcData, width, height, pattern, threshold, { invert, serpentine: isErrorDiffusion ? serpentine : false });
-  if (palette) {
+
+  out = PatternDrawer(srcData, width, height, pattern, threshold, { invert: !palette ? invert : false, serpentine: isErrorDiffusion ? serpentine : false });
+      if (palette) {
         const d = out.data;
+        const bias = (threshold - 128) / 255 * 64;
         for (let i = 0; i < d.length; i += 4) {
-          const r = d[i], g = d[i + 1], b = d[i + 2];
+          let r = d[i], g = d[i + 1], b = d[i + 2];
+          r = Math.max(0, Math.min(255, r + bias));
+          g = Math.max(0, Math.min(255, g + bias));
+          b = Math.max(0, Math.min(255, b + bias));
           let best = 0; let bestDist = Infinity;
           for (let p = 0; p < palette.length; p++) {
             const pr = palette[p][0], pg = palette[p][1], pb = palette[p][2];
@@ -106,6 +111,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
           d[i + 1] = palette[best][1];
           d[i + 2] = palette[best][2];
         }
+  // invert disabled when palette active
       }
     }
 

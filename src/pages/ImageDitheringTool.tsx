@@ -20,7 +20,8 @@ const ImageDitheringTool: React.FC = () => {
   const [invert, setInvert] = useState(false);
   const [serpentine, setSerpentine] = useState(true);
   const [showThresholdBubble, setShowThresholdBubble] = useState(false);
-  const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold || !!paletteId;
+  const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold;
+  if (paletteId && invert) setInvert(false);
 
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, resetCanvas } = useDithering({
     image,
@@ -47,12 +48,6 @@ const ImageDitheringTool: React.FC = () => {
     resetCanvas();
   };
 
-  // When palette toggles on, ensure invert is off (avoid confusing color inversion)
-  if (paletteId && invert) {
-    // simple synchronous safeguard (not using effect to keep minimal)
-    setInvert(false);
-  }
-
   const downloadImage = () => {
     const canvas = processedCanvasRef.current || canvasRef.current;
     if (!canvas) return;
@@ -67,7 +62,7 @@ const ImageDitheringTool: React.FC = () => {
       <Helmet>
         <title>Image Dithering Tool | Multi Algorithm (Floyd–Steinberg, Bayer, Sierra)</title>
         <meta name="description" content="Client-side image dithering: Floyd–Steinberg, Atkinson, Stucki, Sierra family, Jarvis, Bayer ordered, halftone & more." />
-        <link rel="canonical" href="https://yourdomain.com/Dithering" />
+        <link rel="canonical" href="https://steinberg-image.vercel.app//Dithering" />
       </Helmet>
       <div id="tool" className="flex min-h-screen w-full flex-col md:flex-row">
         <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r">
@@ -131,7 +126,7 @@ const ImageDitheringTool: React.FC = () => {
                 </div>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">Palette (applies to all)</label>
+                    <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">Palette</label>
                     {paletteId && <button className="clean-btn px-2 py-0 text-[10px]" onClick={() => setPaletteId(null)}>Clear</button>}
                   </div>
                   <select
@@ -152,11 +147,11 @@ const ImageDitheringTool: React.FC = () => {
                       ))}
                     </div>
                   )}
-                  <p className="text-[10px] text-gray-500">Color-quantizes using palette-aware diffusion (Floyd–Steinberg) or post-quantization for other modes.</p>
+                  <p className="text-[10px] text-gray-500">Palette-aware diffusion (Floyd–Steinberg) or post-quantization. Threshold acts as brightness bias.</p>
                 </div>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px] tracking-wide text-gray-300">Luminance Threshold</span>
+                    <span className="font-mono text-[11px] tracking-wide text-gray-300">Luminance Threshold / Bias</span>
                     {thresholdDisabled && <span className="badge">Auto</span>}
                   </div>
                   <div className="relative">
@@ -192,8 +187,8 @@ const ImageDitheringTool: React.FC = () => {
                   <button
                     onClick={() => !paletteId && setInvert((v) => !v)}
                     disabled={!!paletteId}
-                    className={`clean-btn flex-1 ${invert ? "border-blue-600 text-blue-400" : ""} ${paletteId ? "opacity-40 cursor-not-allowed" : ""}`}
-                    title={paletteId ? "Invert disabled when palette active" : "Invert black & white output"}
+                    className={`clean-btn flex-1 ${invert ? "border-blue-600 text-blue-400" : ""} ${paletteId ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    title={paletteId ? 'Invert disabled with palette' : 'Invert output'}
                   >
                     {invert ? "Inverted" : "Invert"}
                   </button>
