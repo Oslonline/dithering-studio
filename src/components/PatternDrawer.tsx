@@ -1,5 +1,4 @@
 export const patternOptions = [
-  // Error diffusion (most popular first)
   { value: 1, label: "Floyd-Steinberg (classic)" },
   { value: 3, label: "Atkinson" },
   { value: 4, label: "Burkes" },
@@ -9,24 +8,57 @@ export const patternOptions = [
   { value: 13, label: "Two-Row Sierra" },
   { value: 14, label: "Stevenson-Arce" },
   { value: 7, label: "Jarvis-Judice-Ninke" },
-  // Ordered dithering
   { value: 2, label: "Bayer 4x4 (ordered)" },
   { value: 8, label: "Bayer 8x8 (ordered)" },
-  // Simple threshold
   { value: 15, label: "Threshold (binary)" },
-  // Experimental/other
   { value: 9, label: "Halftone (experimental)" },
   { value: 10, label: "Random threshold (experimental)" },
   { value: 11, label: "Dot diffusion (simple, experimental)" },
 ];
 
-const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number, threshold: number = 128, options?: { invert?: boolean; serpentine?: boolean }) => {
-  // For Floyd-Steinberg, the main algorithm is handled outside.
+export const patternMeta: Record<number, {
+  name: string;
+  category: "Error Diffusion" | "Ordered" | "Other";
+  description: string;
+  supportsThreshold: boolean;
+  note?: string;
+}> = {
+  1: { name: "Floyd–Steinberg", category: "Error Diffusion", description: "Classic error diffusion with good balance of speed and quality.", supportsThreshold: true },
+  3: { name: "Atkinson", category: "Error Diffusion", description: "Softer diffusion producing lighter mid-tones, popular on early Macs.", supportsThreshold: true },
+  4: { name: "Burkes", category: "Error Diffusion", description: "Balanced diffusion kernel similar to Stucki but lighter weight.", supportsThreshold: true },
+  5: { name: "Stucki", category: "Error Diffusion", description: "Larger kernel giving smoother gradients at higher cost.", supportsThreshold: true },
+  6: { name: "Sierra", category: "Error Diffusion", description: "Quality similar to Stucki with slightly less diffusion spread.", supportsThreshold: true },
+  12:{ name: "Sierra Lite", category: "Error Diffusion", description: "Lightweight Sierra variant; faster with acceptable quality.", supportsThreshold: true },
+  13:{ name: "Two-Row Sierra", category: "Error Diffusion", description: "Two-row variant; compromise between full Sierra and Lite.", supportsThreshold: true },
+  14:{ name: "Stevenson–Arce", category: "Error Diffusion", description: "Sparse long-range diffusion; produces interesting organic texture.", supportsThreshold: true },
+  7: { name: "Jarvis–Judice–Ninke", category: "Error Diffusion", description: "High quality large kernel; slower but smooth transitions.", supportsThreshold: true },
+  2: { name: "Bayer 4×4", category: "Ordered", description: "Small ordered matrix; crisp pattern, good for pixel-art vibe.", supportsThreshold: false, note: "Uses internal thresholds." },
+  8: { name: "Bayer 8×8", category: "Ordered", description: "Larger ordered matrix; smoother gradients with subtle texture.", supportsThreshold: false, note: "Uses internal thresholds." },
+  15:{ name: "Binary Threshold", category: "Other", description: "Simple cutoff without diffusion; high contrast result.", supportsThreshold: true },
+  9: { name: "Halftone (Experimental)", category: "Other", description: "Block-based circular dot simulation. Experimental style effect.", supportsThreshold: true },
+  10:{ name: "Random Threshold", category: "Other", description: "Noise-driven thresholding producing grainy chaotic texture.", supportsThreshold: true },
+  11:{ name: "Dot Diffusion (Simple)", category: "Other", description: "Toy checkerboard mask demo; not a full dot diffusion algorithm.", supportsThreshold: true },
+};
+
+// Allocate then copy to avoid TS overload mismatch
+const buildImageData = (arr: Uint8ClampedArray, w: number, h: number) => {
+  const img = new ImageData(w, h);
+  img.data.set(arr);
+  return img;
+};
+
+const PatternDrawer = (
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+  pattern: number,
+  threshold: number = 128,
+  options?: { invert?: boolean; serpentine?: boolean },
+) => {
   if (pattern === 1) {
-    return new ImageData(data, width, height);
+    return buildImageData(data, width, height);
   }
 
-  // Helper for error diffusion
   const errorDiffusion = (matrix: number[][], divisor: number, serpentineDefault = false) => {
     const out = new Uint8ClampedArray(data);
     const useSerpentine = options?.serpentine ?? serpentineDefault;
@@ -54,7 +86,6 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         }
       }
     }
-    // Invert if needed
     if (options?.invert) {
       for (let i = 0; i < out.length; i += 4) {
         out[i] = 255 - out[i];
@@ -62,10 +93,9 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[i + 2] = 255 - out[i + 2];
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   };
 
-  // Bayer 4x4 ordered dithering
   if (pattern === 2) {
     const bayerMatrix = [
       [0, 8, 2, 10],
@@ -93,15 +123,10 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[i + 2] = 255 - out[i + 2];
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // Atkinson
   if (pattern === 3) {
-    // Matrix: [ [0, 0, 1, 1], [1, 1, 1, 0], [0, 1, 0, 0] ]
-    // Actually: 1/8 to 6 neighbors
-    // Atkinson: right, right2, below-left, below, below-right, below2
-    // We'll use a custom loop for this
     const out = new Uint8ClampedArray(data);
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -110,7 +135,6 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         const newPixel = oldPixel < threshold ? 0 : 255;
         const error = (oldPixel - newPixel) / 8;
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newPixel;
-        // Distribute error
         const coords = [
           [x + 1, y],
           [x + 2, y],
@@ -129,12 +153,10 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         }
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // Burkes
   if (pattern === 4) {
-    // Matrix: [0, 0, 0, 8, 4], [2, 4, 8, 4, 2] / 32
     const matrix = [
       [0, 0, 0, 8, 4],
       [2, 4, 8, 4, 2],
@@ -142,9 +164,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 32, true);
   }
 
-  // Stucki
   if (pattern === 5) {
-    // Matrix: [0, 0, 0, 8, 4], [2, 4, 8, 4, 2], [1, 2, 4, 2, 1] / 42
     const matrix = [
       [0, 0, 0, 8, 4],
       [2, 4, 8, 4, 2],
@@ -153,9 +173,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 42, true);
   }
 
-  // Sierra
   if (pattern === 6) {
-    // Matrix: [0, 0, 0, 5, 3], [2, 4, 5, 4, 2], [0, 2, 3, 2, 0] / 32
     const matrix = [
       [0, 0, 0, 5, 3],
       [2, 4, 5, 4, 2],
@@ -164,9 +182,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 32, true);
   }
 
-  // Jarvis-Judice-Ninke
   if (pattern === 7) {
-    // Matrix: [0, 0, 0, 7, 5], [3, 5, 7, 5, 3], [1, 3, 5, 3, 1] / 48
     const matrix = [
       [0, 0, 0, 7, 5],
       [3, 5, 7, 5, 3],
@@ -175,7 +191,6 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 48, true);
   }
 
-  // Bayer 8x8 ordered dithering
   if (pattern === 8) {
     const bayer8x8 = [
       [0, 48, 12, 60, 3, 51, 15, 63],
@@ -207,10 +222,9 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[i + 2] = 255 - out[i + 2];
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // Halftone (experimental, simple circular threshold)
   if (pattern === 9) {
     const out = new Uint8ClampedArray(data);
     const dotSize = 6;
@@ -237,7 +251,6 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
             const ny = y + dy;
             if (nx < width && ny < height) {
               const idx = (ny * width + nx) * 4;
-              // Draw a dot in the center of the block
               const cx = dotSize / 2 - 0.5,
                 cy = dotSize / 2 - 0.5;
               const dist = Math.sqrt((dx - cx) ** 2 + (dy - cy) ** 2);
@@ -250,10 +263,9 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         }
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // Random threshold (experimental)
   if (pattern === 10) {
     const out = new Uint8ClampedArray(data);
     for (let y = 0; y < height; y++) {
@@ -265,12 +277,10 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[pxIndex + 3] = 255;
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // Dot diffusion (simple, experimental)
   if (pattern === 11) {
-    // Simple checkerboard mask for demonstration
     const out = new Uint8ClampedArray(data);
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -281,12 +291,10 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[pxIndex + 3] = 255;
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // Sierra Lite
   if (pattern === 12) {
-    // Matrix: [0, 0, 2], [1, 1, 0] / 4
     const matrix = [
       [0, 0, 2],
       [1, 1, 0],
@@ -294,9 +302,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 4, true);
   }
 
-  // Two-Row Sierra
   if (pattern === 13) {
-    // Matrix: [0, 0, 0, 4, 3], [1, 2, 3, 2, 1] / 16
     const matrix = [
       [0, 0, 0, 4, 3],
       [1, 2, 3, 2, 1],
@@ -304,11 +310,7 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 16, true);
   }
 
-  // Stevenson-Arce
   if (pattern === 14) {
-    // Matrix: [0,0,0,0,0,32,0,0,0,0,0],
-    //         [12,0,26,0,30,0,30,0,26,0,12],
-    //         [0,12,0,26,0,12,0,26,0,12,0] / 200
     const matrix = [
       [0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0],
       [12, 0, 26, 0, 30, 0, 30, 0, 26, 0, 12],
@@ -317,7 +319,6 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
     return errorDiffusion(matrix, 200, false);
   }
 
-  // Simple Threshold (binary)
   if (pattern === 15) {
     const out = new Uint8ClampedArray(data);
     for (let i = 0; i < out.length; i += 4) {
@@ -332,19 +333,10 @@ const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, p
         out[i + 2] = 255 - out[i + 2];
       }
     }
-    return new ImageData(out, width, height);
+    return buildImageData(out, width, height);
   }
 
-  // fallback: just return as is
-  let result = new ImageData(data, width, height);
-  if (options?.invert) {
-    for (let i = 0; i < result.data.length; i += 4) {
-      result.data[i] = 255 - result.data[i];
-      result.data[i + 1] = 255 - result.data[i + 1];
-      result.data[i + 2] = 255 - result.data[i + 2];
-    }
-  }
-  return result;
+  return buildImageData(data, width, height);
 };
 
 export default PatternDrawer;
