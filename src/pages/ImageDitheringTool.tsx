@@ -18,7 +18,7 @@ const ImageDitheringTool: React.FC = () => {
   const [invert, setInvert] = useState(false);
   const [serpentine, setSerpentine] = useState(true);
   const [showThresholdBubble, setShowThresholdBubble] = useState(false);
-  const thresholdDisabled = pattern === 2 || pattern === 8;
+  const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold;
 
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, resetCanvas } = useDithering({
     image,
@@ -102,8 +102,10 @@ const ImageDitheringTool: React.FC = () => {
                       <option value={7}>Jarvis-Judice-Ninke</option>
                     </optgroup>
                     <optgroup label="Ordered">
+                      <option value={16}>Bayer 2×2</option>
                       <option value={2}>Bayer 4×4</option>
                       <option value={8}>Bayer 8×8</option>
+                      <option value={17}>Blue noise 64×64</option>
                     </optgroup>
                     <optgroup label="Other / Experimental">
                       <option value={15}>Binary Threshold</option>
