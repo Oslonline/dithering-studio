@@ -1,5 +1,4 @@
-// Extended algorithm information for educational / technical reference.
-// Each entry optionally provides: kernel (for diffusion), matrix (ordered), notes on complexity, artifacts, and use cases.
+// Algorithm metadata for explorer UI
 export interface AlgorithmDetail {
   id: number;
   name: string;
