@@ -177,8 +177,8 @@ const ImageDitheringTool: React.FC = () => {
             <h1 className="font-mono text-xs tracking-wide text-gray-300">Dithering Studio</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
             <Link to="/Algorithms" className="clean-btn px-3 py-1 !text-[11px]" title="Algorithm reference">Explore</Link>
+            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
           </div>
         </header>
         <div className="flex flex-1 flex-col md:flex-row">

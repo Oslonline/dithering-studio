@@ -139,27 +139,30 @@ const AlgorithmExplorer: React.FC = () => {
     setExamples(newExamples);
   }, [baseLoaded]);
   return (
-    <div className="flex w-full flex-col md:flex-row">
-      <aside className="flex h-screen w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
-        <header className="flex items-center justify-between px-4 pt-4 pb-3">
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3">
+        <div className="flex items-center gap-4">
           <h1 className="font-mono text-xs tracking-wide text-gray-300">Algorithms</h1>
-          <div className="flex items-center gap-2">
-            <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">Tool</Link>
-            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
-          </div>
-        </header>
-        <div className="flex-1 space-y-2 overflow-y-auto px-4 pb-4">
+        </div>
+        <div className="flex items-center gap-2">
+          <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">Tool</Link>
+          <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
+        </div>
+      </header>
+      <div className="flex flex-1 flex-col md:flex-row">
+      <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r" style={{ maxHeight: 'calc(100vh - 48px)' }}>
+        <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">
           {algorithmDetails.map((a) => (
             <AlgorithmCard key={a.id} algo={a} active={a.id === activeId} onSelect={() => setActiveId(a.id)} />
           ))}
         </div>
-        <div className="space-y-1 p-4 pt-2 text-[10px] text-gray-500">
+        <div className="space-y-1 p-4 pt-2 pb-6 text-[10px] text-gray-500">
           <p>
             Examples generated live from one sample ({WORKING_WIDTH}px width) at fixed threshold {THRESHOLD}.
           </p>
         </div>
-      </aside>
-      <main className="relative flex min-h-screen flex-1 flex-col overflow-y-auto p-6">
+  </aside>
+  <main className="relative flex flex-1 flex-col overflow-y-auto p-6">
         <div className="mx-auto w-full max-w-4xl">
           <div className="mb-6">
             <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
@@ -242,6 +245,7 @@ const AlgorithmExplorer: React.FC = () => {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 };
