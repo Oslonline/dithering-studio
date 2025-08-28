@@ -8,7 +8,7 @@ Turn any image into a retro / stylized dithered version directly in your browser
 
 ## Available Algorithms
 Error Diffusion:
-Floyd–Steinberg · Atkinson · Burkes · Stucki · Sierra · Sierra Lite · Two‑Row Sierra · Stevenson–Arce · Jarvis–Judice–Ninke
+Floyd–Steinberg · Atkinson · Burkes · Stucki · Sierra · Sierra Lite · Two‑Row Sierra · Stevenson–Arce · Jarvis–Judice–Ninke · Ostromoukhov (adaptive)
 
 Ordered / Masks:
 Bayer 2×2 · Bayer 4×4 · Bayer 8×8 · Blue Noise Mask (64×64)
@@ -21,6 +21,8 @@ Game Boy · NES · PICO‑8 · DawnBringer 16 / 32 · CGA 16 · EGA 16 · Solari
 
 Palette mode remaps colors before / during diffusion (depending on algorithm) for authentic limited‑color looks.
 
+Palettes are editable: when a palette is active you can click swatches to temporarily remove them (keep at least two). Use the restore arrow to bring all colors back.
+
 ## Try It Locally (optional)
 Requires Node 20.19+ (recent LTS works). If you only want to use it, visit the deployed site (see repo description). To hack on it:
 
@@ -32,6 +34,17 @@ npm run dev
 ```
 
 Open the shown local URL. Drop an image. Pick an algorithm. Adjust threshold / resolution / palette / invert (when allowed). Download.
+
+## Functionalities
+- Error diffusion & ordered algorithms (including Ostromoukhov adaptive).
+- Palette selection & on-the-fly swatch removal / restore.
+- Adjustable luminance threshold (where applicable) & working resolution.
+- Invert (disabled when palette active) & serpentine scanning toggle.
+- Shareable URLs (algorithm, threshold, resolution, palette + reduced colors, invert, serpentine).
+- Downloads: PNG, JPEG, WEBP* plus SVG vector export.
+- Focus Mode (press F) hides UI chrome.
+
+*WEBP support depends on the browser; falls back to PNG when unsupported.
 
 ## Dev Scripts (for contributors)
 dev · build · preview · lint (standard Vite workflow)
