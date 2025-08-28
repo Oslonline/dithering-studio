@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { canvasToSVG } from "../utils/export";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/ImageUploader";
@@ -9,21 +10,34 @@ import { predefinedPalettes } from "../utils/palettes";
 const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
-  // UI state
   const [image, setImage] = useState<string | null>(null);
   const [pattern, setPattern] = useState<number>(1);
   const [threshold, setThreshold] = useState<number>(128);
   const [workingResolution, setWorkingResolution] = useState<number>(512);
   const [workingResInput, setWorkingResInput] = useState<string>("512");
-  const [downloadFormat, setDownloadFormat] = useState<"png" | "jpeg">("png");
+  const [webpSupported, setWebpSupported] = useState(true);
+  useEffect(()=>{
+    try {
+      const c = document.createElement('canvas');
+      c.width = c.height = 2;
+      const data = c.toDataURL('image/webp');
+      if (!data.startsWith('data:image/webp')) setWebpSupported(false);
+    } catch { setWebpSupported(false); }
+  }, []);
   const [paletteId, setPaletteId] = useState<string | null>(null);
+  const [activePaletteColors, setActivePaletteColors] = useState<[number,number,number][] | null>(null);
   const [invert, setInvert] = useState(false);
   const [serpentine, setSerpentine] = useState(true);
+  const [focusMode, setFocusMode] = useState(false);
   const [showThresholdBubble, setShowThresholdBubble] = useState(false);
   const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold;
   if (paletteId && invert) setInvert(false);
 
-  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, resetCanvas } = useDithering({
+  const effectivePaletteId = paletteId;
+  const effectivePalette = (effectivePaletteId ? predefinedPalettes.find(p=>p.id===effectivePaletteId)?.colors : null) || null;
+  useEffect(()=>{ if (effectivePalette) setActivePaletteColors(effectivePalette.map(c=>[...c] as [number,number,number])); else setActivePaletteColors(null); }, [effectivePaletteId]);
+
+  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag } = useDithering({
     image,
     pattern,
     threshold,
@@ -32,29 +46,122 @@ const ImageDitheringTool: React.FC = () => {
     serpentine,
     isErrorDiffusion: isErrorDiffusion(pattern),
     paletteId,
+  paletteColors: activePaletteColors || undefined,
   });
+
+  useEffect(()=>{
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.key === 'f' || e.key === 'F')) {
+        const t = e.target as HTMLElement;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+        setFocusMode(f=>!f);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleImageChange = (img: string | null) => setImage(img);
 
-  const resetAll = () => {
+  const uploadAnother = () => {
     setImage(null);
-    setPattern(1);
-    setThreshold(128);
-    setWorkingResolution(512);
-    setWorkingResInput("512");
-    setInvert(false);
-    setSerpentine(true);
-  setPaletteId(null);
-    resetCanvas();
+  };
+  const [showDownload, setShowDownload] = useState(false);
+  const downloadRef = useRef<HTMLDivElement|null>(null);
+  const [shareText, setShareText] = useState("");
+  const shareMessages = useRef<string[]>([
+    "Floyd–Steinberg diffusion result",
+    "High contrast ordered-to-diffusion comparison",
+    "Palette-constrained pixel texture",
+    "Classic error diffusion aesthetic",
+    "Retro styled monochrome grain",
+    "Algorithmic dithering output",
+    "Diffusion + palette quantization",
+    "Minimal color, maximal texture",
+    "Granular luminance mapping",
+    "Pixel-level tone dispersion"
+  ]);
+  useEffect(()=>{
+    if (showDownload) {
+      const base = shareMessages.current[Math.floor(Math.random()*shareMessages.current.length)];
+      setShareText(`${base} — Dithering Studio by @Oslo418`);
+    }
+  }, [showDownload]);
+  useEffect(()=>{
+    const onDocClick = (e: MouseEvent) => {
+      if (!showDownload) return;
+      if (downloadRef.current && !downloadRef.current.contains(e.target as Node)) {
+        setShowDownload(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key==='Escape') setShowDownload(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return ()=>{ document.removeEventListener('mousedown', onDocClick); document.removeEventListener('keydown', onKey); };
+  }, [showDownload]);
+
+  const [focusHintStyle, setFocusHintStyle] = useState<{left:number; top:number}>({ left:16, top:72 });
+  const [showFocusHintDevice, setShowFocusHintDevice] = useState(true);
+  useEffect(()=>{
+    const evalDevice = () => {
+      const belowMd = window.innerWidth < 768; // tailwind md breakpoint
+      const coarse = matchMedia('(pointer: coarse)').matches;
+      setShowFocusHintDevice(!(belowMd || coarse));
+    };
+    evalDevice();
+    window.addEventListener('resize', evalDevice);
+    return () => window.removeEventListener('resize', evalDevice);
+  }, []);
+  useEffect(()=>{
+    const calc = () => {
+      if (focusMode) { setFocusHintStyle({ left:8, top:8 }); return; }
+      const header = document.querySelector('#tool > header');
+      const aside = document.querySelector('#tool aside');
+      const headerH = header ? header.getBoundingClientRect().height : 48;
+      const asideW = aside ? aside.getBoundingClientRect().width : 0;
+  const top = headerH + 16;
+      const left = (window.innerWidth >= 768 ? asideW + 16 : 16);
+      setFocusHintStyle({ left, top });
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, [focusMode]);
+
+  const downloadImageAs = (fmt: 'png' | 'jpeg' | 'webp') => {
+    const canvas = processedCanvasRef.current || canvasRef.current; if (!canvas) return;
+    let mime = `image/${fmt}`;
+    if (fmt === 'webp' && !webpSupported) mime = 'image/png';
+    try {
+      const url = canvas.toDataURL(mime);
+      const link = document.createElement('a');
+      link.download = `dithering-effect.${fmt}`;
+      link.href = url;
+      link.click();
+    } catch {
+      if (mime !== 'image/png') {
+        const fallback = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'dithering-effect.png';
+        link.href = fallback;
+        link.click();
+      }
+    }
+    setShowDownload(false);
   };
 
-  const downloadImage = () => {
-    const canvas = processedCanvasRef.current || canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.download = `dithering-effect.${downloadFormat}`;
-    link.href = canvas.toDataURL(`image/${downloadFormat}`);
+  const downloadAsSVG = () => {
+    const canvas = processedCanvasRef.current || canvasRef.current; if (!canvas) return;
+    const { svg } = canvasToSVG(canvas, { mergeRuns: true });
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = 'dithering-effect.svg';
+    link.href = url;
     link.click();
+    setShowDownload(false);
+    setTimeout(()=> URL.revokeObjectURL(url), 2000);
   };
 
   return (
@@ -64,15 +171,20 @@ const ImageDitheringTool: React.FC = () => {
         <meta name="description" content="Client-side image dithering: Floyd–Steinberg, Atkinson, Stucki, Sierra family, Jarvis, Bayer ordered, halftone & more." />
         <link rel="canonical" href="https://steinberg-image.vercel.app//Dithering" />
       </Helmet>
-      <div id="tool" className="flex min-h-screen w-full flex-col md:flex-row">
-        <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r">
-          <header className="flex items-center justify-between px-4 pb-3 pt-4">
+      <div id="tool" className={`flex min-h-screen w-full flex-col ${focusMode ? 'focus-mode' : ''}`}>
+        <header className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? 'hidden' : ''}`}>
+          <div className="flex items-center gap-4">
             <h1 className="font-mono text-xs tracking-wide text-gray-300">Dithering Studio</h1>
-            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">
-              Home
-            </Link>
-          </header>
-          <div className="flex-1 overflow-y-auto px-4 pb-6">
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
+            <Link to="/Algorithms" className="clean-btn px-3 py-1 !text-[11px]" title="Algorithm reference">Explore</Link>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col md:flex-row">
+        {!focusMode && (
+        <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r">
+          <div className="flex-1 overflow-y-auto px-4 pb-6 pt-4" style={{ maxHeight: 'calc(100vh - 48px)' }}>
             {!image && (
               <div className="relative min-panel space-y-3 p-4">
                 <h2 className="font-anton text-xl leading-tight">Dithering Studio</h2>
@@ -88,6 +200,10 @@ const ImageDitheringTool: React.FC = () => {
             )}
             {image && (
               <div className="space-y-6">
+                <button onClick={uploadAnother} className="clean-btn w-full justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide">
+                  <span className="text-[13px]" aria-hidden>⬆</span>
+                  <span>Upload another image</span>
+                </button>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center justify-between">
                     <label htmlFor="pattern-select" className="font-mono text-[11px] tracking-wide text-gray-300">
@@ -141,14 +257,40 @@ const ImageDitheringTool: React.FC = () => {
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
-                  {paletteId && (
-                    <div className="flex flex-wrap gap-1">
-                      {predefinedPalettes.find(p => p.id === paletteId)?.colors.map((c,i) => (
-                        <span key={i} className="inline-block h-4 w-4 rounded-sm border border-neutral-600" style={{ background:`rgb(${c[0]},${c[1]},${c[2]})` }} />
+                  {!paletteId && (
+                    <p className="text-[10px] text-gray-500">Select a palette then click colors to remove them.</p>
+                  )}
+                  {paletteId && activePaletteColors && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {activePaletteColors.map((c,i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={()=>{
+                            if (!activePaletteColors) return;
+                            if (activePaletteColors.length <= 2) return; // keep at least 2
+                            const next = activePaletteColors.filter((_,idx)=> idx!==i);
+                            setActivePaletteColors(next);
+                          }}
+                          className="group relative h-5 w-5 cursor-pointer rounded-sm border border-neutral-600 focus-visible:shadow-[var(--focus-ring)]"
+                          style={{ background:`rgb(${c[0]},${c[1]},${c[2]})` }}
+                          title="Remove color"
+                          aria-label={`Remove color rgb(${c[0]},${c[1]},${c[2]})`}
+                        >
+                          <span className="pointer-events-none absolute inset-0 rounded-sm bg-black/0 transition group-hover:bg-black/35" />
+                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[13px] font-bold text-white opacity-0 drop-shadow-[0_0_2px_rgba(0,0,0,0.9)] transition-opacity group-hover:opacity-100">×</span>
+                        </button>
                       ))}
+                      <button
+                        type="button"
+                        onClick={()=> effectivePalette && setActivePaletteColors(effectivePalette.map(c=>[...c] as [number,number,number]))}
+                        className="relative h-5 w-5 cursor-pointer rounded-sm border border-neutral-600 text-[11px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
+                        title="Restore full palette"
+                        aria-label="Restore full palette"
+                      >↺</button>
                     </div>
                   )}
-                  <p className="text-[10px] text-gray-500">Palette-aware diffusion (Floyd–Steinberg) or post-quantization. Threshold acts as brightness bias.</p>
+                  <p className="mt-2 text-[10px] text-gray-500">Palette-aware diffusion (Floyd–Steinberg) or post-quantization. Remove swatches to constrain colors.</p>
                 </div>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center gap-2">
@@ -251,30 +393,11 @@ const ImageDitheringTool: React.FC = () => {
                   </div>
                   <p className="text-[10px] text-gray-500">Pixel width used for processing & download.</p>
                 </div>
-        <div className="flex items-stretch gap-2">
-                  <button className="clean-btn flex items-center gap-1 border-dashed px-2 text-[11px] opacity-70 transition hover:opacity-100" onClick={resetAll} title="Reset all settings" style={{ flex: "0 0 auto" }}>
-                    ↺
-                  </button>
-                  <div className="group relative flex-1">
-                    <button className="clean-btn clean-btn-primary w-full justify-center pr-12" disabled={!hasApplied} onClick={downloadImage} title={`Download image as ${downloadFormat.toUpperCase()}`}>
-                      Download
-                    </button>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-1">
-                      <div className="relative">
-                        <select aria-label="Download format" className="download-format-select pr-5" value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value as "png" | "jpeg")} disabled={!hasApplied}>
-                          <option value="png">PNG</option>
-                          <option value="jpeg">JPEG</option>
-                        </select>
-                        <span className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-blue-200 opacity-80">▾</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <Link to="/Algorithms" className="clean-btn w-full text-[11px] text-center">Explore Algorithms</Link>
+  <Link to="/Algorithms" className="clean-btn w-full text-[11px] text-center">Explore Algorithms</Link>
               </div>
             )}
           </div>
-        </aside>
+  </aside>)}
         <main className="flex flex-1 items-center justify-center p-4">
           {!image && (
             <div className="w-full max-w-lg">
@@ -294,6 +417,49 @@ const ImageDitheringTool: React.FC = () => {
             </div>
           )}
         </main>
+        </div>
+        {image && (
+          <>
+            <button
+              onClick={()=> hasApplied && setShowDownload(true)}
+              disabled={!hasApplied}
+              className={`fixed bottom-4 right-4 z-30 clean-btn clean-btn-primary-compact text-[11px] ${!hasApplied ? 'opacity-50 cursor-not-allowed' : ''}`}
+              style={{ width:'auto', maxWidth:'calc(100vw - 2rem)' }}
+            >Download Result</button>
+            {showDownload && (
+              <div className="fixed inset-0 z-40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="font-mono text-xs tracking-wide text-gray-300">Export Result</h2>
+                    <button onClick={()=> setShowDownload(false)} className="clean-btn px-2 py-0 text-[11px]">✕</button>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 mb-4">
+                    <button onClick={()=>downloadImageAs('png')} className="clean-btn w-full text-[11px]">PNG</button>
+                    <button onClick={()=>downloadImageAs('jpeg')} className="clean-btn w-full text-[11px]">JPEG</button>
+                    <button onClick={()=>downloadImageAs('webp')} disabled={!webpSupported} className={`clean-btn w-full text-[11px] ${!webpSupported?'opacity-40 cursor-not-allowed':''}`}>WEBP</button>
+                    <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">SVG</button>
+                  </div>
+                  <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? '(modern)' : '(unsupported)'}; SVG vector (large for big images).</p>
+                  <div className="flex items-center justify-between">
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || 'Dithered an image via @Oslo418')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-blue-400 hover:underline"
+                    >Share on X</a>
+                    <button onClick={()=> setShowDownload(false)} className="clean-btn px-3 py-1 text-[11px]">Close</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        {showFocusHintDevice && (
+          <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 text-[10px] font-mono tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: focusHintStyle.left, top: focusHintStyle.top }}>
+            Press F to toggle Focus Mode
+          </div>
+        )}
       </div>
     </>
   );

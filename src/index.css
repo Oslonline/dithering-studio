@@ -113,6 +113,20 @@ html, body {
 .clean-btn-primary:hover:not(:disabled)::after{ opacity:1; }
 .clean-btn-primary:active:not(:disabled){ transform:translateY(1px); }
 
+/* Compact primary variant (lighter visual weight for floating actions) */
+.clean-btn-primary-compact {
+  --grad: linear-gradient(135deg,#1e3a8a,#2563eb 55%,#3b82f6);
+  background: var(--grad);
+  border:1px solid #1e40af;
+  color:#f1f5f9;
+  padding:.45rem .9rem;
+  font-size:11px;
+  letter-spacing:.06em;
+  box-shadow:0 3px 10px -4px rgba(37,99,235,.45),0 0 0 1px #1d4ed8 inset;
+}
+.clean-btn-primary-compact:hover:not(:disabled){ filter:brightness(1.05); box-shadow:0 4px 14px -5px rgba(37,99,235,.55),0 0 0 1px #2563eb inset; }
+.clean-btn-primary-compact:active:not(:disabled){ transform:translateY(1px); }
+
 .clean-btn-danger {
   background:#b91c1c;
   border-color:#b91c1c;
@@ -199,3 +213,7 @@ html, body {
 .download-format-select:hover:not(:disabled){ background:#132235; }
 .download-format-select:focus-visible { outline:none; box-shadow:0 0 0 2px #0a0a0a,0 0 0 4px rgba(37,99,235,.7); }
 .download-format-select:disabled { opacity:.55; cursor:not-allowed; }
+
+/* Focus mode adjustments */
+.focus-mode aside { display:none; }
+.focus-mode main { padding:0.75rem; }
