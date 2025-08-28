@@ -3,18 +3,9 @@ import PatternDrawer from "../components/PatternDrawer";
 import floydSteinberg from "../utils/floydSteinberg";
 import { findPalette } from "../utils/palettes";
 
-interface Params {
-  image: string | null;
-  pattern: number;
-  threshold: number;
-  workingResolution: number;
-  invert: boolean;
-  serpentine: boolean;
-  isErrorDiffusion: boolean;
-  paletteId?: string | null;
-}
+interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -25,7 +16,6 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const [renderBump, setRenderBump] = useState(0);
   const [layoutTick, setLayoutTick] = useState(0);
 
-  // Track resize for responsive scaling
   useEffect(() => {
     const onResize = () => setLayoutTick((v) => v + 1);
     window.addEventListener('resize', onResize);
@@ -54,7 +44,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   }, [image]);
 
   useEffect(() => {
-    if (!baseImageRef.current) return;
+  if (!baseImageRef.current) return;
     const img = baseImageRef.current;
     const displayCanvas = canvasRef.current;
     if (!displayCanvas) return;
@@ -83,18 +73,18 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const src = procCtx.getImageData(0, 0, width, height);
     const srcData = src.data;
 
-    let out: ImageData;
-    const palette = findPalette(paletteId || null)?.colors || null;
+    let out: ImageData | null = null;
+  const palette = paletteColors || findPalette(paletteId || null)?.colors || null;
   if (pattern === 1) {
       const processed = floydSteinberg({ data: srcData, width, height, threshold, invert, serpentine, palette: palette || undefined });
       out = new ImageData(width, height);
       out.data.set(processed);
-  } else {
+    } else {
 
-  // Invert allowed when no palette is active (palette path handles color domain separately)
+  // Invert only when no palette
   const allowInvert = !palette;
   out = PatternDrawer(srcData, width, height, pattern, threshold, { invert: allowInvert && invert, serpentine: isErrorDiffusion ? serpentine : false });
-      if (palette) {
+  if (palette) {
         const d = out.data;
         const bias = (threshold - 128) / 255 * 64;
         for (let i = 0; i < d.length; i += 4) {
@@ -119,10 +109,16 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
 
   if (token !== renderTokenRef.current) return;
 
-    displayCtx.putImageData(out, 0, 0);
+    if (out) {
+      displayCtx.putImageData(out, 0, 0);
+      procCtx.putImageData(out, 0, 0);
+    } else {
+  // Fallback: draw original
+      displayCtx.drawImage(img, 0, 0, width, height);
+      procCtx.drawImage(img, 0, 0, width, height);
+    }
     displayCanvas.classList.add("pixelated");
 
-  // Responsive sizing
     const ow = originalDimensions.current.width || width;
     const oh = originalDimensions.current.height || height;
     if (ow && oh) {
@@ -139,13 +135,13 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       displayCanvas.style.height = dispH + 'px';
     }
 
-    procCtx.putImageData(out, 0, 0);
-
-    setHasApplied(true);
-    setCanvasUpdatedFlag(true);
-    const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
-    return () => clearTimeout(t);
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick]);
+    if (out) {
+      setHasApplied(true);
+      setCanvasUpdatedFlag(true);
+      const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
+      return () => clearTimeout(t);
+    }
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;

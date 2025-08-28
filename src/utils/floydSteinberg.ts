@@ -1,10 +1,10 @@
 
-interface Params { data: Uint8ClampedArray; width: number; height: number; threshold: number; invert: boolean; serpentine: boolean; palette?: [number, number, number][]; }
+interface Params { data: Uint8ClampedArray; width: number; height: number; threshold: number; invert: boolean; serpentine: boolean; palette?: [number, number, number][]; progress?: (y: number, total: number) => void; }
 
-const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, palette }: Params): Uint8ClampedArray => {
+const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, palette, progress }: Params): Uint8ClampedArray => {
 	const out = new Uint8ClampedArray(data.length);
 
-	// Palette-aware diffusion branch
+	// Palette-aware
 		if (palette) {
 		const work = new Float32Array(data.length);
 		for (let i = 0; i < data.length; i++) work[i] = data[i];
@@ -70,7 +70,7 @@ const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, pa
 		return out as Uint8ClampedArray;
 	}
 
-	// Grayscale FS diffusion branch
+	// Grayscale branch
 	const lum = new Float32Array(width * height);
 	for (let i = 0, p = 0; i < data.length; i += 4, p++) {
 		const r = data[i], g = data[i + 1], b = data[i + 2];
@@ -108,6 +108,7 @@ const floydSteinberg = ({ data, width, height, threshold, invert, serpentine, pa
 				}
 			}
 		}
+		if (progress && (y & 7) === 0) progress(y + 1, height);
 	}
 
 	for (let p = 0, i = 0; p < lum.length; p++, i += 4) {
