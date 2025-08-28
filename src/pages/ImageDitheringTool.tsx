@@ -565,11 +565,8 @@ const ImageDitheringTool: React.FC = () => {
               <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? "(modern)" : "(unsupported)"}; SVG vector (large for big images).</p>
               <div className="flex items-center justify-between">
                 <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || "Dithered an image via @Oslo418")}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-400 hover:underline">
-                  Share on X
+                  Share the result on X
                 </a>
-                <button onClick={() => setShowDownload(false)} className="clean-btn px-3 py-1 text-[11px]">
-                  Close
-                </button>
               </div>
             </div>
           </div>
