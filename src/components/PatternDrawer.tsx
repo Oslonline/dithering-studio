@@ -8,6 +8,7 @@ export const patternOptions = [
   { value: 13, label: "Two-Row Sierra" },
   { value: 14, label: "Stevenson-Arce" },
   { value: 7, label: "Jarvis-Judice-Ninke" },
+  { value: 18, label: "Ostromoukhov (adaptive)" },
   { value: 2, label: "Bayer 4x4 (ordered)" },
   { value: 8, label: "Bayer 8x8 (ordered)" },
   { value: 16, label: "Bayer 2x2 (ordered)" },
@@ -34,6 +35,7 @@ export const patternMeta: Record<number, {
   13:{ name: "Two-Row Sierra", category: "Error Diffusion", description: "Two-row variant; compromise between full Sierra and Lite.", supportsThreshold: true },
   14:{ name: "Stevenson–Arce", category: "Error Diffusion", description: "Sparse long-range diffusion; produces interesting organic texture.", supportsThreshold: true },
   7: { name: "Jarvis–Judice–Ninke", category: "Error Diffusion", description: "High quality large kernel; slower but smooth transitions.", supportsThreshold: true },
+  18:{ name: "Ostromoukhov", category: "Error Diffusion", description: "Adaptive weight schedule for fine detail & reduced artifacts.", supportsThreshold: true, note: "Simplified approximation." },
   2: { name: "Bayer 4×4", category: "Ordered", description: "Small ordered matrix; crisp pattern, good for pixel-art vibe.", supportsThreshold: false, note: "Uses internal thresholds." },
   8: { name: "Bayer 8×8", category: "Ordered", description: "Larger ordered matrix; smoother gradients with subtle texture.", supportsThreshold: false, note: "Uses internal thresholds." },
  16:{ name: "Bayer 2×2", category: "Ordered", description: "Minimal ordered matrix; very coarse, strong pattern.", supportsThreshold: false, note: "Uses internal thresholds." },
@@ -136,7 +138,6 @@ const PatternDrawer = (
       for (let x = 0; x < width; x++) {
         const pxIndex = (y * width + x) * 4;
   let oldPixel = out[pxIndex];
-  if (options?.invert) oldPixel = 255 - oldPixel;
         const newPixel = oldPixel < threshold ? 0 : 255;
         const error = (oldPixel - newPixel) / 8;
         out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newPixel;
@@ -156,6 +157,13 @@ const PatternDrawer = (
             out[nIdx + 2] += error;
           }
         }
+      }
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
       }
     }
     return buildImageData(out, width, height);
@@ -413,6 +421,63 @@ const PatternDrawer = (
       const value = out[i] < threshold ? 0 : 255;
       out[i] = out[i + 1] = out[i + 2] = value;
       out[i + 3] = 255;
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
+      }
+    }
+    return buildImageData(out, width, height);
+  }
+
+  if (pattern === 18) {
+    const out = new Uint8ClampedArray(data);
+    const kernels: { r: [number, number, number, number]; w: number[] }[] = [
+    { r: [1, 0, 0, 0], w: [7, 3, 5, 1] },
+    { r: [1, 0, 0, 0], w: [5, 3, 3, 1] },
+    { r: [1, 0, 0, 0], w: [4, 3, 2, 1] },
+    { r: [1, 0, 0, 0], w: [3, 2, 2, 1] },
+    { r: [1, 0, 0, 0], w: [2, 2, 1, 1] },
+    ];
+    for (let y = 0; y < height; y++) {
+      const serp = options?.serpentine && (y % 2 === 1);
+      for (let xi = 0; xi < width; xi++) {
+        const x = serp ? (width - 1 - xi) : xi;
+        const idx = (y * width + x) * 4;
+  let oldPixel = out[idx];
+        const newPixel = oldPixel < threshold ? 0 : 255;
+        const err = oldPixel - newPixel;
+        out[idx] = out[idx + 1] = out[idx + 2] = newPixel;
+        const bucket = Math.min(4, Math.max(0, Math.floor(oldPixel / 51))); // 0..255 -> 0..4
+        const k = kernels[bucket];
+        const weights = k.w;
+        const denom = weights.reduce((a, b) => a + b, 0);
+        const coords = serp
+      ? [
+              [x - 1, y],
+              [x - 2, y],
+              [x, y + 1],
+              [x - 1, y + 1],
+            ]
+          : [
+              [x + 1, y],
+              [x + 2, y],
+              [x, y + 1],
+              [x + 1, y + 1],
+            ];
+        for (let c = 0; c < coords.length; c++) {
+          const [nx, ny] = coords[c];
+          if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+            const nIdx = (ny * width + nx) * 4;
+            const dif = (err * weights[c]) / denom;
+            out[nIdx] += dif;
+            out[nIdx + 1] += dif;
+            out[nIdx + 2] += dif;
+          }
+        }
+      }
     }
     if (options?.invert) {
       for (let i = 0; i < out.length; i += 4) {

@@ -7,7 +7,7 @@ import { patternMeta } from "../components/PatternDrawer";
 import useDithering from "../hooks/useDithering";
 import { predefinedPalettes } from "../utils/palettes";
 
-const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14].includes(p);
+const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14, 18].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -30,12 +30,65 @@ const ImageDitheringTool: React.FC = () => {
   const [serpentine, setSerpentine] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
   const [showThresholdBubble, setShowThresholdBubble] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const shareRef = useRef<HTMLDivElement|null>(null);
+  const [shareURL, setShareURL] = useState("");
+  const [copyOk, setCopyOk] = useState(false);
+  const paletteFromURL = useRef<[number,number,number][]|null>(null);
   const thresholdDisabled = !patternMeta[pattern]?.supportsThreshold;
   if (paletteId && invert) setInvert(false);
 
   const effectivePaletteId = paletteId;
   const effectivePalette = (effectivePaletteId ? predefinedPalettes.find(p=>p.id===effectivePaletteId)?.colors : null) || null;
-  useEffect(()=>{ if (effectivePalette) setActivePaletteColors(effectivePalette.map(c=>[...c] as [number,number,number])); else setActivePaletteColors(null); }, [effectivePaletteId]);
+  useEffect(()=>{ 
+    if (effectivePalette) {
+      if (paletteFromURL.current) {
+        setActivePaletteColors(paletteFromURL.current);
+        paletteFromURL.current = null; // consume override
+      } else {
+        setActivePaletteColors(effectivePalette.map(c=>[...c] as [number,number,number]));
+      }
+    } else setActivePaletteColors(null); 
+  }, [effectivePaletteId]);
+
+  // Apply settings from URL (only once on mount)
+  useEffect(()=>{
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.size === 0) return;
+    const num = (key: string, min: number, max: number) => {
+      const v = parseInt(params.get(key) || '', 10); if (isNaN(v)) return undefined; return Math.min(max, Math.max(min, v)); };
+    const p = num('p', 1, 99);
+    if (typeof p === 'number') {
+      if (isErrorDiffusion(p) || [2,8,9,10,11,12,13,14,15,16,17,18].includes(p)) setPattern(p);
+    }
+    const t = num('t', 0, 255); if (typeof t === 'number') setThreshold(t);
+    const r = num('r', 16, 4096); if (typeof r === 'number') { setWorkingResolution(r); setWorkingResInput(String(r)); }
+    if (params.get('inv') === '1') setInvert(true);
+    if (params.get('ser') === '1') setSerpentine(true);
+    const pal = params.get('pal');
+    if (pal) {
+      const cols = params.get('cols');
+      if (cols) {
+        const parsed: [number,number,number][] = [];
+        cols.split('-').forEach(part=>{
+          const seg = part.split('.');
+          if (seg.length===3) {
+            const r = +seg[0], g = +seg[1], b = +seg[2];
+            if ([r,g,b].every(n=> n>=0 && n<=255)) parsed.push([r,g,b]);
+          }
+        });
+        if (parsed.length>=2) paletteFromURL.current = parsed;
+      }
+      setPaletteId(pal);
+    }
+    // Clean URL (remove applied params) while preserving hash if any.
+    try {
+      const clean = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', clean || '/');
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag } = useDithering({
     image,
@@ -100,6 +153,18 @@ const ImageDitheringTool: React.FC = () => {
     document.addEventListener('keydown', onKey);
     return ()=>{ document.removeEventListener('mousedown', onDocClick); document.removeEventListener('keydown', onKey); };
   }, [showDownload]);
+
+  // Close share modal outside click
+  useEffect(()=>{
+    if (!showShareModal) return;
+    const handler = (e: MouseEvent) => {
+      if (shareRef.current && !shareRef.current.contains(e.target as Node)) setShowShareModal(false);
+    };
+    const key = (e: KeyboardEvent) => { if (e.key==='Escape') setShowShareModal(false); };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('keydown', key);
+    return ()=>{ document.removeEventListener('mousedown', handler); document.removeEventListener('keydown', key); };
+  }, [showShareModal]);
 
   const [focusHintStyle, setFocusHintStyle] = useState<{left:number; top:number}>({ left:16, top:72 });
   const [showFocusHintDevice, setShowFocusHintDevice] = useState(true);
@@ -224,6 +289,7 @@ const ImageDitheringTool: React.FC = () => {
                       <option value={13}>Two-Row Sierra</option>
                       <option value={14}>Stevenson-Arce</option>
                       <option value={7}>Jarvis-Judice-Ninke</option>
+                      <option value={18}>Ostromoukhov (adaptive)</option>
                     </optgroup>
                     <optgroup label="Ordered">
                       <option value={16}>Bayer 2×2</option>
@@ -296,7 +362,15 @@ const ImageDitheringTool: React.FC = () => {
                 </div>
                 <div className="min-panel space-y-2 p-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11px] tracking-wide text-gray-300">Luminance Threshold / Bias</span>
+                    <span className="font-mono text-[11px] tracking-wide text-gray-300 flex items-center gap-1">Luminance Threshold / Bias
+                      <button
+                        type="button"
+                        className="info-badge"
+                        aria-label="Info about threshold bias"
+                        onClick={()=> setShowThresholdBubble(b=>!b)}
+                        title="Shows the bias value. Adjusts cutoff for binarization before diffusion."
+                      >i</button>
+                    </span>
                     {thresholdDisabled && <span className="badge">Auto</span>}
                   </div>
                   <div className="relative">
@@ -401,11 +475,34 @@ const ImageDitheringTool: React.FC = () => {
           </div>
           <div className="border-t border-neutral-800 p-4">
             {image ? (
-              <button
-                onClick={()=> hasApplied && setShowDownload(true)}
-                disabled={!hasApplied}
-                className={`clean-btn clean-btn-primary w-full justify-center text-[11px] ${!hasApplied ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >Download Result</button>
+              <div className="flex gap-2">
+                <button
+                  onClick={()=> hasApplied && setShowDownload(true)}
+                  disabled={!hasApplied}
+                  className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >Download</button>
+                <button
+                  onClick={()=>{
+                    const params = new URLSearchParams();
+                    params.set('p', String(pattern));
+                    params.set('t', String(threshold));
+                    params.set('r', String(workingResolution));
+                    if (invert) params.set('inv','1');
+                    if (serpentine) params.set('ser','1');
+                    if (paletteId) {
+                      params.set('pal', paletteId);
+                      if (activePaletteColors) params.set('cols', activePaletteColors.map(c=>c.join('.')).join('-'));
+                    }
+                    const base = window.location.origin + window.location.pathname;
+                    const full = base + '?' + params.toString();
+                    setShareURL(full);
+                    navigator.clipboard?.writeText(full).catch(()=>{});
+                    setShowShareModal(true);
+                  }}
+                  className="clean-btn flex-1 justify-center text-[11px]"
+                  title="Copy shareable URL"
+                >Share</button>
+              </div>
             ) : (
               <Link to="/Algorithms" className="clean-btn w-full text-[11px] text-center">Explore Algorithms</Link>
             )}
@@ -462,6 +559,31 @@ const ImageDitheringTool: React.FC = () => {
         {showFocusHintDevice && (
           <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 text-[10px] font-mono tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: focusHintStyle.left, top: focusHintStyle.top }}>
             Press F to toggle Focus Mode
+          </div>
+        )}
+        {showShareModal && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div ref={shareRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-mono text-xs tracking-wide text-gray-300">Share Link</h2>
+              </div>
+              <p className="text-[10px] mb-3 text-gray-500">URL encodes current algorithm, threshold, resolution, palette & toggles. Copied to clipboard.</p>
+              <div className="mb-4">
+                <input type="text" readOnly value={shareURL} className="clean-input w-full text-[10px]" onFocus={(e)=> e.currentTarget.select()} />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={()=>{
+                    navigator.clipboard?.writeText(shareURL).then(()=>{
+                      setCopyOk(true); setTimeout(()=> setCopyOk(false), 1400);
+                    }).catch(()=>{});
+                  }}
+                  className={`clean-btn text-[11px] ${copyOk ? 'border-green-600 text-green-400' : ''}`}
+                >{copyOk ? 'Copied ✓' : 'Copy'}</button>
+                <button onClick={()=> setShowShareModal(false)} className="clean-btn px-3 py-1 text-[11px]">Close</button>
+              </div>
+            </div>
           </div>
         )}
       </div>
