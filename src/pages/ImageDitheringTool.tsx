@@ -184,22 +184,24 @@ const ImageDitheringTool: React.FC = () => {
         <div className="flex flex-1 flex-col md:flex-row">
         {!focusMode && (
         <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r">
-          <div className="flex-1 overflow-y-auto px-4 pb-6 pt-4" style={{ maxHeight: 'calc(100vh - 48px)' }}>
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 48px)' }}>
             {!image && (
-              <div className="relative min-panel space-y-3 p-4">
-                <h2 className="font-anton text-xl leading-tight">Dithering Studio</h2>
-                <p className="text-[11px] leading-relaxed text-gray-400">Drop or select an image in the main area to begin. Your picture never leaves this window.</p>
-                <ul className="ml-4 list-disc space-y-1 text-[10px] text-gray-500">
-                  <li>Choose algorithm & tweak threshold.</li>
-                  <li>Adjust working resolution (internal quality).</li>
-                  <li>Invert or enable serpentine scanning.</li>
-                  <li>Download instantly as PNG or JPEG.</li>
-                </ul>
-                <Link to="/Algorithms" className="clean-btn mt-2 w-full text-[11px] text-center">Explore Algorithms</Link>
+              <div className="px-4 pt-4 pb-6">
+                <div className="relative min-panel space-y-3 p-4">
+                  <h2 className="font-anton text-xl leading-tight">Dithering Studio</h2>
+                  <p className="text-[11px] leading-relaxed text-gray-400">Drop or select an image in the main area to begin. Your picture never leaves this window.</p>
+                  <ul className="ml-4 list-disc space-y-1 text-[10px] text-gray-500">
+                    <li>Choose algorithm & tweak threshold.</li>
+                    <li>Adjust working resolution (internal quality).</li>
+                    <li>Invert or enable serpentine scanning.</li>
+                    <li>Download instantly as PNG or JPEG.</li>
+                  </ul>
+                </div>
               </div>
             )}
             {image && (
-              <div className="space-y-6">
+              <div className="px-4 pt-4 pb-6">
+                <div className="settings-stack space-y-6">
                 <button onClick={uploadAnother} className="clean-btn w-full justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide">
                   <span className="text-[13px]" aria-hidden>⬆</span>
                   <span>Upload another image</span>
@@ -393,11 +395,23 @@ const ImageDitheringTool: React.FC = () => {
                   </div>
                   <p className="text-[10px] text-gray-500">Pixel width used for processing & download.</p>
                 </div>
-  <Link to="/Algorithms" className="clean-btn w-full text-[11px] text-center">Explore Algorithms</Link>
+                </div>
               </div>
             )}
           </div>
-  </aside>)}
+          <div className="border-t border-neutral-800 p-4">
+            {image ? (
+              <button
+                onClick={()=> hasApplied && setShowDownload(true)}
+                disabled={!hasApplied}
+                className={`clean-btn clean-btn-primary w-full justify-center text-[11px] ${!hasApplied ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >Download Result</button>
+            ) : (
+              <Link to="/Algorithms" className="clean-btn w-full text-[11px] text-center">Explore Algorithms</Link>
+            )}
+          </div>
+        </aside>
+        )}
         <main className="flex flex-1 items-center justify-center p-4">
           {!image && (
             <div className="w-full max-w-lg">
@@ -418,42 +432,32 @@ const ImageDitheringTool: React.FC = () => {
           )}
         </main>
         </div>
-        {image && (
-          <>
-            <button
-              onClick={()=> hasApplied && setShowDownload(true)}
-              disabled={!hasApplied}
-              className={`fixed bottom-4 right-4 z-30 clean-btn clean-btn-primary-compact text-[11px] ${!hasApplied ? 'opacity-50 cursor-not-allowed' : ''}`}
-              style={{ width:'auto', maxWidth:'calc(100vw - 2rem)' }}
-            >Download Result</button>
-            {showDownload && (
-              <div className="fixed inset-0 z-40 flex items-center justify-center">
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h2 className="font-mono text-xs tracking-wide text-gray-300">Export Result</h2>
-                    <button onClick={()=> setShowDownload(false)} className="clean-btn px-2 py-0 text-[11px]">✕</button>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2 mb-4">
-                    <button onClick={()=>downloadImageAs('png')} className="clean-btn w-full text-[11px]">PNG</button>
-                    <button onClick={()=>downloadImageAs('jpeg')} className="clean-btn w-full text-[11px]">JPEG</button>
-                    <button onClick={()=>downloadImageAs('webp')} disabled={!webpSupported} className={`clean-btn w-full text-[11px] ${!webpSupported?'opacity-40 cursor-not-allowed':''}`}>WEBP</button>
-                    <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">SVG</button>
-                  </div>
-                  <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? '(modern)' : '(unsupported)'}; SVG vector (large for big images).</p>
-                  <div className="flex items-center justify-between">
-                    <a
-                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || 'Dithered an image via @Oslo418')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-blue-400 hover:underline"
-                    >Share on X</a>
-                    <button onClick={()=> setShowDownload(false)} className="clean-btn px-3 py-1 text-[11px]">Close</button>
-                  </div>
-                </div>
+        {showDownload && image && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-mono text-xs tracking-wide text-gray-300">Export Result</h2>
+                <button onClick={()=> setShowDownload(false)} className="clean-btn px-2 py-0 text-[11px]">✕</button>
               </div>
-            )}
-          </>
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <button onClick={()=>downloadImageAs('png')} className="clean-btn w-full text-[11px]">PNG</button>
+                <button onClick={()=>downloadImageAs('jpeg')} className="clean-btn w-full text-[11px]">JPEG</button>
+                <button onClick={()=>downloadImageAs('webp')} disabled={!webpSupported} className={`clean-btn w-full text-[11px] ${!webpSupported?'opacity-40 cursor-not-allowed':''}`}>WEBP</button>
+                <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">SVG</button>
+              </div>
+              <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? '(modern)' : '(unsupported)'}; SVG vector (large for big images).</p>
+              <div className="flex items-center justify-between">
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || 'Dithered an image via @Oslo418')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-blue-400 hover:underline"
+                >Share on X</a>
+                <button onClick={()=> setShowDownload(false)} className="clean-btn px-3 py-1 text-[11px]">Close</button>
+              </div>
+            </div>
+          </div>
         )}
         {showFocusHintDevice && (
           <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 text-[10px] font-mono tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: focusHintStyle.left, top: focusHintStyle.top }}>
