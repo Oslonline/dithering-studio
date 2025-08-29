@@ -149,8 +149,8 @@ const AlgorithmExplorer: React.FC = () => {
           <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
         </div>
       </header>
-      <div className="flex flex-1 flex-col md:flex-row">
-      <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r" style={{ maxHeight: 'calc(100vh - 48px)' }}>
+  <div className="flex flex-1 flex-col md:flex-row">
+  <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r" style={{ maxHeight: 'calc(100vh - 48px)' }}>
         <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">
           {algorithmDetails.map((a) => (
             <AlgorithmCard key={a.id} algo={a} active={a.id === activeId} onSelect={() => setActiveId(a.id)} />

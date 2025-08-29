@@ -7,7 +7,7 @@ import { patternMeta, patternOptions } from "../components/PatternDrawer";
 import useDithering from "../hooks/useDithering";
 import { predefinedPalettes } from "../utils/palettes";
 
-const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14, 18].includes(p);
+const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14, 18, 19].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
