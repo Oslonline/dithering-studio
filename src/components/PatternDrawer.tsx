@@ -17,6 +17,8 @@ export const patternOptions = [
   { value: 9, label: "Halftone (experimental)" },
   { value: 10, label: "Random threshold (experimental)" },
   { value: 11, label: "Dot diffusion (simple, experimental)" },
+  { value: 19, label: "False Floyd-Steinberg" },
+  { value: 20, label: "Bayer 16x16 (ordered)" },
 ];
 
 export const patternMeta: Record<number, {
@@ -36,9 +38,11 @@ export const patternMeta: Record<number, {
   14:{ name: "Stevenson–Arce", category: "Error Diffusion", description: "Sparse long-range diffusion; produces interesting organic texture.", supportsThreshold: true },
   7: { name: "Jarvis–Judice–Ninke", category: "Error Diffusion", description: "High quality large kernel; slower but smooth transitions.", supportsThreshold: true },
   18:{ name: "Ostromoukhov", category: "Error Diffusion", description: "Adaptive weight schedule for fine detail & reduced artifacts.", supportsThreshold: true, note: "Simplified approximation." },
+  19:{ name: "False Floyd–Steinberg", category: "Error Diffusion", description: "Reduced 3-neighbor diffusion (right, down, down-right) with weights 3/8,3/8,2/8 for speed.", supportsThreshold: true, note: "Lower quality vs full FS but faster." },
+  16:{ name: "Bayer 2×2", category: "Ordered", description: "Minimal ordered matrix; very coarse, strong pattern.", supportsThreshold: false, note: "Uses internal thresholds." },
   2: { name: "Bayer 4×4", category: "Ordered", description: "Small ordered matrix; crisp pattern, good for pixel-art vibe.", supportsThreshold: false, note: "Uses internal thresholds." },
   8: { name: "Bayer 8×8", category: "Ordered", description: "Larger ordered matrix; smoother gradients with subtle texture.", supportsThreshold: false, note: "Uses internal thresholds." },
- 16:{ name: "Bayer 2×2", category: "Ordered", description: "Minimal ordered matrix; very coarse, strong pattern.", supportsThreshold: false, note: "Uses internal thresholds." },
+  20:{ name: "Bayer 16×16", category: "Ordered", description: "Large 16×16 ordered matrix for very smooth gradients (more subtle pattern).", supportsThreshold: false, note: "Generated procedurally." },
  17:{ name: "Blue Noise 64×64", category: "Ordered", description: "Tiled blue-noise mask; less visible patterning than Bayer.", supportsThreshold: false, note: "Precomputed mask." },
   15:{ name: "Binary Threshold", category: "Other", description: "Simple cutoff without diffusion; high contrast result.", supportsThreshold: true },
   9: { name: "Halftone (Experimental)", category: "Other", description: "Block-based circular dot simulation. Experimental style effect.", supportsThreshold: true },
@@ -485,6 +489,97 @@ const PatternDrawer = (
         out[i + 1] = 255 - out[i + 1];
         out[i + 2] = 255 - out[i + 2];
       }
+    }
+    return buildImageData(out, width, height);
+  }
+
+  // 19: False Floyd–Steinberg (3-neighbor diffusion). Supports serpentine scanning.
+  if (pattern === 19) {
+    const out = new Uint8ClampedArray(data);
+    const distribute = (x: number, y: number, err: number, leftToRight: boolean) => {
+      // Weights: right 3/8, down 3/8, down-right (or down-left if serpentine) 2/8
+      if (leftToRight) {
+        if (x + 1 < width) {
+          const i = (y * width + (x + 1)) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
+        if (y + 1 < height) {
+          { const i = ((y + 1) * width + x) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
+          if (x + 1 < width) { const i = ((y + 1) * width + (x + 1)) * 4; out[i] += (err * 2) / 8; out[i + 1] += (err * 2) / 8; out[i + 2] += (err * 2) / 8; }
+        }
+      } else { // serpentine right-to-left line
+        if (x - 1 >= 0) {
+          const i = (y * width + (x - 1)) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
+        if (y + 1 < height) {
+          { const i = ((y + 1) * width + x) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
+          if (x - 1 >= 0) { const i = ((y + 1) * width + (x - 1)) * 4; out[i] += (err * 2) / 8; out[i + 1] += (err * 2) / 8; out[i + 2] += (err * 2) / 8; }
+        }
+      }
+    };
+    const useSerp = !!options?.serpentine;
+    for (let y = 0; y < height; y++) {
+      const leftToRight = !useSerp || y % 2 === 0;
+      if (leftToRight) {
+        for (let x = 0; x < width; x++) {
+          const idx = (y * width + x) * 4;
+          const oldVal = out[idx];
+          const newVal = oldVal < threshold ? 0 : 255;
+          const err = oldVal - newVal;
+          out[idx] = out[idx + 1] = out[idx + 2] = newVal;
+          distribute(x, y, err, true);
+        }
+      } else {
+        for (let x = width - 1; x >= 0; x--) {
+          const idx = (y * width + x) * 4;
+          const oldVal = out[idx];
+          const newVal = oldVal < threshold ? 0 : 255;
+          const err = oldVal - newVal;
+          out[idx] = out[idx + 1] = out[idx + 2] = newVal;
+          distribute(x, y, err, false);
+        }
+      }
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) { out[i] = 255 - out[i]; out[i+1] = 255 - out[i+1]; out[i+2] = 255 - out[i+2]; }
+    }
+    return buildImageData(out, width, height);
+  }
+
+  // 20: Bayer 16x16 ordered dither (generated matrix)
+  if (pattern === 20) {
+    // Generate Bayer matrix of size 16 (values 0..255)
+    const buildBayer = (n: number): number[][] => {
+      let m: number[][] = [[0]];
+      let size = 1;
+      while (size < n) {
+        const newSize = size * 2;
+        const next: number[][] = Array.from({ length: newSize }, () => Array(newSize).fill(0));
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const v = m[y][x];
+            next[y][x] = 4 * v;
+            next[y][x + size] = 4 * v + 2;
+            next[y + size][x] = 4 * v + 3;
+            next[y + size][x + size] = 4 * v + 1;
+          }
+        }
+        m = next; size = newSize;
+      }
+      return m;
+    };
+    const matrix = buildBayer(16);
+    const denom = 16 * 16; // 256
+    const out = new Uint8ClampedArray(data);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        const gray = out[idx];
+        const t = (matrix[y % 16][x % 16] / denom) * 255;
+        const v = gray < t ? 0 : 255;
+        out[idx] = out[idx + 1] = out[idx + 2] = v;
+        out[idx + 3] = 255;
+      }
+    }
+    if (options?.invert) {
+      for (let i = 0; i < out.length; i += 4) { out[i] = 255 - out[i]; out[i+1] = 255 - out[i+1]; out[i+2] = 255 - out[i+2]; }
     }
     return buildImageData(out, width, height);
   }
