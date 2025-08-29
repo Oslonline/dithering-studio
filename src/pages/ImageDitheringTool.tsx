@@ -30,6 +30,7 @@ const ImageDitheringTool: React.FC = () => {
   const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(null);
   const [invert, setInvert] = useState(false);
   const [serpentine, setSerpentine] = useState(true);
+  const [showGrid, setShowGrid] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement | null>(null);
@@ -139,8 +140,11 @@ const ImageDitheringTool: React.FC = () => {
       if (e.key === "f" || e.key === "F") {
         const t = e.target as HTMLElement;
         if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-        setFocusMode((f) => !f);
-        e.preventDefault();
+        setFocusMode((f) => !f); e.preventDefault();
+      } else if (e.key === "g" || e.key === "G") {
+        const t = e.target as HTMLElement;
+        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+        setShowGrid((s) => !s); e.preventDefault();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -346,12 +350,8 @@ const ImageDitheringTool: React.FC = () => {
                                 </div>
                               )}
                               <div className="grid grid-cols-2 gap-2">
-                                <button type="button" onClick={() => setInvert((v) => !v)} disabled={!!paletteId} className={`clean-btn justify-center text-[10px] ${invert ? "border-emerald-600 text-emerald-400" : ""} ${paletteId ? "cursor-not-allowed opacity-40" : ""}`} title={paletteId ? "Disabled when palette active" : "Invert output"}>
-                                  Invert
-                                </button>
-                                <button type="button" onClick={() => setSerpentine((s) => !s)} className={`clean-btn justify-center text-[10px] ${serpentine ? "border-blue-600 text-blue-400" : ""}`}>
-                                  Serpentine
-                                </button>
+                                <button type="button" onClick={() => setInvert((v) => !v)} disabled={!!paletteId} className={`clean-btn justify-center text-[10px] ${invert ? "border-emerald-600 text-emerald-400" : ""} ${paletteId ? "cursor-not-allowed opacity-40" : ""}`} title={paletteId ? "Disabled when palette active" : "Invert output"}>Invert</button>
+                                <button type="button" onClick={() => setSerpentine((s) => !s)} className={`clean-btn justify-center text-[10px] ${serpentine ? "border-blue-600 text-blue-400" : ""}`}>Serpentine</button>
                               </div>
                               <p className="text-[10px] leading-snug text-gray-500">{patternMeta[pattern]?.description}</p>
                             </div>
@@ -532,7 +532,10 @@ const ImageDitheringTool: React.FC = () => {
             {image && (
               <div className="flex h-full w-full items-center justify-center overflow-auto">
                 <div className="canvas-frame flex items-center justify-center p-2" style={{ background: "transparent", border: "none" }}>
-                  <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered image preview" style={{ display: "block" }} />
+                  <div className="relative">
+                    <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered image preview" style={{ display: "block" }} />
+                    {showGrid && <div className="pointer-events-none absolute inset-0 grid-overlay" aria-hidden />}
+                  </div>
                 </div>
               </div>
             )}
@@ -573,7 +576,7 @@ const ImageDitheringTool: React.FC = () => {
         )}
         {showFocusHintDevice && (
           <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 font-mono text-[10px] tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: focusHintStyle.left, top: focusHintStyle.top }}>
-            Press F to toggle Focus Mode
+            F Focus | G Grid
           </div>
         )}
         {showShareModal && (

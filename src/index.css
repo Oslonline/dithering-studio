@@ -214,6 +214,15 @@ html, body {
 .download-format-select:focus-visible { outline:none; box-shadow:0 0 0 2px #0a0a0a,0 0 0 4px rgba(37,99,235,.7); }
 .download-format-select:disabled { opacity:.55; cursor:not-allowed; }
 
-/* Focus mode adjustments */
 .focus-mode aside { display:none; }
 .focus-mode main { padding:0.75rem; }
+
+.grid-overlay {
+  background-image: linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 8px 8px;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+@media (min-resolution: 2dppx) {
+  .grid-overlay { background-size: 6px 6px; }
+}
