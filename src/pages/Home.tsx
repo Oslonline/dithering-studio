@@ -18,23 +18,25 @@ const Home: React.FC = () => {
         <meta name="twitter:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
         <link rel="canonical" href="https://steinberg-image.vercel.app/" />
       </Helmet>
-      <div className="flex max-h-screen min-h-screen flex-col items-center justify-center gap-5 bg-neutral-950 p-4 text-neutral-50 md:gap-7">
-        <header className="space-y-1 text-center">
-          <h1 className="font-anton text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl">Multi‑Algorithm Image Dithering</h1>
-          <h2 className="text-[11px] tracking-wide text-gray-300 md:text-xs 2xl:text-sm">Floyd–Steinberg · Atkinson · Stucki · Sierra · Bayer · Halftone & more</h2>
-          <p className="mx-auto max-w-xl px-2 text-[11px] leading-snug text-gray-400 md:text-xs">100% client‑side. Tune threshold, resolution, invert & serpentine scan. Download instantly as PNG or JPEG.</p>
-        </header>
-        <InfiniteImageScroll />
-          <div className="mt-6 flex flex-wrap gap-3 text-[11px]">
+      <div className="relative flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
+  <div className="flex flex-1 flex-col items-center justify-start gap-3 px-4 pt-6 pb-20 md:justify-center md:gap-4 md:pt-0">
+          <header className="w-full space-y-2 text-center sm:space-y-1">
+            <h1 className="font-anton text-2xl leading-tight sm:text-3xl md:text-[1.8rem] xl:text-[2.75rem] 2xl:text-[4.5rem]">Multi‑Algorithm Image Dithering</h1>
+            <h2 className="mx-auto max-w-2xl text-[10px] tracking-wide text-gray-300 sm:text-[11px] md:text-xs 2xl:text-sm">Floyd–Steinberg · Atkinson · Stucki · Sierra · Bayer · Halftone & more</h2>
+            <p className="mx-auto max-w-xl px-2 text-[10px] leading-snug text-gray-400 sm:text-[11px] md:text-xs">100% client‑side. Tune threshold, resolution, invert & serpentine scan. Download instantly as PNG or JPEG.</p>
+          </header>
+          <div className="w-full">
+            <InfiniteImageScroll />
+          </div>
+          <div className="mt-2 flex flex-wrap justify-center gap-3 text-[10px] sm:text-[11px]">
             <Link to="/Dithering" className="clean-btn clean-btn-primary">Open Dithering Tool</Link>
             <Link to="/Algorithms" className="clean-btn">Explore Algorithms</Link>
           </div>
-      </div>
-      <div className="absolute right-0 bottom-0 left-0 flex items-center justify-center p-4 text-xs text-gray-400">
-        <p>By&nbsp;</p>
-        <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com">
-          Oslo418
-        </a>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-center p-4 text-[10px] text-gray-400 sm:text-xs">
+          <p>By&nbsp;</p>
+          <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com" rel="noopener noreferrer">Oslo418</a>
+        </div>
       </div>
     </>
   );
