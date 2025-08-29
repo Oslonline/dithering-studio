@@ -3,7 +3,10 @@ import { canvasToSVG } from "../utils/export";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/ImageUploader";
-import { patternMeta, patternOptions } from "../components/PatternDrawer";
+import AlgorithmPanel from "../components/AlgorithmPanel";
+import PalettePanel from "../components/PalettePanel";
+import ResolutionPanel from "../components/ResolutionPanel";
+import UploadIntro from "../components/UploadIntro";
 import useDithering from "../hooks/useDithering";
 import { predefinedPalettes } from "../utils/palettes";
 
@@ -37,9 +40,6 @@ const ImageDitheringTool: React.FC = () => {
   const [shareURL, setShareURL] = useState("");
   const [copyOk, setCopyOk] = useState(false);
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
-  const [paletteOpen, setPaletteOpen] = useState(true);
-  const [resolutionOpen, setResolutionOpen] = useState(true);
-  const [algoOpen, setAlgoOpen] = useState(true);
   if (paletteId && invert) setInvert(false);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
@@ -60,7 +60,7 @@ const ImageDitheringTool: React.FC = () => {
     calcHeights();
     window.addEventListener("resize", calcHeights);
     return () => window.removeEventListener("resize", calcHeights);
-  }, [focusMode, image, paletteOpen, resolutionOpen, algoOpen]);
+  }, [focusMode, image]);
 
   const effectivePaletteId = paletteId;
   const effectivePalette = (effectivePaletteId ? predefinedPalettes.find((p) => p.id === effectivePaletteId)?.colors : null) || null;
@@ -294,20 +294,7 @@ const ImageDitheringTool: React.FC = () => {
             <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
               <div className="flex flex-1 flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto" style={settingsHeight ? { maxHeight: settingsHeight } : undefined}>
-                  {!image && (
-                    <div className="px-4 pt-4 pb-6">
-                      <div className="min-panel relative space-y-3 p-4">
-                        <h2 className="font-anton text-xl leading-tight">Dithering Studio</h2>
-                        <p className="text-[11px] leading-relaxed text-gray-400">Drop or select an image in the main area to begin. Your picture never leaves this window.</p>
-                        <ul className="ml-4 list-disc space-y-1 text-[10px] text-gray-500">
-                          <li>Choose algorithm & tweak threshold.</li>
-                          <li>Adjust working resolution (internal quality).</li>
-                          <li>Invert or enable serpentine scanning.</li>
-                          <li>Download instantly as PNG or JPEG.</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
+                  {!image && (<div className="px-4 pt-4 pb-6"><UploadIntro /></div>)}
                   {image && (
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
@@ -319,167 +306,13 @@ const ImageDitheringTool: React.FC = () => {
                         </button>
 
                         {/* Algorithm & Threshold */}
-                        <div className="min-panel p-0">
-                          <button type="button" onClick={() => setAlgoOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={algoOpen}>
-                            <span className="flex items-center gap-2">
-                              <span>{algoOpen ? "▾" : "▸"}</span> Algorithm
-                            </span>
-                            <span className="text-[10px] text-gray-500">#{pattern}</span>
-                          </button>
-                          {algoOpen && (
-                            <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
-                              <div>
-                                <label htmlFor="algo-select" className="sr-only">
-                                  Algorithm
-                                </label>
-                                <select id="algo-select" className="clean-input" value={pattern} onChange={(e) => setPattern(Number(e.target.value))}>
-                                  {patternOptions.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                      {o.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              {patternMeta[pattern]?.supportsThreshold && (
-                                <div className="space-y-1">
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-mono text-[10px] tracking-wide text-gray-400">Threshold</span>
-                                    <span className="text-[10px] text-gray-500">{threshold}</span>
-                                  </div>
-                                  <input type="range" min={0} max={255} value={threshold} className="clean-range" onChange={(e) => setThreshold(Number(e.target.value))} aria-label="Threshold" />
-                                </div>
-                              )}
-                              <div className="grid grid-cols-2 gap-2">
-                                <button type="button" onClick={() => setInvert((v) => !v)} disabled={!!paletteId} className={`clean-btn justify-center text-[10px] ${invert ? "border-emerald-600 text-emerald-400" : ""} ${paletteId ? "cursor-not-allowed opacity-40" : ""}`} title={paletteId ? "Disabled when palette active" : "Invert output"}>Invert</button>
-                                <button type="button" onClick={() => setSerpentine((s) => !s)} className={`clean-btn justify-center text-[10px] ${serpentine ? "border-blue-600 text-blue-400" : ""}`}>Serpentine</button>
-                              </div>
-                              <p className="text-[10px] leading-snug text-gray-500">{patternMeta[pattern]?.description}</p>
-                            </div>
-                          )}
-                        </div>
+                        <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} />
 
                         {/* Palette */}
-                        <div className="min-panel p-0">
-                          <button type="button" onClick={() => setPaletteOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={paletteOpen}>
-                            <span className="flex items-center gap-2">
-                              <span>{paletteOpen ? "▾" : "▸"}</span> Palette
-                            </span>
-                            {paletteId && <span className="badge ml-auto">Active</span>}
-                          </button>
-                          {paletteOpen && (
-                            <div className="space-y-2 border-t border-neutral-800 px-4 pt-3 pb-4">
-                              <div className="flex items-center justify-between">
-                                <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">
-                                  Select
-                                </label>
-                                {paletteId && (
-                                  <button className="clean-btn px-2 py-0 text-[10px]" onClick={() => setPaletteId(null)}>
-                                    Clear
-                                  </button>
-                                )}
-                              </div>
-                              <select id="palette-select" className="clean-input" value={paletteId ?? ""} onChange={(e) => setPaletteId(e.target.value === "" ? null : e.target.value)}>
-                                <option value="">None (Binary BW)</option>
-                                {predefinedPalettes.map((p) => (
-                                  <option key={p.id} value={p.id}>
-                                    {p.name}
-                                  </option>
-                                ))}
-                              </select>
-                              {!paletteId && <p className="text-[10px] text-gray-500">Select a palette then click colors to remove them.</p>}
-                              {paletteId && activePaletteColors && (
-                                <div className="mt-1 flex flex-wrap gap-1">
-                                  {activePaletteColors.map((c, i) => (
-                                    <button
-                                      key={i}
-                                      type="button"
-                                      onClick={() => {
-                                        if (!activePaletteColors) return;
-                                        if (activePaletteColors.length <= 2) return;
-                                        const next = activePaletteColors.filter((_, idx) => idx !== i);
-                                        setActivePaletteColors(next);
-                                      }}
-                                      className="group relative h-5 w-5 cursor-pointer rounded-sm border border-neutral-600 focus-visible:shadow-[var(--focus-ring)]"
-                                      style={{ background: `rgb(${c[0]},${c[1]},${c[2]})` }}
-                                      title="Remove color"
-                                      aria-label={`Remove color rgb(${c[0]},${c[1]},${c[2]})`}
-                                    >
-                                      <span className="pointer-events-none absolute inset-0 rounded-sm bg-black/0 transition group-hover:bg-black/35" />
-                                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[13px] font-bold text-white opacity-0 drop-shadow-[0_0_2px_rgba(0,0,0,0.9)] transition-opacity group-hover:opacity-100">×</span>
-                                    </button>
-                                  ))}
-                                  <button
-                                    type="button"
-                                    onClick={() => effectivePalette && setActivePaletteColors(effectivePalette.map((c) => [...c] as [number, number, number]))}
-                                    className="relative h-5 w-5 cursor-pointer rounded-sm border border-neutral-600 text-[11px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
-                                    title="Restore full palette"
-                                    aria-label="Restore full palette"
-                                  >
-                                    ↺
-                                  </button>
-                                </div>
-                              )}
-                              <p className="mt-1 text-[10px] text-gray-500">Remove swatches to constrain colors.</p>
-                            </div>
-                          )}
-                        </div>
+                        <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} />
 
                         {/* Working Resolution */}
-                        <div className="min-panel p-0">
-                          <button type="button" onClick={() => setResolutionOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={resolutionOpen}>
-                            <span className="flex items-center gap-2">
-                              <span>{resolutionOpen ? "▾" : "▸"}</span> Working Resolution
-                            </span>
-                            <span className="text-[10px] text-gray-500">{workingResolution}px</span>
-                          </button>
-                          {resolutionOpen && (
-                            <div className="space-y-2 border-t border-neutral-800 px-4 pt-3 pb-4">
-                              <div className="relative">
-                                <input
-                                  type="range"
-                                  min={32}
-                                  max={2048}
-                                  step={16}
-                                  value={workingResolution}
-                                  className="clean-range"
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    setWorkingResolution(val);
-                                    setWorkingResInput(String(val));
-                                  }}
-                                />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  pattern="[0-9]*"
-                                  className="clean-input w-24"
-                                  value={workingResInput}
-                                  onChange={(e) => {
-                                    const v = e.target.value.trim();
-                                    if (v === "") {
-                                      setWorkingResInput("");
-                                      return;
-                                    }
-                                    if (/^\d+$/.test(v)) {
-                                      let num = parseInt(v, 10);
-                                      num = Math.min(4096, Math.max(16, num));
-                                      setWorkingResInput(String(num));
-                                      setWorkingResolution(num);
-                                    }
-                                  }}
-                                  onBlur={() => {
-                                    if (workingResInput === "") setWorkingResInput(String(workingResolution));
-                                  }}
-                                  aria-label="Working resolution in pixels"
-                                />
-                                <span className="text-[10px] text-gray-500">px width</span>
-                              </div>
-                              <p className="text-[10px] text-gray-500">Pixel width used for processing & download.</p>
-                            </div>
-                          )}
-                        </div>
+                        <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} />
                       </div>
                     </div>
                   )}
