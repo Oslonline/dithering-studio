@@ -3,6 +3,7 @@ import { canvasToSVG } from "../utils/export";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/ImageUploader";
+import ImagesPanel, { UploadedImage } from "../components/ImagesPanel";
 import AlgorithmPanel from "../components/AlgorithmPanel";
 import PalettePanel from "../components/PalettePanel";
 import ResolutionPanel from "../components/ResolutionPanel";
@@ -13,7 +14,9 @@ import { predefinedPalettes } from "../utils/palettes";
 const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14, 18, 19].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
-  const [image, setImage] = useState<string | null>(null);
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [activeImageId, setActiveImageId] = useState<string | null>(null);
+  const image = activeImageId ? images.find(i => i.id === activeImageId)?.url || null : null;
   const [pattern, setPattern] = useState<number>(1);
   const [threshold, setThreshold] = useState<number>(128);
   const [workingResolution, setWorkingResolution] = useState<number>(512);
@@ -151,10 +154,40 @@ const ImageDitheringTool: React.FC = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const handleImageChange = (img: string | null) => setImage(img);
-
-  const uploadAnother = () => {
-    setImage(null);
+  const addImages = (items: { url: string; name?: string }[]) => {
+    setImages(prev => {
+      const next = [...prev];
+      items.forEach((it, idx) => {
+        const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${idx}`;
+        next.push({ id, url: it.url, name: it.name });
+        if (!activeImageId) setActiveImageId(id);
+      });
+      return next;
+    });
+  };
+  const readAndAddFiles = (files: FileList) => {
+    const toRead = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (!toRead.length) return;
+    const collected: { url: string; name?: string }[] = [];
+    let remaining = toRead.length;
+    toRead.forEach(f => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        collected.push({ url: e.target?.result as string, name: f.name });
+        remaining--;
+        if (remaining === 0) addImages(collected);
+      };
+      reader.readAsDataURL(f);
+    });
+  };
+  const removeImage = (id: string) => {
+    setImages(prev => {
+      const next = prev.filter(i => i.id !== id);
+      if (activeImageId === id) {
+        setActiveImageId(next[0]?.id || null);
+      }
+      return next;
+    });
   };
   const [showDownload, setShowDownload] = useState(false);
   const downloadRef = useRef<HTMLDivElement | null>(null);
@@ -298,12 +331,7 @@ const ImageDitheringTool: React.FC = () => {
                   {image && (
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
-                        <button onClick={uploadAnother} className="clean-btn w-full justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide">
-                          <span className="text-[13px]" aria-hidden>
-                            ⬆
-                          </span>
-                          <span>Upload another image</span>
-                        </button>
+                        <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} />
 
                         {/* Algorithm & Threshold */}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} />
@@ -358,8 +386,9 @@ const ImageDitheringTool: React.FC = () => {
           )}
           <main className="flex flex-1 items-center justify-center">
             {!image && (
-              <div className="w-full max-w-lg">
-                <ImageUploader setImage={handleImageChange} />
+              <div className="w-full max-w-lg space-y-4">
+                <ImageUploader onImagesAdded={(items) => addImages(items)} />
+                <p className="text-center text-[10px] text-gray-500">Select one or multiple images to begin. They will appear in the Images panel.</p>
               </div>
             )}
             {image && (

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import DesktopImageUploader from "./DesktopImageUploader";
 import MobileImageUploader from "./MobileImageUploader";
 
-interface ImageUploaderProps { setImage: (image: string | null) => void; }
-const ImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
+interface ImageUploaderProps { onImagesAdded: (items: { url: string; name?: string }[]) => void; }
+const ImageUploader: React.FC<ImageUploaderProps> = ({ onImagesAdded }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
     return () => window.removeEventListener("resize", listener);
   }, []);
 
-  return isMobile ? <MobileImageUploader setImage={setImage} /> : <DesktopImageUploader setImage={setImage} />;
+  return isMobile ? <MobileImageUploader onImagesAdded={onImagesAdded} /> : <DesktopImageUploader onImagesAdded={onImagesAdded} />;
 };
 
 export default ImageUploader;

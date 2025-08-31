@@ -1,29 +1,45 @@
 import { useRef, useState } from "react";
 import { FaImage } from "react-icons/fa";
 
-interface ImageUploaderProps {
-  setImage: (image: string | null) => void;
+interface DesktopImageUploaderProps {
+  onImagesAdded: (items: { url: string; name?: string }[]) => void;
 }
 
-const DesktopImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
+const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdded }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const collected: { url: string; name?: string }[] = [];
+    let remaining = files.length;
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) { remaining--; return; }
       const reader = new FileReader();
-      reader.onload = (e) => setImage(e.target?.result as string);
+      reader.onload = e => {
+        collected.push({ url: e.target?.result as string, name: file.name });
+        remaining--;
+        if (remaining === 0 && collected.length) onImagesAdded(collected);
+      };
       reader.readAsDataURL(file);
-    }
+    });
   };
 
   const processFileList = (files: FileList | null) => {
-    if (files && files[0] && files[0].type.startsWith("image/")) {
+    if (!files || files.length === 0) return;
+    const collected: { url: string; name?: string }[] = [];
+    let remaining = files.length;
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) { remaining--; return; }
       const reader = new FileReader();
-      reader.onload = (e) => setImage(e.target?.result as string);
-      reader.readAsDataURL(files[0]);
-    }
+      reader.onload = e => {
+        collected.push({ url: e.target?.result as string, name: file.name });
+        remaining--;
+        if (remaining === 0 && collected.length) onImagesAdded(collected);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -61,14 +77,13 @@ const DesktopImageUploader: React.FC<ImageUploaderProps> = ({ setImage }) => {
         aria-label="Upload image"
       >
         <FaImage className="text-4xl text-blue-500" aria-hidden="true" />
-        <p className="font-mono text-xs tracking-wide text-gray-200">
-          {dragActive ? "Drop to load" : "Click or drag an image"}
-        </p>
-        <p className="text-[10px] text-gray-500">PNG · JPEG · WebP · BMP · GIF (local only)</p>
+  <p className="font-mono text-xs tracking-wide text-gray-200">{dragActive ? 'Drop to load' : 'Click or drag images'}</p>
+  <p className="text-[10px] text-gray-500">PNG · JPEG · WebP · BMP · GIF & multiple selection</p>
         <input
           ref={inputRef}
           id="file-upload-desktop"
           type="file"
+          multiple
           accept="image/png,image/jpeg,image/webp,image/bmp,image/gif"
           onChange={handleImageUpload}
           className="hidden"
