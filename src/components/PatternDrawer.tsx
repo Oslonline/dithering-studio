@@ -63,7 +63,7 @@ const PatternDrawer = (
   height: number,
   pattern: number,
   threshold: number = 128,
-  options?: { invert?: boolean; serpentine?: boolean },
+  options?: { invert?: boolean; serpentine?: boolean; palette?: [number, number, number][] },
 ) => {
   if (pattern === 1) {
     return buildImageData(data, width, height);
@@ -71,16 +71,31 @@ const PatternDrawer = (
 
   const errorDiffusion = (matrix: number[][], divisor: number, serpentineDefault = false) => {
     const out = new Uint8ClampedArray(data);
+    const pal = options?.palette;
+    const palLums = pal ? pal.map(c => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) : null;
     const useSerpentine = options?.serpentine ?? serpentineDefault;
     for (let y = 0; y < height; y++) {
       const yOffset = y * width * 4;
       const leftToRight = !useSerpentine || y % 2 === 0;
       for (let x = leftToRight ? 0 : width - 1; leftToRight ? x < width : x >= 0; leftToRight ? x++ : x--) {
         const pxIndex = yOffset + x * 4;
-        const oldPixel = out[pxIndex];
-        const newPixel = oldPixel < threshold ? 0 : 255;
-        const error = oldPixel - newPixel;
-        out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newPixel;
+        const oldLum = out[pxIndex];
+        let newLum: number;
+        if (pal && palLums) {
+          // choose nearest luminance in palette
+          let bestI = 0; let bestD = Infinity;
+          for (let i = 0; i < palLums.length; i++) {
+            const d = Math.abs(palLums[i] - oldLum);
+            if (d < bestD) { bestD = d; bestI = i; }
+          }
+          const col = pal[bestI];
+          newLum = palLums[bestI];
+          out[pxIndex] = col[0]; out[pxIndex + 1] = col[1]; out[pxIndex + 2] = col[2];
+        } else {
+          newLum = oldLum < threshold ? 0 : 255;
+          out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newLum;
+        }
+        const error = oldLum - newLum;
         // Distribute error
         for (let j = 0; j < matrix.length; j++) {
           for (let i = 0; i < matrix[j].length; i++) {
@@ -116,13 +131,22 @@ const PatternDrawer = (
     const matrixSize = bayerMatrix.length;
     const scaleFactor = 16;
     const out = new Uint8ClampedArray(data);
+    const pal = options?.palette;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pxIndex = (y * width + x) * 4;
         const brightness = out[pxIndex];
-        const t = (bayerMatrix[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
-        const value = brightness < t ? 0 : 255;
-        out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
+        if (pal && pal.length) {
+          const cell = bayerMatrix[y % matrixSize][x % matrixSize] / (scaleFactor - 1); // 0..1
+          const adj = brightness / 255 + (cell - 0.5) / pal.length;
+          let idx = Math.round(adj * (pal.length - 1));
+          if (idx < 0) idx = 0; else if (idx >= pal.length) idx = pal.length - 1;
+          const c = pal[idx]; out[pxIndex] = c[0]; out[pxIndex + 1] = c[1]; out[pxIndex + 2] = c[2];
+        } else {
+          const t = (bayerMatrix[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
+          const value = brightness < t ? 0 : 255;
+          out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
+        }
         out[pxIndex + 3] = 255;
       }
     }
@@ -138,13 +162,22 @@ const PatternDrawer = (
 
   if (pattern === 3) {
     const out = new Uint8ClampedArray(data);
+    const pal = options?.palette;
+    const palLums = pal ? pal.map(c => 0.299*c[0]+0.587*c[1]+0.114*c[2]) : null;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pxIndex = (y * width + x) * 4;
-  let oldPixel = out[pxIndex];
-        const newPixel = oldPixel < threshold ? 0 : 255;
-        const error = (oldPixel - newPixel) / 8;
-        out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newPixel;
+        const oldLum = out[pxIndex];
+        let newLum: number; let setR:number; let setG:number; let setB:number;
+        if (pal && palLums) {
+          let bestI=0; let bestD=Infinity;
+          for (let i=0;i<palLums.length;i++){ const d=Math.abs(palLums[i]-oldLum); if(d<bestD){bestD=d;bestI=i;} }
+          const c=pal[bestI]; setR=c[0]; setG=c[1]; setB=c[2]; newLum=palLums[bestI];
+        } else {
+          newLum = oldLum < threshold ? 0 : 255; setR=setG=setB=newLum;
+        }
+        const error = (oldLum - newLum) / 8;
+        out[pxIndex]=setR; out[pxIndex+1]=setG; out[pxIndex+2]=setB;
         const coords = [
           [x + 1, y],
           [x + 2, y],
@@ -156,9 +189,7 @@ const PatternDrawer = (
         for (const [nx, ny] of coords) {
           if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
             const nIdx = (ny * width + nx) * 4;
-            out[nIdx] += error;
-            out[nIdx + 1] += error;
-            out[nIdx + 2] += error;
+            out[nIdx] += error; out[nIdx + 1] += error; out[nIdx + 2] += error;
           }
         }
       }
@@ -222,13 +253,22 @@ const PatternDrawer = (
     const matrixSize = 8;
     const scaleFactor = 64;
     const out = new Uint8ClampedArray(data);
+    const pal = options?.palette;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pxIndex = (y * width + x) * 4;
         const brightness = out[pxIndex];
-        const t = (bayer8x8[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
-        const value = brightness < t ? 0 : 255;
-        out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
+        if (pal && pal.length) {
+          const cell = bayer8x8[y % matrixSize][x % matrixSize] / (scaleFactor - 1);
+          const adj = brightness / 255 + (cell - 0.5) / pal.length;
+          let idx = Math.round(adj * (pal.length - 1));
+          if (idx < 0) idx = 0; else if (idx >= pal.length) idx = pal.length - 1;
+          const c = pal[idx]; out[pxIndex]=c[0]; out[pxIndex+1]=c[1]; out[pxIndex+2]=c[2];
+        } else {
+          const t = (bayer8x8[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
+          const value = brightness < t ? 0 : 255;
+          out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = value;
+        }
         out[pxIndex + 3] = 255;
       }
     }
@@ -250,13 +290,22 @@ const PatternDrawer = (
     const matrixSize = 2;
     const scaleFactor = 4;
     const out = new Uint8ClampedArray(data);
+    const pal = options?.palette;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = (y * width + x) * 4;
         const brightness = out[idx];
-        const t = (bayer2x2[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
-        const value = brightness < t ? 0 : 255;
-        out[idx] = out[idx + 1] = out[idx + 2] = value;
+        if (pal && pal.length) {
+          const cell = bayer2x2[y % matrixSize][x % matrixSize] / (scaleFactor - 1);
+          const adj = brightness / 255 + (cell - 0.5) / pal.length;
+          let pi = Math.round(adj * (pal.length - 1));
+          if (pi < 0) pi = 0; else if (pi >= pal.length) pi = pal.length - 1;
+          const c = pal[pi]; out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2];
+        } else {
+          const t = (bayer2x2[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
+          const value = brightness < t ? 0 : 255;
+          out[idx] = out[idx + 1] = out[idx + 2] = value;
+        }
         out[idx + 3] = 255;
       }
     }
@@ -282,6 +331,7 @@ const PatternDrawer = (
       [mask[i], mask[j]] = [mask[j], mask[i]];
     }
     const out = new Uint8ClampedArray(data);
+    const pal = options?.palette;
     const denom = size * size - 1;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -289,8 +339,16 @@ const PatternDrawer = (
         const brightness = out[idx];
         const m = mask[(y % size) * size + (x % size)];
         const t = (m / denom) * 255;
-        const value = brightness < t ? 0 : 255;
-        out[idx] = out[idx + 1] = out[idx + 2] = value;
+        if (pal && pal.length) {
+          const cell = m / denom; // 0..1
+            const adj = brightness / 255 + (cell - 0.5) / pal.length;
+            let pi = Math.round(adj * (pal.length - 1));
+            if (pi < 0) pi = 0; else if (pi >= pal.length) pi = pal.length - 1;
+            const c = pal[pi]; out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2];
+        } else {
+          const value = brightness < t ? 0 : 255;
+          out[idx] = out[idx + 1] = out[idx + 2] = value;
+        }
         out[idx + 3] = 255;
       }
     }
@@ -573,8 +631,17 @@ const PatternDrawer = (
         const idx = (y * width + x) * 4;
         const gray = out[idx];
         const t = (matrix[y % 16][x % 16] / denom) * 255;
-        const v = gray < t ? 0 : 255;
-        out[idx] = out[idx + 1] = out[idx + 2] = v;
+        if (options?.palette && options.palette.length) {
+          const pal = options.palette;
+          const cell = matrix[y % 16][x % 16] / (denom - 1);
+          const adj = gray / 255 + (cell - 0.5) / pal.length;
+          let pi = Math.round(adj * (pal.length - 1));
+          if (pi < 0) pi = 0; else if (pi >= pal.length) pi = pal.length - 1;
+          const c = pal[pi]; out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2];
+        } else {
+          const v = gray < t ? 0 : 255;
+          out[idx] = out[idx + 1] = out[idx + 2] = v;
+        }
         out[idx + 3] = 255;
       }
     }
