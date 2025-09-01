@@ -1,0 +1,35 @@
+import React, { useEffect, useState } from 'react';
+import { perf, PerfFrame } from '../utils/perf';
+
+const fmt = (n: number | undefined) => (n == null ? '-' : n.toFixed(1));
+
+const PerformanceOverlay: React.FC = () => {
+  const [frames, setFrames] = useState<PerfFrame[]>(() => perf.getFrames());
+  const [open, setOpen] = useState(false);
+  useEffect(() => perf.subscribe(setFrames), []);
+  const latest = frames[frames.length - 1];
+  const phases = latest?.phases || {};
+  const total = latest?.total || 0;
+  const entries = Object.entries(phases).sort((a,b)=>b[1]-a[1]);
+  return (
+    <div className="fixed bottom-2 right-2 z-50 text-[10px] font-mono tracking-wide">
+      <button onClick={()=>setOpen(o=>!o)} className="clean-btn px-2 py-1 !text-[10px] border border-neutral-700 bg-neutral-900/80 backdrop-blur-sm">Perf {open?'▼':'▲'} {fmt(total)}ms</button>
+      {open && (
+        <div className="mt-1 w-56 rounded border border-neutral-800 bg-[#111]/95 p-2 shadow-xl backdrop-blur-sm">
+          <div className="mb-1 flex items-center justify-between"><span className="text-neutral-400">Latest frame</span><span className="text-neutral-500">token {latest?.token ?? '-'}</span></div>
+          <div className="max-h-40 overflow-auto pr-1 space-y-0.5">
+            {entries.map(([l,ms]) => (
+              <div key={l} className="flex justify-between"><span className="text-neutral-300">{l}</span><span className="text-neutral-400">{fmt(ms)}ms</span></div>
+            ))}
+            {!entries.length && <div className="text-neutral-500">No data</div>}
+          </div>
+          <div className="mt-2 border-t border-neutral-800 pt-1 text-neutral-500">Avg (10): {fmt(avg(frames.slice(-10).map(f=>f.total||0)))}ms</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+function avg(a:number[]) { return a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0; }
+
+export default PerformanceOverlay;
