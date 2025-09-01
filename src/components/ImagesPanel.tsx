@@ -4,6 +4,9 @@ export interface UploadedImage {
   id: string;
   url: string;
   name?: string;
+  width?: number;
+  height?: number;
+  size?: number; // bytes
 }
 
 interface ImagesPanelProps {
@@ -40,15 +43,23 @@ const ImagesPanel: React.FC<ImagesPanelProps> = ({ images, activeId, setActiveId
           {images.length === 0 && <p className="text-[10px] text-gray-500">No images yet. Use Add to import multiple files.</p>}
           {images.length > 0 && (
             <ul className="max-h-48 space-y-1 overflow-auto pr-1">
-              {images.map(img => (
-                <li key={img.id} className={`group flex items-center gap-2 rounded border px-2 py-1 ${img.id === activeId ? 'border-blue-600 bg-neutral-900/60' : 'border-neutral-800 bg-neutral-900/30'}`}>                  
-                  <button type="button" onClick={() => setActiveId(img.id)} className="flex items-center gap-2 text-left focus-visible:shadow-[var(--focus-ring)]">
-                    <img src={img.url} alt={img.name || 'uploaded'} className="h-8 w-8 flex-shrink-0 rounded object-cover" />
-                    <span className="max-w-[120px] truncate font-mono text-[10px] text-gray-300">{img.name || 'Image'}</span>
-                  </button>
-                  <button type="button" onClick={() => removeImage(img.id)} className="ml-auto hidden text-[10px] text-gray-500 hover:text-red-400 group-hover:inline" title="Remove">✕</button>
-                </li>
-              ))}
+              {images.map((img) => {
+                const label = `${img.name || 'Image'}${img.width && img.height ? ` — ${img.width}×${img.height}` : ''}${img.size ? ` — ${(img.size / 1024).toFixed(1)} KB` : ''}`;
+                return (
+                  <li
+                    key={img.id}
+                    className={`group flex items-center gap-2 rounded border px-2 py-1 ${img.id === activeId ? 'border-blue-600 bg-neutral-900/60' : 'border-neutral-800 bg-neutral-900/30'}`}
+                    title={label}
+                    aria-label={label}
+                  >
+                    <button type="button" onClick={() => setActiveId(img.id)} className="flex items-center gap-2 text-left focus-visible:shadow-[var(--focus-ring)]" tabIndex={0}>
+                      <img src={img.url} alt={img.name || 'uploaded'} className="h-8 w-8 flex-shrink-0 rounded object-cover" />
+                      <span className="max-w-[120px] truncate font-mono text-[10px] text-gray-300">{img.name || 'Image'}</span>
+                    </button>
+                    <button type="button" onClick={() => removeImage(img.id)} className="ml-auto hidden cursor-pointer text-[10px] text-gray-500 hover:text-red-400 group-hover:inline" title="Remove">✕</button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

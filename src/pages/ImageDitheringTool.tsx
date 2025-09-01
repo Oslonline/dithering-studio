@@ -14,13 +14,21 @@ import { predefinedPalettes } from "../utils/palettes";
 const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14, 18, 19].includes(p);
 
 const ImageDitheringTool: React.FC = () => {
-  const [images, setImages] = useState<UploadedImage[]>([]);
-  const [activeImageId, setActiveImageId] = useState<string | null>(null);
+  const [images, setImages] = useState<UploadedImage[]>(() => {
+    try {
+      const raw = localStorage.getItem('ds_images');
+      if (raw) return JSON.parse(raw) as UploadedImage[];
+    } catch {}
+    return [];
+  });
+  const [activeImageId, setActiveImageId] = useState<string | null>(() => {
+    try { return localStorage.getItem('ds_activeImageId'); } catch { return null; }
+  });
   const image = activeImageId ? images.find(i => i.id === activeImageId)?.url || null : null;
-  const [pattern, setPattern] = useState<number>(1);
-  const [threshold, setThreshold] = useState<number>(128);
-  const [workingResolution, setWorkingResolution] = useState<number>(512);
-  const [workingResInput, setWorkingResInput] = useState<string>("512");
+  const [pattern, setPattern] = useState<number>(() => { try { return +(localStorage.getItem('ds_pattern') || 1); } catch { return 1; } });
+  const [threshold, setThreshold] = useState<number>(() => { try { return +(localStorage.getItem('ds_threshold') || 128); } catch { return 128; } });
+  const [workingResolution, setWorkingResolution] = useState<number>(() => { try { return +(localStorage.getItem('ds_workingResolution') || 512); } catch { return 512; } });
+  const [workingResInput, setWorkingResInput] = useState<string>(() => String(workingResolution));
   const [webpSupported, setWebpSupported] = useState(true);
   useEffect(() => {
     try {
@@ -32,11 +40,11 @@ const ImageDitheringTool: React.FC = () => {
       setWebpSupported(false);
     }
   }, []);
-  const [paletteId, setPaletteId] = useState<string | null>(null);
+  const [paletteId, setPaletteId] = useState<string | null>(() => { try { return localStorage.getItem('ds_paletteId'); } catch { return null; } });
   const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(null);
-  const [invert, setInvert] = useState(false);
-  const [serpentine, setSerpentine] = useState(true);
-  const [showGrid, setShowGrid] = useState(false);
+  const [invert, setInvert] = useState<boolean>(() => { try { return localStorage.getItem('ds_invert') === '1'; } catch { return false; } });
+  const [serpentine, setSerpentine] = useState<boolean>(() => { try { return localStorage.getItem('ds_serpentine') !== '0'; } catch { return true; } });
+  const [showGrid, setShowGrid] = useState<boolean>(() => { try { return localStorage.getItem('ds_showGrid') === '1'; } catch { return false; } });
   const [focusMode, setFocusMode] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const shareRef = useRef<HTMLDivElement | null>(null);
@@ -148,18 +156,36 @@ const ImageDitheringTool: React.FC = () => {
         const t = e.target as HTMLElement;
         if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
         setShowGrid((s) => !s); e.preventDefault();
+      } else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && images.length > 1) {
+        const idx = images.findIndex(i => i.id === activeImageId);
+        if (idx >= 0) {
+          const dir = e.key === 'ArrowRight' ? 1 : -1;
+          const next = (idx + dir + images.length) % images.length;
+          setActiveImageId(images[next].id);
+          e.preventDefault();
+        }
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const addImages = (items: { url: string; name?: string }[]) => {
+  const addImages = (items: { url: string; name?: string; file?: File }[]) => {
     setImages(prev => {
       const next = [...prev];
       items.forEach((it, idx) => {
         const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${idx}`;
-        next.push({ id, url: it.url, name: it.name });
+        let meta: Partial<UploadedImage> = {};
+        if (it.file) {
+          meta.size = it.file.size;
+        }
+        // try to get dimensions
+        const imgEl = new Image();
+        imgEl.onload = () => {
+          setImages(cur => cur.map(ci => ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci));
+        };
+        imgEl.src = it.url;
+        next.push({ id, url: it.url, name: it.name, ...meta });
         if (!activeImageId) setActiveImageId(id);
       });
       return next;
@@ -168,12 +194,12 @@ const ImageDitheringTool: React.FC = () => {
   const readAndAddFiles = (files: FileList) => {
     const toRead = Array.from(files).filter(f => f.type.startsWith('image/'));
     if (!toRead.length) return;
-    const collected: { url: string; name?: string }[] = [];
+    const collected: { url: string; name?: string; file?: File }[] = [];
     let remaining = toRead.length;
     toRead.forEach(f => {
       const reader = new FileReader();
       reader.onload = e => {
-        collected.push({ url: e.target?.result as string, name: f.name });
+        collected.push({ url: e.target?.result as string, name: f.name, file: f });
         remaining--;
         if (remaining === 0) addImages(collected);
       };
@@ -304,6 +330,17 @@ const ImageDitheringTool: React.FC = () => {
     setShowDownload(false);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
+
+  // Persistence effects
+  useEffect(() => { try { localStorage.setItem('ds_pattern', String(pattern)); } catch {} }, [pattern]);
+  useEffect(() => { try { localStorage.setItem('ds_threshold', String(threshold)); } catch {} }, [threshold]);
+  useEffect(() => { try { localStorage.setItem('ds_workingResolution', String(workingResolution)); } catch {} }, [workingResolution]);
+  useEffect(() => { try { if (paletteId) localStorage.setItem('ds_paletteId', paletteId); else localStorage.removeItem('ds_paletteId'); } catch {} }, [paletteId]);
+  useEffect(() => { try { localStorage.setItem('ds_invert', invert ? '1' : '0'); } catch {} }, [invert]);
+  useEffect(() => { try { localStorage.setItem('ds_serpentine', serpentine ? '1' : '0'); } catch {} }, [serpentine]);
+  useEffect(() => { try { localStorage.setItem('ds_showGrid', showGrid ? '1' : '0'); } catch {} }, [showGrid]);
+  useEffect(() => { try { localStorage.setItem('ds_activeImageId', activeImageId || ''); } catch {} }, [activeImageId]);
+  useEffect(() => { try { localStorage.setItem('ds_images', JSON.stringify(images)); } catch {} }, [images]);
 
   return (
     <>
