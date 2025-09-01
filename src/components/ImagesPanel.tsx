@@ -12,9 +12,10 @@ interface ImagesPanelProps {
   setActiveId: (id: string | null) => void;
   removeImage: (id: string) => void;
   addImages: (files: FileList) => void;
+  clearAll: () => void;
 }
 
-const ImagesPanel: React.FC<ImagesPanelProps> = ({ images, activeId, setActiveId, removeImage, addImages }) => {
+const ImagesPanel: React.FC<ImagesPanelProps> = ({ images, activeId, setActiveId, removeImage, addImages, clearAll }) => {
   const [open, setOpen] = useState(true);
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length) addImages(e.target.files);
@@ -33,7 +34,7 @@ const ImagesPanel: React.FC<ImagesPanelProps> = ({ images, activeId, setActiveId
               Add
             </label>
             {images.length > 0 && (
-              <button type="button" onClick={() => setActiveId(null)} className="clean-btn flex-1 justify-center text-[10px]" title="Clear active selection">Clear</button>
+              <button type="button" onClick={clearAll} className="clean-btn flex-1 justify-center text-[10px]" title="Remove all images">Clear</button>
             )}
           </div>
           {images.length === 0 && <p className="text-[10px] text-gray-500">No images yet. Use Add to import multiple files.</p>}

@@ -189,6 +189,10 @@ const ImageDitheringTool: React.FC = () => {
       return next;
     });
   };
+  const clearAllImages = () => {
+    setImages([]);
+    setActiveImageId(null);
+  };
   const [showDownload, setShowDownload] = useState(false);
   const downloadRef = useRef<HTMLDivElement | null>(null);
   const [shareText, setShareText] = useState("");
@@ -331,7 +335,15 @@ const ImageDitheringTool: React.FC = () => {
                   {image && (
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
-                        <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} />
+                        {images.length > 1 && (
+                          <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />
+                        )}
+                        {images.length <= 1 && activeImageId && (
+                          <button onClick={() => { clearAllImages(); }} className="clean-btn w-full justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Upload a different image (resets list)">
+                            <span className="text-[13px]" aria-hidden>⬆</span>
+                            <span>Upload another image</span>
+                          </button>
+                        )}
 
                         {/* Algorithm & Threshold */}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} />
