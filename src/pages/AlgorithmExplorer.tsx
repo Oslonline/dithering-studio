@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { algorithmDetails, AlgorithmDetail } from "../utils/algorithmInfo";
-import PatternDrawer from "../components/PatternDrawer";
-import floydSteinberg from "../utils/floydSteinberg";
-
+import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
+import { findAlgorithm } from "../utils/algorithms";
 let importedSample: string | undefined;
 try {
   // @ts-ignore - optional asset
@@ -30,8 +28,9 @@ const AlgorithmCard: React.FC<{ algo: AlgorithmDetail; active: boolean; onSelect
 );
 
 const AlgorithmExplorer: React.FC = () => {
-  const [activeId, setActiveId] = useState<number>(algorithmDetails[0]?.id ?? 1);
-  const active = algorithmDetails.find((a) => a.id === activeId) || algorithmDetails[0];
+  const orderedDetails = getOrderedAlgorithmDetails();
+  const [activeId, setActiveId] = useState<number>(orderedDetails[0]?.id ?? 1);
+  const active = orderedDetails.find((a) => a.id === activeId) || orderedDetails[0];
   const baseImgRef = useRef<HTMLImageElement | null>(null);
   const [baseLoaded, setBaseLoaded] = useState(false);
   const [examples, setExamples] = useState<Record<number, ExampleSet>>({});
@@ -107,7 +106,7 @@ const AlgorithmExplorer: React.FC = () => {
       setBasePreview(baseCanvas.toDataURL("image/webp"));
     }
 
-    const makeImageFromData = (data: Uint8ClampedArray, w: number, h: number) => {
+  const makeImageFromData = (data: Uint8ClampedArray, w: number, h: number) => {
       const c = document.createElement("canvas");
       c.width = w;
       c.height = h;
@@ -118,16 +117,15 @@ const AlgorithmExplorer: React.FC = () => {
       return c.toDataURL("image/webp");
     };
 
-  const processAlgo = (patternId: number, threshold: number): string => {
-      if (patternId === 1) {
-        const out = floydSteinberg({ data: srcData, width: w, height: h, threshold, invert: false, serpentine: true });
-        return makeImageFromData(out, w, h);
-      }
-      const imgData = PatternDrawer(srcData, w, h, patternId, threshold, { invert: false, serpentine: true });
-      return makeImageFromData(imgData.data, w, h);
+    const processAlgo = (patternId: number, threshold: number): string => {
+      const algo = findAlgorithm(patternId);
+      if (!algo) return makeImageFromData(srcData, w, h);
+      const out = algo.run({ srcData, width: w, height: h, params: { pattern: patternId, threshold, invert: false, serpentine: true, isErrorDiffusion: true } as any });
+      if (out instanceof ImageData) return makeImageFromData(out.data, w, h);
+      return makeImageFromData(out, w, h);
     };
 
-    const newExamples: Record<number, ExampleSet> = {};
+  const newExamples: Record<number, ExampleSet> = {};
     for (const a of algorithmDetails) {
       try {
         const dithered = processAlgo(a.id, THRESHOLD);
@@ -152,7 +150,7 @@ const AlgorithmExplorer: React.FC = () => {
       <div className="flex flex-1 overflow-hidden md:flex-row flex-col">
         <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r md:h-full">
           <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">
-          {algorithmDetails.map((a) => (
+          {orderedDetails.map((a) => (
             <AlgorithmCard key={a.id} algo={a} active={a.id === activeId} onSelect={() => setActiveId(a.id)} />
           ))}
           </div>
@@ -163,12 +161,29 @@ const AlgorithmExplorer: React.FC = () => {
           </div>
         </aside>
         <main className="relative flex flex-1 flex-col overflow-y-auto p-6">
-        <div className="mx-auto w-full max-w-4xl">
-          <div className="mb-6">
+        <div className="w-full max-w-6xl">
+          <div className="mb-6 pr-4">
             <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
             <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
+            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500 font-mono">
+              {active.year && <span className="px-2 py-0.5 rounded border border-neutral-800">Year: {active.year}</span>}
+              {active.origin && <span className="px-2 py-0.5 rounded border border-neutral-800">Origin: {active.origin}</span>}
+              {typeof active.errorConserving === 'boolean' && <span className="px-2 py-0.5 rounded border border-neutral-800">Error-Conserving: {active.errorConserving ? 'Yes':'No'}</span>}
+              {typeof active.deterministic === 'boolean' && <span className="px-2 py-0.5 rounded border border-neutral-800">Deterministic: {active.deterministic ? 'Yes':'No'}</span>}
+              {active.neighborhood && <span className="px-2 py-0.5 rounded border border-neutral-800">Neighborhood: {active.neighborhood}</span>}
+              {active.memoryFootprint && <span className="px-2 py-0.5 rounded border border-neutral-800">Memory: {active.memoryFootprint}</span>}
+            </div>
+            {active.papers && active.papers.length>0 && (
+              <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+                {active.papers.map((p,i)=>(
+                  <a key={i} href={p.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-neutral-800 px-2 py-0.5 text-blue-300 hover:border-blue-600 hover:text-blue-200 transition">
+                    <span className="i-mdi-file-document-outline text-[12px]" />{p.title}{p.note && <span className="text-gray-500">({p.note})</span>}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
-          <section className="mb-8 grid gap-6 md:grid-cols-2">
+          <section className="mb-8 grid gap-6 xl:grid-cols-3 md:grid-cols-2 pr-4">
             <div>
               <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Characteristics</h3>
               <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
@@ -193,13 +208,39 @@ const AlgorithmExplorer: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <div>
-              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Complexity</h3>
-              <p className="text-[11px] text-gray-300">{active.complexity}</p>
-              {active.reference && <p className="mt-2 text-[10px] text-gray-500">Reference: {active.reference}</p>}
+            <div className="space-y-3">
+              <div>
+                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Complexity</h3>
+                <p className="text-[11px] text-gray-300">{active.complexity}</p>
+              </div>
+              {(active.tonalBias || active.noiseProfile) && (
+                <div>
+                  <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Behavioral Notes</h3>
+                  <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-300">
+                    {active.tonalBias && <li>Tonal Bias: {active.tonalBias}</li>}
+                    {active.noiseProfile && <li>Noise Profile: {active.noiseProfile}</li>}
+                  </ul>
+                </div>
+              )}
+              {active.recommendedPalettes && active.recommendedPalettes.length > 0 && (
+                <div>
+                  <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Recommended Palettes</h3>
+                  <p className="text-[11px] text-gray-300">{active.recommendedPalettes.join(', ')}</p>
+                </div>
+              )}
+              {(active.reference || (active.references && active.references.length)) && (
+                <div>
+                  <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">References</h3>
+                  <ul className="list-disc pl-4 space-y-1 text-[10px] text-gray-500">
+                    {active.reference && <li>{active.reference}</li>}
+                    {active.references && active.references.map((r,i)=>(<li key={i}>{r}</li>))}
+                  </ul>
+                </div>
+              )}
             </div>
+            {/* Spectral density section removed per request */}
           </section>
-          {(active.kernel || active.orderedMatrixSize) && (
+          {(active.kernel || active.orderedMatrixSize || active.implementationNotes) && (
             <section className="mb-8">
               <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Structure</h3>
               {active.kernel && (
@@ -209,6 +250,14 @@ const AlgorithmExplorer: React.FC = () => {
                 </div>
               )}
               {active.orderedMatrixSize && <p className="text-[11px] text-gray-300">Ordered matrix size: {active.orderedMatrixSize}</p>}
+              {active.implementationNotes && active.implementationNotes.length>0 && (
+                <div className="mt-3">
+                  <h4 className="mb-1 font-mono text-[10px] tracking-wide text-gray-500 uppercase">Implementation Notes</h4>
+                  <ul className="list-disc pl-4 space-y-1 text-[10px] text-gray-400">
+                    {active.implementationNotes.map((n,i)=>(<li key={i}>{n}</li>))}
+                  </ul>
+                </div>
+              )}
             </section>
           )}
           <section className="mb-10">
@@ -233,11 +282,11 @@ const AlgorithmExplorer: React.FC = () => {
             </div>
             <p className="mt-3 text-[10px] leading-relaxed text-gray-500">All algorithms run on the same downscaled sample (width {WORKING_WIDTH}px) without inversion or palettes for a neutral comparison.</p>
           </section>
-          {active && (active as any).notes && (
+      {active && active.notes && (
             <section className="mb-12">
               <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Additional Notes</h3>
               <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
-                {(active as any).notes.map((n: string, i: number) => (
+        {active.notes.map((n: string, i: number) => (
                   <li key={i}>{n}</li>
                 ))}
               </ul>

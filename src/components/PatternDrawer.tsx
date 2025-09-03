@@ -1,3 +1,5 @@
+import { blueNoiseThreshold } from "../utils/algorithms/blueNoise";
+
 export const patternOptions = [
   { value: 1, label: "Floyd-Steinberg (classic)" },
   { value: 3, label: "Atkinson" },
@@ -21,33 +23,36 @@ export const patternOptions = [
   { value: 20, label: "Bayer 16x16 (ordered)" },
 ];
 
-export const patternMeta: Record<number, {
-  name: string;
-  category: "Error Diffusion" | "Ordered" | "Other";
-  description: string;
-  supportsThreshold: boolean;
-  note?: string;
-}> = {
+export const patternMeta: Record<
+  number,
+  {
+    name: string;
+    category: "Error Diffusion" | "Ordered" | "Other";
+    description: string;
+    supportsThreshold: boolean;
+    note?: string;
+  }
+> = {
   1: { name: "Floyd–Steinberg", category: "Error Diffusion", description: "Classic error diffusion with good balance of speed and quality.", supportsThreshold: true },
   3: { name: "Atkinson", category: "Error Diffusion", description: "Softer diffusion producing lighter mid-tones, popular on early Macs.", supportsThreshold: true },
   4: { name: "Burkes", category: "Error Diffusion", description: "Balanced diffusion kernel similar to Stucki but lighter weight.", supportsThreshold: true },
   5: { name: "Stucki", category: "Error Diffusion", description: "Larger kernel giving smoother gradients at higher cost.", supportsThreshold: true },
   6: { name: "Sierra", category: "Error Diffusion", description: "Quality similar to Stucki with slightly less diffusion spread.", supportsThreshold: true },
-  12:{ name: "Sierra Lite", category: "Error Diffusion", description: "Lightweight Sierra variant; faster with acceptable quality.", supportsThreshold: true },
-  13:{ name: "Two-Row Sierra", category: "Error Diffusion", description: "Two-row variant; compromise between full Sierra and Lite.", supportsThreshold: true },
-  14:{ name: "Stevenson–Arce", category: "Error Diffusion", description: "Sparse long-range diffusion; produces interesting organic texture.", supportsThreshold: true },
+  12: { name: "Sierra Lite", category: "Error Diffusion", description: "Lightweight Sierra variant; faster with acceptable quality.", supportsThreshold: true },
+  13: { name: "Two-Row Sierra", category: "Error Diffusion", description: "Two-row variant; compromise between full Sierra and Lite.", supportsThreshold: true },
+  14: { name: "Stevenson–Arce", category: "Error Diffusion", description: "Sparse long-range diffusion; produces interesting organic texture.", supportsThreshold: true },
   7: { name: "Jarvis–Judice–Ninke", category: "Error Diffusion", description: "High quality large kernel; slower but smooth transitions.", supportsThreshold: true },
-  18:{ name: "Ostromoukhov", category: "Error Diffusion", description: "Adaptive weight schedule for fine detail & reduced artifacts.", supportsThreshold: true, note: "Simplified approximation." },
-  19:{ name: "False Floyd–Steinberg", category: "Error Diffusion", description: "Reduced 3-neighbor diffusion (right, down, down-right) with weights 3/8,3/8,2/8 for speed.", supportsThreshold: true, note: "Lower quality vs full FS but faster." },
-  16:{ name: "Bayer 2×2", category: "Ordered", description: "Minimal ordered matrix; very coarse, strong pattern.", supportsThreshold: false, note: "Uses internal thresholds." },
+  18: { name: "Ostromoukhov", category: "Error Diffusion", description: "Adaptive weight schedule for fine detail & reduced artifacts.", supportsThreshold: true, note: "Simplified approximation." },
+  19: { name: "False Floyd–Steinberg", category: "Error Diffusion", description: "Reduced 3-neighbor diffusion (right, down, down-right) with weights 3/8,3/8,2/8 for speed.", supportsThreshold: true, note: "Lower quality vs full FS but faster." },
+  16: { name: "Bayer 2×2", category: "Ordered", description: "Minimal ordered matrix; very coarse, strong pattern.", supportsThreshold: false, note: "Uses internal thresholds." },
   2: { name: "Bayer 4×4", category: "Ordered", description: "Small ordered matrix; crisp pattern, good for pixel-art vibe.", supportsThreshold: false, note: "Uses internal thresholds." },
   8: { name: "Bayer 8×8", category: "Ordered", description: "Larger ordered matrix; smoother gradients with subtle texture.", supportsThreshold: false, note: "Uses internal thresholds." },
-  20:{ name: "Bayer 16×16", category: "Ordered", description: "Large 16×16 ordered matrix for very smooth gradients (more subtle pattern).", supportsThreshold: false, note: "Generated procedurally." },
- 17:{ name: "Blue Noise 64×64", category: "Ordered", description: "Tiled blue-noise mask; less visible patterning than Bayer.", supportsThreshold: false, note: "Precomputed mask." },
-  15:{ name: "Binary Threshold", category: "Other", description: "Simple cutoff without diffusion; high contrast result.", supportsThreshold: true },
+  20: { name: "Bayer 16×16", category: "Ordered", description: "Large 16×16 ordered matrix for very smooth gradients (more subtle pattern).", supportsThreshold: false, note: "Generated procedurally." },
+  17: { name: "Blue Noise 64×64", category: "Ordered", description: "Tiled blue-noise mask; less visible patterning than Bayer.", supportsThreshold: false, note: "Precomputed mask." },
+  15: { name: "Binary Threshold", category: "Other", description: "Simple cutoff without diffusion; high contrast result.", supportsThreshold: true },
   9: { name: "Halftone (Experimental)", category: "Other", description: "Block-based circular dot simulation. Experimental style effect.", supportsThreshold: true },
-  10:{ name: "Random Threshold", category: "Other", description: "Noise-driven thresholding producing grainy chaotic texture.", supportsThreshold: true },
-  11:{ name: "Dot Diffusion (Simple)", category: "Other", description: "Toy checkerboard mask demo; not a full dot diffusion algorithm.", supportsThreshold: true },
+  10: { name: "Random Threshold", category: "Other", description: "Noise-driven thresholding producing grainy chaotic texture.", supportsThreshold: true },
+  11: { name: "Dot Diffusion (Simple)", category: "Other", description: "Toy checkerboard mask demo; not a full dot diffusion algorithm.", supportsThreshold: true },
 };
 
 // Allocate then copy to avoid TS overload mismatch
@@ -57,14 +62,7 @@ const buildImageData = (arr: Uint8ClampedArray, w: number, h: number) => {
   return img;
 };
 
-const PatternDrawer = (
-  data: Uint8ClampedArray,
-  width: number,
-  height: number,
-  pattern: number,
-  threshold: number = 128,
-  options?: { invert?: boolean; serpentine?: boolean; palette?: [number, number, number][] },
-) => {
+const PatternDrawer = (data: Uint8ClampedArray, width: number, height: number, pattern: number, threshold: number = 128, options?: { invert?: boolean; serpentine?: boolean; palette?: [number, number, number][]; rng?: () => number }) => {
   if (pattern === 1) {
     return buildImageData(data, width, height);
   }
@@ -72,7 +70,7 @@ const PatternDrawer = (
   const errorDiffusion = (matrix: number[][], divisor: number, serpentineDefault = false) => {
     const out = new Uint8ClampedArray(data);
     const pal = options?.palette;
-    const palLums = pal ? pal.map(c => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) : null;
+    const palLums = pal ? pal.map((c) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) : null;
     const useSerpentine = options?.serpentine ?? serpentineDefault;
     for (let y = 0; y < height; y++) {
       const yOffset = y * width * 4;
@@ -82,21 +80,25 @@ const PatternDrawer = (
         const oldLum = out[pxIndex];
         let newLum: number;
         if (pal && palLums) {
-          // choose nearest luminance in palette
-          let bestI = 0; let bestD = Infinity;
+          let bestI = 0;
+          let bestD = Infinity;
           for (let i = 0; i < palLums.length; i++) {
             const d = Math.abs(palLums[i] - oldLum);
-            if (d < bestD) { bestD = d; bestI = i; }
+            if (d < bestD) {
+              bestD = d;
+              bestI = i;
+            }
           }
           const col = pal[bestI];
           newLum = palLums[bestI];
-          out[pxIndex] = col[0]; out[pxIndex + 1] = col[1]; out[pxIndex + 2] = col[2];
+          out[pxIndex] = col[0];
+          out[pxIndex + 1] = col[1];
+          out[pxIndex + 2] = col[2];
         } else {
           newLum = oldLum < threshold ? 0 : 255;
           out[pxIndex] = out[pxIndex + 1] = out[pxIndex + 2] = newLum;
         }
         const error = oldLum - newLum;
-        // Distribute error
         for (let j = 0; j < matrix.length; j++) {
           for (let i = 0; i < matrix[j].length; i++) {
             const dx = i - Math.floor(matrix[j].length / 2);
@@ -140,8 +142,12 @@ const PatternDrawer = (
           const cell = bayerMatrix[y % matrixSize][x % matrixSize] / (scaleFactor - 1); // 0..1
           const adj = brightness / 255 + (cell - 0.5) / pal.length;
           let idx = Math.round(adj * (pal.length - 1));
-          if (idx < 0) idx = 0; else if (idx >= pal.length) idx = pal.length - 1;
-          const c = pal[idx]; out[pxIndex] = c[0]; out[pxIndex + 1] = c[1]; out[pxIndex + 2] = c[2];
+          if (idx < 0) idx = 0;
+          else if (idx >= pal.length) idx = pal.length - 1;
+          const c = pal[idx];
+          out[pxIndex] = c[0];
+          out[pxIndex + 1] = c[1];
+          out[pxIndex + 2] = c[2];
         } else {
           const t = (bayerMatrix[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
           const value = brightness < t ? 0 : 255;
@@ -163,21 +169,38 @@ const PatternDrawer = (
   if (pattern === 3) {
     const out = new Uint8ClampedArray(data);
     const pal = options?.palette;
-    const palLums = pal ? pal.map(c => 0.299*c[0]+0.587*c[1]+0.114*c[2]) : null;
+    const palLums = pal ? pal.map((c) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) : null;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pxIndex = (y * width + x) * 4;
         const oldLum = out[pxIndex];
-        let newLum: number; let setR:number; let setG:number; let setB:number;
+        let newLum: number;
+        let setR: number;
+        let setG: number;
+        let setB: number;
         if (pal && palLums) {
-          let bestI=0; let bestD=Infinity;
-          for (let i=0;i<palLums.length;i++){ const d=Math.abs(palLums[i]-oldLum); if(d<bestD){bestD=d;bestI=i;} }
-          const c=pal[bestI]; setR=c[0]; setG=c[1]; setB=c[2]; newLum=palLums[bestI];
+          let bestI = 0;
+          let bestD = Infinity;
+          for (let i = 0; i < palLums.length; i++) {
+            const d = Math.abs(palLums[i] - oldLum);
+            if (d < bestD) {
+              bestD = d;
+              bestI = i;
+            }
+          }
+          const c = pal[bestI];
+          setR = c[0];
+          setG = c[1];
+          setB = c[2];
+          newLum = palLums[bestI];
         } else {
-          newLum = oldLum < threshold ? 0 : 255; setR=setG=setB=newLum;
+          newLum = oldLum < threshold ? 0 : 255;
+          setR = setG = setB = newLum;
         }
         const error = (oldLum - newLum) / 8;
-        out[pxIndex]=setR; out[pxIndex+1]=setG; out[pxIndex+2]=setB;
+        out[pxIndex] = setR;
+        out[pxIndex + 1] = setG;
+        out[pxIndex + 2] = setB;
         const coords = [
           [x + 1, y],
           [x + 2, y],
@@ -189,7 +212,9 @@ const PatternDrawer = (
         for (const [nx, ny] of coords) {
           if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
             const nIdx = (ny * width + nx) * 4;
-            out[nIdx] += error; out[nIdx + 1] += error; out[nIdx + 2] += error;
+            out[nIdx] += error;
+            out[nIdx + 1] += error;
+            out[nIdx + 2] += error;
           }
         }
       }
@@ -262,8 +287,12 @@ const PatternDrawer = (
           const cell = bayer8x8[y % matrixSize][x % matrixSize] / (scaleFactor - 1);
           const adj = brightness / 255 + (cell - 0.5) / pal.length;
           let idx = Math.round(adj * (pal.length - 1));
-          if (idx < 0) idx = 0; else if (idx >= pal.length) idx = pal.length - 1;
-          const c = pal[idx]; out[pxIndex]=c[0]; out[pxIndex+1]=c[1]; out[pxIndex+2]=c[2];
+          if (idx < 0) idx = 0;
+          else if (idx >= pal.length) idx = pal.length - 1;
+          const c = pal[idx];
+          out[pxIndex] = c[0];
+          out[pxIndex + 1] = c[1];
+          out[pxIndex + 2] = c[2];
         } else {
           const t = (bayer8x8[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
           const value = brightness < t ? 0 : 255;
@@ -299,8 +328,12 @@ const PatternDrawer = (
           const cell = bayer2x2[y % matrixSize][x % matrixSize] / (scaleFactor - 1);
           const adj = brightness / 255 + (cell - 0.5) / pal.length;
           let pi = Math.round(adj * (pal.length - 1));
-          if (pi < 0) pi = 0; else if (pi >= pal.length) pi = pal.length - 1;
-          const c = pal[pi]; out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2];
+          if (pi < 0) pi = 0;
+          else if (pi >= pal.length) pi = pal.length - 1;
+          const c = pal[pi];
+          out[idx] = c[0];
+          out[idx + 1] = c[1];
+          out[idx + 2] = c[2];
         } else {
           const t = (bayer2x2[y % matrixSize][x % matrixSize] / scaleFactor) * 255;
           const value = brightness < t ? 0 : 255;
@@ -320,32 +353,24 @@ const PatternDrawer = (
   }
 
   if (pattern === 17) {
-    // Precomputed 64x64 blue-noise like mask (values 0-255). Short array for brevity; tile algorithmically if desired.
-    // Using a simple shuffled distribution fallback if full mask omitted.
-    const size = 64;
-    const mask: number[] = [];
-    for (let i = 0; i < size * size; i++) mask.push(i);
-    // Fisher–Yates shuffle to approximate blue-noise order (not a true blue-noise but acceptable placeholder)
-    for (let i = mask.length - 1; i > 0; i--) {
-      const j = (Math.random() * (i + 1)) | 0;
-      [mask[i], mask[j]] = [mask[j], mask[i]];
-    }
     const out = new Uint8ClampedArray(data);
     const pal = options?.palette;
-    const denom = size * size - 1;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = (y * width + x) * 4;
         const brightness = out[idx];
-        const m = mask[(y % size) * size + (x % size)];
-        const t = (m / denom) * 255;
+        const cell = blueNoiseThreshold(x, y); // 0..1 deterministic
         if (pal && pal.length) {
-          const cell = m / denom; // 0..1
-            const adj = brightness / 255 + (cell - 0.5) / pal.length;
-            let pi = Math.round(adj * (pal.length - 1));
-            if (pi < 0) pi = 0; else if (pi >= pal.length) pi = pal.length - 1;
-            const c = pal[pi]; out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2];
+          const adj = brightness / 255 + (cell - 0.5) / pal.length;
+          let pi = Math.round(adj * (pal.length - 1));
+          if (pi < 0) pi = 0;
+          else if (pi >= pal.length) pi = pal.length - 1;
+          const c = pal[pi];
+          out[idx] = c[0];
+          out[idx + 1] = c[1];
+          out[idx + 2] = c[2];
         } else {
+          const t = cell * 255;
           const value = brightness < t ? 0 : 255;
           out[idx] = out[idx + 1] = out[idx + 2] = value;
         }
@@ -497,18 +522,18 @@ const PatternDrawer = (
   if (pattern === 18) {
     const out = new Uint8ClampedArray(data);
     const kernels: { r: [number, number, number, number]; w: number[] }[] = [
-    { r: [1, 0, 0, 0], w: [7, 3, 5, 1] },
-    { r: [1, 0, 0, 0], w: [5, 3, 3, 1] },
-    { r: [1, 0, 0, 0], w: [4, 3, 2, 1] },
-    { r: [1, 0, 0, 0], w: [3, 2, 2, 1] },
-    { r: [1, 0, 0, 0], w: [2, 2, 1, 1] },
+      { r: [1, 0, 0, 0], w: [7, 3, 5, 1] },
+      { r: [1, 0, 0, 0], w: [5, 3, 3, 1] },
+      { r: [1, 0, 0, 0], w: [4, 3, 2, 1] },
+      { r: [1, 0, 0, 0], w: [3, 2, 2, 1] },
+      { r: [1, 0, 0, 0], w: [2, 2, 1, 1] },
     ];
     for (let y = 0; y < height; y++) {
-      const serp = options?.serpentine && (y % 2 === 1);
+      const serp = options?.serpentine && y % 2 === 1;
       for (let xi = 0; xi < width; xi++) {
-        const x = serp ? (width - 1 - xi) : xi;
+        const x = serp ? width - 1 - xi : xi;
         const idx = (y * width + x) * 4;
-  let oldPixel = out[idx];
+        let oldPixel = out[idx];
         const newPixel = oldPixel < threshold ? 0 : 255;
         const err = oldPixel - newPixel;
         out[idx] = out[idx + 1] = out[idx + 2] = newPixel;
@@ -517,7 +542,7 @@ const PatternDrawer = (
         const weights = k.w;
         const denom = weights.reduce((a, b) => a + b, 0);
         const coords = serp
-      ? [
+          ? [
               [x - 1, y],
               [x - 2, y],
               [x, y + 1],
@@ -558,17 +583,46 @@ const PatternDrawer = (
       // Weights: right 3/8, down 3/8, down-right (or down-left if serpentine) 2/8
       if (leftToRight) {
         if (x + 1 < width) {
-          const i = (y * width + (x + 1)) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
-        if (y + 1 < height) {
-          { const i = ((y + 1) * width + x) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
-          if (x + 1 < width) { const i = ((y + 1) * width + (x + 1)) * 4; out[i] += (err * 2) / 8; out[i + 1] += (err * 2) / 8; out[i + 2] += (err * 2) / 8; }
+          const i = (y * width + (x + 1)) * 4;
+          out[i] += (err * 3) / 8;
+          out[i + 1] += (err * 3) / 8;
+          out[i + 2] += (err * 3) / 8;
         }
-      } else { // serpentine right-to-left line
-        if (x - 1 >= 0) {
-          const i = (y * width + (x - 1)) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
         if (y + 1 < height) {
-          { const i = ((y + 1) * width + x) * 4; out[i] += (err * 3) / 8; out[i + 1] += (err * 3) / 8; out[i + 2] += (err * 3) / 8; }
-          if (x - 1 >= 0) { const i = ((y + 1) * width + (x - 1)) * 4; out[i] += (err * 2) / 8; out[i + 1] += (err * 2) / 8; out[i + 2] += (err * 2) / 8; }
+          {
+            const i = ((y + 1) * width + x) * 4;
+            out[i] += (err * 3) / 8;
+            out[i + 1] += (err * 3) / 8;
+            out[i + 2] += (err * 3) / 8;
+          }
+          if (x + 1 < width) {
+            const i = ((y + 1) * width + (x + 1)) * 4;
+            out[i] += (err * 2) / 8;
+            out[i + 1] += (err * 2) / 8;
+            out[i + 2] += (err * 2) / 8;
+          }
+        }
+      } else {
+        // serpentine right-to-left line
+        if (x - 1 >= 0) {
+          const i = (y * width + (x - 1)) * 4;
+          out[i] += (err * 3) / 8;
+          out[i + 1] += (err * 3) / 8;
+          out[i + 2] += (err * 3) / 8;
+        }
+        if (y + 1 < height) {
+          {
+            const i = ((y + 1) * width + x) * 4;
+            out[i] += (err * 3) / 8;
+            out[i + 1] += (err * 3) / 8;
+            out[i + 2] += (err * 3) / 8;
+          }
+          if (x - 1 >= 0) {
+            const i = ((y + 1) * width + (x - 1)) * 4;
+            out[i] += (err * 2) / 8;
+            out[i + 1] += (err * 2) / 8;
+            out[i + 2] += (err * 2) / 8;
+          }
         }
       }
     };
@@ -596,7 +650,11 @@ const PatternDrawer = (
       }
     }
     if (options?.invert) {
-      for (let i = 0; i < out.length; i += 4) { out[i] = 255 - out[i]; out[i+1] = 255 - out[i+1]; out[i+2] = 255 - out[i+2]; }
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
+      }
     }
     return buildImageData(out, width, height);
   }
@@ -619,7 +677,8 @@ const PatternDrawer = (
             next[y + size][x + size] = 4 * v + 1;
           }
         }
-        m = next; size = newSize;
+        m = next;
+        size = newSize;
       }
       return m;
     };
@@ -636,8 +695,12 @@ const PatternDrawer = (
           const cell = matrix[y % 16][x % 16] / (denom - 1);
           const adj = gray / 255 + (cell - 0.5) / pal.length;
           let pi = Math.round(adj * (pal.length - 1));
-          if (pi < 0) pi = 0; else if (pi >= pal.length) pi = pal.length - 1;
-          const c = pal[pi]; out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2];
+          if (pi < 0) pi = 0;
+          else if (pi >= pal.length) pi = pal.length - 1;
+          const c = pal[pi];
+          out[idx] = c[0];
+          out[idx + 1] = c[1];
+          out[idx + 2] = c[2];
         } else {
           const v = gray < t ? 0 : 255;
           out[idx] = out[idx + 1] = out[idx + 2] = v;
@@ -646,7 +709,11 @@ const PatternDrawer = (
       }
     }
     if (options?.invert) {
-      for (let i = 0; i < out.length; i += 4) { out[i] = 255 - out[i]; out[i+1] = 255 - out[i+1]; out[i+2] = 255 - out[i+2]; }
+      for (let i = 0; i < out.length; i += 4) {
+        out[i] = 255 - out[i];
+        out[i + 1] = 255 - out[i + 1];
+        out[i + 2] = 255 - out[i + 2];
+      }
     }
     return buildImageData(out, width, height);
   }

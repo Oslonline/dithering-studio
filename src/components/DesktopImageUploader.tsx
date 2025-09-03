@@ -1,9 +1,7 @@
 import { useRef, useState } from "react";
 import { FaImage } from "react-icons/fa";
 
-interface DesktopImageUploaderProps {
-  onImagesAdded: (items: { url: string; name?: string }[]) => void;
-}
+interface DesktopImageUploaderProps { onImagesAdded: (items: { url: string; name?: string; file?: File }[]) => void; }
 
 const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdded }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -12,13 +10,13 @@ const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdd
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    const collected: { url: string; name?: string }[] = [];
+  const collected: { url: string; name?: string; file?: File }[] = [];
     let remaining = files.length;
     Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) { remaining--; return; }
       const reader = new FileReader();
       reader.onload = e => {
-        collected.push({ url: e.target?.result as string, name: file.name });
+  collected.push({ url: e.target?.result as string, name: file.name, file });
         remaining--;
         if (remaining === 0 && collected.length) onImagesAdded(collected);
       };
@@ -28,13 +26,13 @@ const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdd
 
   const processFileList = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const collected: { url: string; name?: string }[] = [];
+  const collected: { url: string; name?: string; file?: File }[] = [];
     let remaining = files.length;
     Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) { remaining--; return; }
       const reader = new FileReader();
       reader.onload = e => {
-        collected.push({ url: e.target?.result as string, name: file.name });
+  collected.push({ url: e.target?.result as string, name: file.name, file });
         remaining--;
         if (remaining === 0 && collected.length) onImagesAdded(collected);
       };

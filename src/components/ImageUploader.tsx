@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import DesktopImageUploader from "./DesktopImageUploader";
 import MobileImageUploader from "./MobileImageUploader";
 
-interface ImageUploaderProps { onImagesAdded: (items: { url: string; name?: string }[]) => void; }
+interface ImageUploaderProps { onImagesAdded: (items: { url: string; name?: string; file?: File }[]) => void; }
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onImagesAdded }) => {
   const [isMobile, setIsMobile] = useState(false);
 

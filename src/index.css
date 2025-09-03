@@ -218,11 +218,52 @@ html, body {
 .focus-mode main { padding:0.75rem; }
 
 .grid-overlay {
-  background-image: linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(255,20,20,0.85) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,20,20,0.85) 1px, transparent 1px);
   background-size: 8px 8px;
-  mix-blend-mode: screen;
-  opacity: 0.5;
+  mix-blend-mode: normal;
+  opacity: 0.9;
 }
+.grid-size-badge {
+  position:absolute;
+  top:4px;
+  left:4px;
+  z-index:10;
+  background:rgba(20,20,20,0.85);
+  color:#f87171;
+  border:1px solid rgba(255,50,50,0.5);
+  font-family:ui-monospace,monospace;
+  font-size:10px;
+  line-height:1;
+  padding:3px 6px 4px;
+  border-radius:4px;
+  cursor:pointer;
+  backdrop-filter:blur(4px);
+  transition:background .2s,border-color .2s,color .2s;
+}
+.grid-size-badge:hover { background:rgba(40,40,40,0.9); border-color:rgba(255,70,70,0.8); color:#ff9f9f; }
+.grid-size-badge:active { background:rgba(55,55,55,0.95); }
+
+/* Preset panel icon buttons */
+.preset-icon-btn {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:4px;
+  padding:4px;
+  line-height:1;
+  color:#9ca3af;
+  transition:background .18s,border-color .18s,color .18s, transform .18s;
+}
+.preset-icon-btn:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15); color:#e5e7eb; }
+.preset-icon-btn:active { transform:translateY(1px); }
+.preset-icon-btn.danger { color:#f87171; border-color:rgba(248,113,113,0.25); }
+.preset-icon-btn.danger:hover { background:rgba(248,113,113,0.1); color:#fecaca; border-color:rgba(248,113,113,0.4); }
+.preset-icon-btn svg { pointer-events:none; }
+.preset-icon-btn.copied { background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.5); color:#6ee7b7; }
+.preset-icon-btn.copied:hover { background:rgba(16,185,129,0.22); color:#a7f3d0; }
+.preset-icon-btn:disabled { opacity:.4; cursor:not-allowed; filter:saturate(.3); }
 @media (min-resolution: 2dppx) {
   .grid-overlay { background-size: 6px 6px; }
 }

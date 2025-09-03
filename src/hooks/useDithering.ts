@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { perf } from "../utils/perf";
-import PatternDrawer from "../components/PatternDrawer";
-import floydSteinberg from "../utils/floydSteinberg";
 import { findPalette } from "../utils/palettes";
+import { findAlgorithm } from "../utils/algorithms";
 
 interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; }
 
@@ -16,9 +15,11 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const renderTokenRef = useRef(0);
   const [renderBump, setRenderBump] = useState(0);
   const [layoutTick, setLayoutTick] = useState(0);
+  const busy = false;
+  const [processedSizeBytes, setProcessedSizeBytes] = useState<number | null>(null);
 
   useEffect(() => {
-    const onResize = () => setLayoutTick((v) => v + 1);
+    const onResize = () => setLayoutTick((v: number) => v + 1);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -34,8 +35,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       baseImageRef.current = img;
       originalDimensions.current.width = img.width;
       originalDimensions.current.height = img.height;
-  renderTokenRef.current++;
-  setRenderBump((v) => v + 1);
+      renderTokenRef.current++;
+      setRenderBump((v: number) => v + 1);
       setHasApplied(false);
     };
     img.onerror = () => {
@@ -45,7 +46,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   }, [image]);
 
   useEffect(() => {
-  if (!baseImageRef.current) return;
+    if (!baseImageRef.current) return;
     const img = baseImageRef.current;
     const displayCanvas = canvasRef.current;
     if (!displayCanvas) return;
@@ -55,13 +56,13 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const procCtx = procCanvas.getContext("2d");
     if (!procCtx) return;
 
-  const token = ++renderTokenRef.current;
-  perf.newFrame(token);
+    const token = ++renderTokenRef.current;
+    perf.newFrame(token);
 
-  perf.phaseStart('calc-dimensions');
-  const width = Math.min(Math.max(16, workingResolution), img.width);
-  const height = Math.round((width / img.width) * img.height);
-  perf.phaseEnd('calc-dimensions');
+    perf.phaseStart('calc-dimensions');
+    const width = Math.min(Math.max(16, workingResolution), img.width);
+    const height = Math.round((width / img.width) * img.height);
+    perf.phaseEnd('calc-dimensions');
 
     if (procCanvas.width !== width || procCanvas.height !== height) {
       procCanvas.width = width;
@@ -72,86 +73,76 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       displayCanvas.height = height;
     }
 
-  perf.phaseStart('scale-draw');
-  procCtx.clearRect(0, 0, width, height);
-  procCtx.drawImage(img, 0, 0, width, height);
-  perf.phaseEnd('scale-draw');
+    perf.phaseStart('scale-draw');
+    procCtx.clearRect(0, 0, width, height);
+    procCtx.drawImage(img, 0, 0, width, height);
+    perf.phaseEnd('scale-draw');
     const src = procCtx.getImageData(0, 0, width, height);
     const srcData = src.data;
 
-    let out: ImageData | null = null;
-    const palette = paletteColors || findPalette(paletteId || null)?.colors || null;
-    perf.phaseStart('dither');
-    if (pattern === 1) {
-      const processed = floydSteinberg({ data: srcData, width, height, threshold, invert, serpentine, palette: palette || undefined });
-      out = new ImageData(width, height);
-      out.data.set(processed);
-    } else {
-      // Invert only when no palette
-      const allowInvert = !palette;
-      out = PatternDrawer(srcData, width, height, pattern, threshold, { invert: allowInvert && invert, serpentine: isErrorDiffusion ? serpentine : false, palette: palette || undefined });
-      if (palette) {
-        perf.phaseStart('palette-map');
-        const d = out.data;
-        const bias = (threshold - 128) / 255 * 64;
-        for (let i = 0; i < d.length; i += 4) {
-          let r = d[i], g = d[i + 1], b = d[i + 2];
-            r = Math.max(0, Math.min(255, r + bias));
-            g = Math.max(0, Math.min(255, g + bias));
-            b = Math.max(0, Math.min(255, b + bias));
-            let best = 0; let bestDist = Infinity;
-            for (let p = 0; p < palette.length; p++) {
-              const pr = palette[p][0], pg = palette[p][1], pb = palette[p][2];
-              const dr = r - pr, dg = g - pg, db = b - pb;
-              const dist = dr*dr + dg*dg + db*db;
-              if (dist < bestDist) { bestDist = dist; best = p; }
-            }
-            d[i] = palette[best][0];
-            d[i + 1] = palette[best][1];
-            d[i + 2] = palette[best][2];
-        }
-        perf.phaseEnd('palette-map');
+  // Use palette only if it has at least 2 colors; otherwise fall back to predefined or null
+  const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
+
+    {
+      let out: ImageData | null = null;
+      perf.phaseStart('dither');
+      const algo = findAlgorithm(pattern);
+      if (algo) {
+        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert, serpentine, isErrorDiffusion, palette: palette || undefined } as any });
+        if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
+      } else {
+        out = new ImageData(width, height); out.data.set(srcData); // fallback (should not happen once all migrated)
       }
-    }
-    perf.phaseEnd('dither');
+      perf.phaseEnd('dither');
 
-  if (token !== renderTokenRef.current) return;
+      if (token !== renderTokenRef.current) return;
 
-    perf.phaseStart('present');
-    if (out) {
-      displayCtx.putImageData(out, 0, 0);
-      procCtx.putImageData(out, 0, 0);
-    } else {
-      // Fallback: draw original
-      displayCtx.drawImage(img, 0, 0, width, height);
-      procCtx.drawImage(img, 0, 0, width, height);
-    }
-    perf.phaseEnd('present');
-    displayCanvas.classList.add("pixelated");
+      perf.phaseStart('present');
+      if (out) {
+        displayCtx.putImageData(out, 0, 0);
+        procCtx.putImageData(out, 0, 0);
+      } else {
+        displayCtx.drawImage(img, 0, 0, width, height);
+        procCtx.drawImage(img, 0, 0, width, height);
+      }
+      perf.phaseEnd('present');
+      displayCanvas.classList.add("pixelated");
 
-    const ow = originalDimensions.current.width || width;
-    const oh = originalDimensions.current.height || height;
-    if (ow && oh) {
-      const aside = document.querySelector('aside');
-      const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
-      const viewportW = window.innerWidth;
-      const viewportH = window.innerHeight;
-  const maxW = Math.min(viewportW - sidebarWidth - 40, 1280);
-  const maxH = viewportH - 140;
-      let dispW = Math.min(maxW, maxH * (ow / oh));
-  if (dispW < 120) dispW = 120;
-      const dispH = dispW * (oh / ow);
-      displayCanvas.style.width = dispW + 'px';
-      displayCanvas.style.height = dispH + 'px';
-    }
+      const ow = originalDimensions.current.width || width;
+      const oh = originalDimensions.current.height || height;
+      if (ow && oh) {
+        const aside = document.querySelector('aside');
+        const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
+        const viewportW = window.innerWidth;
+        const viewportH = window.innerHeight;
+        const maxW = Math.min(viewportW - sidebarWidth - 40, 1280);
+        const maxH = viewportH - 140;
+        let dispW = Math.min(maxW, maxH * (ow / oh));
+        if (dispW < 120) dispW = 120;
+        const dispH = dispW * (oh / ow);
+        displayCanvas.style.width = dispW + 'px';
+        displayCanvas.style.height = dispH + 'px';
+      }
 
-  if (out) {
-      setHasApplied(true);
-      setCanvasUpdatedFlag(true);
-      const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
-      return () => clearTimeout(t);
+      if (out) {
+        setHasApplied(true);
+        setCanvasUpdatedFlag(true);
+        // Estimate PNG size of current canvas for perf overlay (KB display)
+        try {
+          const dataUrl = displayCanvas.toDataURL('image/png');
+          // Strip header 'data:image/png;base64,' then compute bytes from base64 length
+          const comma = dataUrl.indexOf(',');
+            if (comma !== -1) {
+              const b64 = dataUrl.slice(comma + 1);
+              const bytes = Math.floor((b64.length * 3) / 4 - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0));
+              setProcessedSizeBytes(bytes);
+            }
+        } catch {}
+        const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
+        return () => clearTimeout(t);
+      }
+      perf.endFrame();
     }
-  perf.endFrame();
   }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors]);
 
   const resetCanvas = () => {
@@ -163,7 +154,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     setHasApplied(false);
   };
 
-  return { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, originalDimensions, resetCanvas };
+  return { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, originalDimensions, resetCanvas, busy, processedSizeBytes };
 };
 
 export default useDithering;

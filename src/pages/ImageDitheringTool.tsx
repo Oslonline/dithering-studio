@@ -10,25 +10,50 @@ import ResolutionPanel from "../components/ResolutionPanel";
 import UploadIntro from "../components/UploadIntro";
 import useDithering from "../hooks/useDithering";
 import PerformanceOverlay from "../components/PerformanceOverlay";
+import { perf } from "../utils/perf";
 import { predefinedPalettes } from "../utils/palettes";
+import { algorithms } from "../utils/algorithms";
+import PresetPanel from "../components/PresetPanel";
 
-const isErrorDiffusion = (p: number) => [1, 3, 4, 5, 6, 7, 12, 13, 14, 18, 19].includes(p);
+const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
 const ImageDitheringTool: React.FC = () => {
   const [images, setImages] = useState<UploadedImage[]>(() => {
     try {
-      const raw = localStorage.getItem('ds_images');
+      const raw = localStorage.getItem("ds_images");
       if (raw) return JSON.parse(raw) as UploadedImage[];
     } catch {}
     return [];
   });
   const [activeImageId, setActiveImageId] = useState<string | null>(() => {
-    try { return localStorage.getItem('ds_activeImageId'); } catch { return null; }
+    try {
+      return localStorage.getItem("ds_activeImageId");
+    } catch {
+      return null;
+    }
   });
-  const image = activeImageId ? images.find(i => i.id === activeImageId)?.url || null : null;
-  const [pattern, setPattern] = useState<number>(() => { try { return +(localStorage.getItem('ds_pattern') || 1); } catch { return 1; } });
-  const [threshold, setThreshold] = useState<number>(() => { try { return +(localStorage.getItem('ds_threshold') || 128); } catch { return 128; } });
-  const [workingResolution, setWorkingResolution] = useState<number>(() => { try { return +(localStorage.getItem('ds_workingResolution') || 512); } catch { return 512; } });
+  const image = activeImageId ? images.find((i: UploadedImage) => i.id === activeImageId)?.url || null : null;
+  const [pattern, setPattern] = useState<number>(() => {
+    try {
+      return +(localStorage.getItem("ds_pattern") || 1);
+    } catch {
+      return 1;
+    }
+  });
+  const [threshold, setThreshold] = useState<number>(() => {
+    try {
+      return +(localStorage.getItem("ds_threshold") || 128);
+    } catch {
+      return 128;
+    }
+  });
+  const [workingResolution, setWorkingResolution] = useState<number>(() => {
+    try {
+      return +(localStorage.getItem("ds_workingResolution") || 512);
+    } catch {
+      return 512;
+    }
+  });
   const [workingResInput, setWorkingResInput] = useState<string>(() => String(workingResolution));
   const [webpSupported, setWebpSupported] = useState(true);
   useEffect(() => {
@@ -41,18 +66,61 @@ const ImageDitheringTool: React.FC = () => {
       setWebpSupported(false);
     }
   }, []);
-  const [paletteId, setPaletteId] = useState<string | null>(() => { try { return localStorage.getItem('ds_paletteId'); } catch { return null; } });
-  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(null);
-  const [invert, setInvert] = useState<boolean>(() => { try { return localStorage.getItem('ds_invert') === '1'; } catch { return false; } });
-  const [serpentine, setSerpentine] = useState<boolean>(() => { try { return localStorage.getItem('ds_serpentine') !== '0'; } catch { return true; } });
-  const [showGrid, setShowGrid] = useState<boolean>(() => { try { return localStorage.getItem('ds_showGrid') === '1'; } catch { return false; } });
+  const [paletteId, setPaletteId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("ds_paletteId");
+    } catch {
+      return null;
+    }
+  });
+  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => {
+    try {
+      const raw = localStorage.getItem("ds_customPalette");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.every((c) => Array.isArray(c) && c.length === 3 && c.every((n) => typeof n === "number"))) {
+          return parsed as [number, number, number][];
+        }
+      }
+    } catch {}
+    return null;
+  });
+  const [invert, setInvert] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("ds_invert") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [serpentine, setSerpentine] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("ds_serpentine") !== "0";
+    } catch {
+      return true;
+    }
+  });
+  const [showGrid, setShowGrid] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("ds_showGrid") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [gridSize, setGridSize] = useState<number>(() => {
+    try {
+      const v = +(localStorage.getItem("ds_gridSize") || 8);
+      return [4, 6, 8, 12, 16].includes(v) ? v : 8;
+    } catch {
+      return 8;
+    }
+  });
   const [focusMode, setFocusMode] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const shareRef = useRef<HTMLDivElement | null>(null);
-  const [shareURL, setShareURL] = useState("");
-  const [copyOk, setCopyOk] = useState(false);
+  // (share modal removed)
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
-  if (paletteId && invert) setInvert(false);
+  // Prevent palette + invert conflict (moved from render-time mutation)
+  useEffect(() => {
+    if (paletteId && invert) setInvert(false);
+  }, [paletteId, invert]);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const [settingsHeight, setSettingsHeight] = useState<number | null>(null);
@@ -77,15 +145,19 @@ const ImageDitheringTool: React.FC = () => {
   const effectivePaletteId = paletteId;
   const effectivePalette = (effectivePaletteId ? predefinedPalettes.find((p) => p.id === effectivePaletteId)?.colors : null) || null;
   useEffect(() => {
-    if (effectivePalette) {
+    // Only auto-populate for predefined palettes (exclude special __custom / __original)
+    if (effectivePalette && paletteId && !paletteId.startsWith("__")) {
       if (paletteFromURL.current) {
         setActivePaletteColors(paletteFromURL.current);
-        paletteFromURL.current = null; // consume override
+        paletteFromURL.current = null;
       } else {
         setActivePaletteColors(effectivePalette.map((c) => [...c] as [number, number, number]));
       }
-    } else setActivePaletteColors(null);
-  }, [effectivePaletteId]);
+    } else if (!paletteId) {
+      setActivePaletteColors(null);
+    }
+    // For custom/original we preserve whatever Panel manages.
+  }, [effectivePaletteId, paletteId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -96,9 +168,10 @@ const ImageDitheringTool: React.FC = () => {
       if (isNaN(v)) return undefined;
       return Math.min(max, Math.max(min, v));
     };
-    const p = num("p", 1, 99);
+    const p = num("p", 1, 999);
     if (typeof p === "number") {
-      if (isErrorDiffusion(p) || [2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].includes(p)) setPattern(p);
+      // Accept only ids present in algorithms registry
+      if (algorithms.some((a) => a.id === p)) setPattern(p);
     }
     const t = num("t", 0, 255);
     if (typeof t === "number") setThreshold(t);
@@ -135,7 +208,7 @@ const ImageDitheringTool: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag } = useDithering({
+  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = useDithering({
     image,
     pattern,
     threshold,
@@ -147,20 +220,37 @@ const ImageDitheringTool: React.FC = () => {
     paletteColors: activePaletteColors || undefined,
   });
 
+  // Reset perf data when active image changes (fresh stats per image)
+  useEffect(() => {
+    perf.reset();
+  }, [activeImageId]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "f" || e.key === "F") {
         const t = e.target as HTMLElement;
         if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-        setFocusMode((f) => !f); e.preventDefault();
+        setFocusMode((f: boolean) => !f);
+        e.preventDefault();
       } else if (e.key === "g" || e.key === "G") {
         const t = e.target as HTMLElement;
         if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-        setShowGrid((s) => !s); e.preventDefault();
-      } else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && images.length > 1) {
-        const idx = images.findIndex(i => i.id === activeImageId);
+        if (e.shiftKey) {
+          // Cycle grid size when grid visible or (optionally) enable it first
+          setShowGrid(true);
+          setGridSize((gs: number) => {
+            const order = [4, 6, 8, 12, 16];
+            const idx = order.indexOf(gs);
+            return order[(idx + 1) % order.length];
+          });
+        } else {
+          setShowGrid((s: boolean) => !s);
+        }
+        e.preventDefault();
+      } else if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && images.length > 1) {
+        const idx = images.findIndex((i: UploadedImage) => i.id === activeImageId);
         if (idx >= 0) {
-          const dir = e.key === 'ArrowRight' ? 1 : -1;
+          const dir = e.key === "ArrowRight" ? 1 : -1;
           const next = (idx + dir + images.length) % images.length;
           setActiveImageId(images[next].id);
           e.preventDefault();
@@ -172,10 +262,10 @@ const ImageDitheringTool: React.FC = () => {
   }, []);
 
   const addImages = (items: { url: string; name?: string; file?: File }[]) => {
-    setImages(prev => {
+    setImages((prev: UploadedImage[]) => {
       const next = [...prev];
       items.forEach((it, idx) => {
-        const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${idx}`;
+        const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${idx}`;
         let meta: Partial<UploadedImage> = {};
         if (it.file) {
           meta.size = it.file.size;
@@ -183,7 +273,7 @@ const ImageDitheringTool: React.FC = () => {
         // try to get dimensions
         const imgEl = new Image();
         imgEl.onload = () => {
-          setImages(cur => cur.map(ci => ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci));
+          setImages((cur: UploadedImage[]) => cur.map((ci: UploadedImage) => (ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci)));
         };
         imgEl.src = it.url;
         next.push({ id, url: it.url, name: it.name, ...meta });
@@ -193,13 +283,13 @@ const ImageDitheringTool: React.FC = () => {
     });
   };
   const readAndAddFiles = (files: FileList) => {
-    const toRead = Array.from(files).filter(f => f.type.startsWith('image/'));
+    const toRead = Array.from(files).filter((f) => f.type.startsWith("image/"));
     if (!toRead.length) return;
     const collected: { url: string; name?: string; file?: File }[] = [];
     let remaining = toRead.length;
-    toRead.forEach(f => {
+    toRead.forEach((f) => {
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = (e) => {
         collected.push({ url: e.target?.result as string, name: f.name, file: f });
         remaining--;
         if (remaining === 0) addImages(collected);
@@ -208,8 +298,8 @@ const ImageDitheringTool: React.FC = () => {
     });
   };
   const removeImage = (id: string) => {
-    setImages(prev => {
-      const next = prev.filter(i => i.id !== id);
+    setImages((prev: UploadedImage[]) => {
+      const next = prev.filter((i: UploadedImage) => i.id !== id);
       if (activeImageId === id) {
         setActiveImageId(next[0]?.id || null);
       }
@@ -219,6 +309,31 @@ const ImageDitheringTool: React.FC = () => {
   const clearAllImages = () => {
     setImages([]);
     setActiveImageId(null);
+  };
+  const resetSettings = () => {
+    // Reset dither settings to defaults
+    setPattern(1);
+    setThreshold(128);
+    setWorkingResolution(512);
+    setWorkingResInput('512');
+    setPaletteId(null);
+    setActivePaletteColors(null);
+    setInvert(false);
+    setSerpentine(true);
+    setShowGrid(false);
+    setGridSize(8);
+    try {
+      localStorage.removeItem('ds_pattern');
+      localStorage.removeItem('ds_threshold');
+      localStorage.removeItem('ds_workingResolution');
+      localStorage.removeItem('ds_paletteId');
+      localStorage.removeItem('ds_customPalette');
+      localStorage.removeItem('ds_invert');
+      localStorage.removeItem('ds_serpentine');
+      localStorage.removeItem('ds_showGrid');
+      localStorage.removeItem('ds_gridSize');
+    } catch {}
+    perf.reset();
   };
   const [showDownload, setShowDownload] = useState(false);
   const downloadRef = useRef<HTMLDivElement | null>(null);
@@ -248,21 +363,7 @@ const ImageDitheringTool: React.FC = () => {
     };
   }, [showDownload]);
 
-  useEffect(() => {
-    if (!showShareModal) return;
-    const handler = (e: MouseEvent) => {
-      if (shareRef.current && !shareRef.current.contains(e.target as Node)) setShowShareModal(false);
-    };
-    const key = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowShareModal(false);
-    };
-    document.addEventListener("mousedown", handler);
-    document.addEventListener("keydown", key);
-    return () => {
-      document.removeEventListener("mousedown", handler);
-      document.removeEventListener("keydown", key);
-    };
-  }, [showShareModal]);
+  // (Share modal logic removed)
 
   const [focusHintStyle, setFocusHintStyle] = useState<{ left: number; top: number }>({ left: 16, top: 72 });
   const [showFocusHintDevice, setShowFocusHintDevice] = useState(true);
@@ -333,22 +434,71 @@ const ImageDitheringTool: React.FC = () => {
   };
 
   // Persistence effects
-  useEffect(() => { try { localStorage.setItem('ds_pattern', String(pattern)); } catch {} }, [pattern]);
-  useEffect(() => { try { localStorage.setItem('ds_threshold', String(threshold)); } catch {} }, [threshold]);
-  useEffect(() => { try { localStorage.setItem('ds_workingResolution', String(workingResolution)); } catch {} }, [workingResolution]);
-  useEffect(() => { try { if (paletteId) localStorage.setItem('ds_paletteId', paletteId); else localStorage.removeItem('ds_paletteId'); } catch {} }, [paletteId]);
-  useEffect(() => { try { localStorage.setItem('ds_invert', invert ? '1' : '0'); } catch {} }, [invert]);
-  useEffect(() => { try { localStorage.setItem('ds_serpentine', serpentine ? '1' : '0'); } catch {} }, [serpentine]);
-  useEffect(() => { try { localStorage.setItem('ds_showGrid', showGrid ? '1' : '0'); } catch {} }, [showGrid]);
-  useEffect(() => { try { localStorage.setItem('ds_activeImageId', activeImageId || ''); } catch {} }, [activeImageId]);
-  useEffect(() => { try { localStorage.setItem('ds_images', JSON.stringify(images)); } catch {} }, [images]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_pattern", String(pattern));
+    } catch {}
+  }, [pattern]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_threshold", String(threshold));
+    } catch {}
+  }, [threshold]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_workingResolution", String(workingResolution));
+    } catch {}
+  }, [workingResolution]);
+  useEffect(() => {
+    try {
+      if (paletteId) localStorage.setItem("ds_paletteId", paletteId);
+      else localStorage.removeItem("ds_paletteId");
+    } catch {}
+  }, [paletteId]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_invert", invert ? "1" : "0");
+    } catch {}
+  }, [invert]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_serpentine", serpentine ? "1" : "0");
+    } catch {}
+  }, [serpentine]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_showGrid", showGrid ? "1" : "0");
+    } catch {}
+  }, [showGrid]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_gridSize", String(gridSize));
+    } catch {}
+  }, [gridSize]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_activeImageId", activeImageId || "");
+    } catch {}
+  }, [activeImageId]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_images", JSON.stringify(images));
+    } catch {}
+  }, [images]);
+  useEffect(() => {
+    try {
+      if (paletteId === "__custom" && activePaletteColors && activePaletteColors.length >= 2) {
+        localStorage.setItem("ds_customPalette", JSON.stringify(activePaletteColors));
+      }
+    } catch {}
+  }, [activePaletteColors, paletteId]);
 
   return (
     <>
       <Helmet>
         <title>Image Dithering Tool | Multi Algorithm (Floyd–Steinberg, Bayer, Sierra)</title>
         <meta name="description" content="Client-side image dithering: Floyd–Steinberg, Atkinson, Stucki, Sierra family, Jarvis, Bayer ordered, halftone & more." />
-        <link rel="canonical" href="https://steinberg-image.vercel.app//Dithering" />
+        <link rel="canonical" href="https://steinberg-image.vercel.app/Dithering" />
       </Helmet>
       <div id="tool" className={`flex min-h-screen w-full flex-col ${focusMode ? "focus-mode" : ""}`}>
         <header ref={headerRef} className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? "hidden" : ""}`}>
@@ -369,28 +519,59 @@ const ImageDitheringTool: React.FC = () => {
             <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
               <div className="flex flex-1 flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto" style={settingsHeight ? { maxHeight: settingsHeight } : undefined}>
-                  {!image && (<div className="px-4 pt-4 pb-6"><UploadIntro /></div>)}
+                  {!image && (
+                    <div className="px-4 pt-4 pb-6">
+                      <UploadIntro />
+                    </div>
+                  )}
                   {image && (
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
-                        {images.length > 1 && (
-                          <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />
-                        )}
+                        {images.length > 1 && <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />}
                         {images.length <= 1 && activeImageId && (
-                          <button onClick={() => { clearAllImages(); }} className="clean-btn w-full justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Upload a different image (resets list)">
-                            <span className="text-[13px]" aria-hidden>⬆</span>
-                            <span>Upload another image</span>
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => { clearAllImages(); }}
+                              className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide"
+                              title="Choose another image (replaces current)"
+                            >
+                              <span className="text-[13px]" aria-hidden>⬆</span>
+                              <span>Change Image</span>
+                            </button>
+                            <button
+                              onClick={resetSettings}
+                              className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide"
+                              title="Reset all settings to defaults"
+                            >
+                              <span className="text-[13px]" aria-hidden>↺</span>
+                              <span>Reset</span>
+                            </button>
+                          </div>
                         )}
 
                         {/* Algorithm & Threshold */}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} />
 
                         {/* Palette */}
-                        <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} />
+                        <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />
 
                         {/* Working Resolution */}
                         <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} />
+
+                        {/* Presets */}
+                        <PresetPanel
+                          current={{ params: { pattern, threshold, invert, serpentine, isErrorDiffusion: isErrorDiffusion(pattern), palette: activePaletteColors || undefined }, workingResolution, paletteId, activePaletteColors }}
+                          apply={(p) => {
+                            setPattern(p.pattern);
+                            setThreshold(p.threshold);
+                            setInvert(p.invert);
+                            setSerpentine(p.serpentine);
+                            setWorkingResolution(p.workingResolution);
+                            setWorkingResInput(String(p.workingResolution));
+                            if (p.paletteId) setPaletteId(p.paletteId);
+                            if (p.activePaletteColors) setActivePaletteColors(p.activePaletteColors);
+                          }}
+                        />
                       </div>
                     </div>
                   )}
@@ -401,29 +582,7 @@ const ImageDitheringTool: React.FC = () => {
                       <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
                         Download
                       </button>
-                      <button
-                        onClick={() => {
-                          const params = new URLSearchParams();
-                          params.set("p", String(pattern));
-                          params.set("t", String(threshold));
-                          params.set("r", String(workingResolution));
-                          if (invert) params.set("inv", "1");
-                          if (serpentine) params.set("ser", "1");
-                          if (paletteId) {
-                            params.set("pal", paletteId);
-                            if (activePaletteColors) params.set("cols", activePaletteColors.map((c) => c.join(".")).join("-"));
-                          }
-                          const base = window.location.origin + window.location.pathname;
-                          const full = base + "?" + params.toString();
-                          setShareURL(full);
-                          navigator.clipboard?.writeText(full).catch(() => {});
-                          setShowShareModal(true);
-                        }}
-                        className="clean-btn flex-1 justify-center text-[11px]"
-                        title="Copy shareable URL"
-                      >
-                        Share
-                      </button>
+                      {/* Share button removed */}
                     </div>
                   ) : (
                     <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">
@@ -446,7 +605,26 @@ const ImageDitheringTool: React.FC = () => {
                 <div className="canvas-frame flex items-center justify-center p-2" style={{ background: "transparent", border: "none" }}>
                   <div className="relative">
                     <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered image preview" style={{ display: "block" }} />
-                    {showGrid && <div className="pointer-events-none absolute inset-0 grid-overlay" aria-hidden />}
+                    {showGrid && (
+                      <>
+                        <div
+                          className="grid-overlay pointer-events-none absolute inset-0"
+                          aria-hidden
+                          style={{ backgroundSize: `${gridSize}px ${gridSize}px` }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const order = [4, 6, 8, 12, 16];
+                            setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
+                          }}
+                          className="grid-size-badge"
+                          title="Cycle grid size (Shift+G)"
+                        >
+                          {gridSize}px
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -476,6 +654,20 @@ const ImageDitheringTool: React.FC = () => {
                 <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">
                   SVG
                 </button>
+                <button
+                  onClick={() => {
+                    const canvas = processedCanvasRef.current || canvasRef.current;
+                    if (!canvas) return;
+                    canvas.toBlob((b) => {
+                      if (!b) return;
+                      const item = new ClipboardItem({ "image/png": b });
+                      navigator.clipboard?.write([item]).catch(() => {});
+                    }, "image/png");
+                  }}
+                  className="clean-btn w-full text-[11px]"
+                >
+                  Clipboard
+                </button>
               </div>
               <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? "(modern)" : "(unsupported)"}; SVG vector (large for big images).</p>
               <div className="flex items-center justify-between">
@@ -488,43 +680,15 @@ const ImageDitheringTool: React.FC = () => {
         )}
         {showFocusHintDevice && (
           <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 font-mono text-[10px] tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: focusHintStyle.left, top: focusHintStyle.top }}>
-            F Focus | G Grid
+            F Focus | G Grid | Shift+G Size
           </div>
         )}
-        {showShareModal && (
-          <div className="fixed inset-0 z-40 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-            <div ref={shareRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-mono text-xs tracking-wide text-gray-300">Share Link</h2>
-              </div>
-              <p className="mb-3 text-[10px] text-gray-500">URL encodes current algorithm, threshold, resolution, palette & toggles. Copied to clipboard.</p>
-              <div className="mb-4">
-                <input type="text" readOnly value={shareURL} className="clean-input w-full text-[10px]" onFocus={(e) => e.currentTarget.select()} />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => {
-                    navigator.clipboard
-                      ?.writeText(shareURL)
-                      .then(() => {
-                        setCopyOk(true);
-                        setTimeout(() => setCopyOk(false), 1400);
-                      })
-                      .catch(() => {});
-                  }}
-                  className={`clean-btn text-[11px] ${copyOk ? "border-green-600 text-green-400" : ""}`}
-                >
-                  {copyOk ? "Copied ✓" : "Copy"}
-                </button>
-                <button onClick={() => setShowShareModal(false)} className="clean-btn px-3 py-1 text-[11px]">
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        <PerformanceOverlay />
+  {/* Local processing notice moved into PerformanceOverlay */}
+        <PerformanceOverlay
+          hasImage={!!image}
+          originalBytes={image ? images.find(i=>i.id===activeImageId)?.size || null : null}
+          processedBytes={image ? processedSizeBytes : null}
+        />
       </div>
     </>
   );

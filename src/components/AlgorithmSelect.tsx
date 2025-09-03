@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { patternMeta, patternOptions } from './PatternDrawer';
+import { algorithms, getAlgorithmsByCategory } from '../utils/algorithms';
 
 export interface AlgorithmSelectProps {
   pattern: number;
@@ -30,25 +30,18 @@ const AlgorithmSelect: React.FC<AlgorithmSelectProps> = ({
 }) => {
   const [open, setOpen] = useState(defaultOpen);
 
+  const algoMetaMap: Record<number, { description: string; supportsThreshold: boolean; category: string; name: string }> = {};
+  for (const a of algorithms) { algoMetaMap[a.id] = { description: a.name, supportsThreshold: a.supportsThreshold, category: a.category, name: a.name }; }
+
   const renderOptions = () => {
     if (!groupByCategory) {
-  return patternOptions.slice().sort((a,b)=>a.value-b.value).map(o => <option key={o.value} value={o.value}>{o.label}</option>);
+      return algorithms.map(a => <option key={a.id} value={a.id}>{a.name}</option>);
     }
-    const categoryOrder: ("Error Diffusion" | "Ordered" | "Other")[] = ["Error Diffusion", "Ordered", "Other"];
-    const groups: Record<string, { value: number; label: string }[]> = {};
-    for (const opt of patternOptions) {
-      const meta = patternMeta[opt.value];
-      const cat = meta?.category || 'Other';
-      (groups[cat] ||= []).push(opt);
-    }
+    const categoryOrder = ["Error Diffusion", "Ordered", "Other"];
+    const groups = getAlgorithmsByCategory();
     return categoryOrder.map(cat => {
-      const opts = groups[cat];
-      if (!opts || !opts.length) return null;
-      return (
-        <optgroup key={cat} label={cat === 'Other' ? 'Other / Experimental' : cat}>
-          {opts.sort((a,b) => a.value - b.value).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </optgroup>
-      );
+      const list = groups[cat]; if (!list || !list.length) return null;
+      return <optgroup key={cat} label={cat === 'Other' ? 'Other / Experimental' : cat}>{list.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</optgroup>;
     });
   };
 
@@ -66,7 +59,7 @@ const AlgorithmSelect: React.FC<AlgorithmSelectProps> = ({
               {renderOptions()}
             </select>
           </div>
-          {patternMeta[pattern]?.supportsThreshold && (
+          {algoMetaMap[pattern]?.supportsThreshold && (
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[10px] tracking-wide text-gray-400">Threshold</span>
@@ -79,7 +72,7 @@ const AlgorithmSelect: React.FC<AlgorithmSelectProps> = ({
             <button type="button" onClick={() => !paletteId && setInvert(v => !v)} disabled={!!paletteId} className={`clean-btn justify-center text-[10px] ${invert ? 'border-emerald-600 text-emerald-400' : ''} ${paletteId ? 'cursor-not-allowed opacity-40' : ''}`}>Invert</button>
             <button type="button" onClick={() => setSerpentine(s => !s)} className={`clean-btn justify-center text-[10px] ${serpentine ? 'border-blue-600 text-blue-400' : ''}`}>Serpentine</button>
           </div>
-          <p className="text-[10px] leading-snug text-gray-500">{patternMeta[pattern]?.description}</p>
+          <p className="text-[10px] leading-snug text-gray-500">{algoMetaMap[pattern]?.name}</p>
         </div>
       )}
     </div>
