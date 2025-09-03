@@ -17,8 +17,8 @@ const stevensonArce = createErrorDiffusionKernelRunner([[0,0,0,0,0,32,0,0,0,0,0]
 
 // Raw registry (unsorted). Maintain new entries here; ordering handled by helpers.
 const registry: AlgorithmMeta[] = [
-  { id: 1, name: 'Floyd–Steinberg', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:fs:1', run: (ctx)=> runFS(ctx) },
-  { id: 19, name: 'False Floyd–Steinberg', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:false-fs:2', run: (ctx)=> runFalseFloydSteinberg(ctx) },
+  { id: 1, name: 'Floyd–Steinberg', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, orderKey: 'error:fs:1', run: (ctx)=> runFS(ctx) },
+  { id: 19, name: 'False Floyd–Steinberg', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: false, orderKey: 'error:false-fs:2', run: (ctx)=> runFalseFloydSteinberg(ctx) },
   { id: 3, name: 'Atkinson', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:atkinson:3', run: (ctx)=> runAtkinson(ctx) },
   { id: 12, name: 'Sierra Lite', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:sierra-lite:4', run: sierraLite },
   { id: 4, name: 'Burkes', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:burkes:5', run: burkes },
@@ -27,20 +27,20 @@ const registry: AlgorithmMeta[] = [
   { id: 7, name: 'Jarvis–Judice–Ninke', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:jjn:8', run: jjn },
   { id: 13, name: 'Two-Row Sierra', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:two-row-sierra:9', run: twoRowSierra },
   { id: 14, name: 'Stevenson–Arce', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:stevenson-arce:10', run: stevensonArce },
-  { id: 18, name: 'Ostromoukhov', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:ostro:11', run: (ctx)=> runAdaptiveOstromoukhov(ctx) },
-  { id: 21, name: 'Adaptive FS 3×3', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:afs3:12', run: createAdaptiveFSDiffusion(1) },
-  { id: 22, name: 'Adaptive FS 7×7', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:afs7:13', run: createAdaptiveFSDiffusion(3) },
+  { id: 18, name: 'Ostromoukhov', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: false, orderKey: 'error:ostro:11', run: (ctx)=> runAdaptiveOstromoukhov(ctx) },
+  { id: 21, name: 'Adaptive FS 3×3', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, orderKey: 'error:afs3:12', run: createAdaptiveFSDiffusion(1) },
+  { id: 22, name: 'Adaptive FS 7×7', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, orderKey: 'error:afs7:13', run: createAdaptiveFSDiffusion(3) },
 
-  { id: 16, name: 'Bayer 2×2', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bayer:2', run: (ctx)=> runBayer2(ctx) },
-  { id: 2, name: 'Bayer 4×4', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bayer:4', run: (ctx)=> runBayer4(ctx) },
-  { id: 8, name: 'Bayer 8×8', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bayer:8', run: (ctx)=> runBayer8(ctx) },
-  { id: 20, name: 'Bayer 16×16', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bayer:16', run: (ctx)=> runBayer16(ctx) },
-  { id: 17, name: 'Blue Noise 64×64', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bluenoise:64', run: (ctx)=> runBlueNoise(ctx) },
+  { id: 16, name: 'Bayer 2×2', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:2', run: (ctx)=> runBayer2(ctx) },
+  { id: 2, name: 'Bayer 4×4', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:4', run: (ctx)=> runBayer4(ctx) },
+  { id: 8, name: 'Bayer 8×8', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:8', run: (ctx)=> runBayer8(ctx) },
+  { id: 20, name: 'Bayer 16×16', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:16', run: (ctx)=> runBayer16(ctx) },
+  { id: 17, name: 'Blue Noise 64×64', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bluenoise:64', run: (ctx)=> runBlueNoise(ctx) },
 
-  { id: 15, name: 'Binary Threshold', category: 'Other', supportsThreshold: true, orderKey: 'other:binary:1', run: (ctx)=> runBinaryThreshold(ctx) },
-  { id: 9, name: 'Halftone', category: 'Other', supportsThreshold: true, orderKey: 'other:halftone:2', run: (ctx)=> runHalftone(ctx) },
-  { id: 10, name: 'Random Threshold', category: 'Other', supportsThreshold: true, orderKey: 'other:random:3', run: (ctx)=> runRandomThreshold(ctx) },
-  { id: 11, name: 'Dot Diffusion (Simple)', category: 'Other', supportsThreshold: true, orderKey: 'other:dotdiff:4', run: (ctx)=> runDotDiffusionSimple(ctx) },
+  { id: 15, name: 'Binary Threshold', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:binary:1', run: (ctx)=> runBinaryThreshold(ctx) },
+  { id: 9, name: 'Halftone', category: 'Other', supportsThreshold: true, supportsPalette: false, orderKey: 'other:halftone:2', run: (ctx)=> runHalftone(ctx) },
+  { id: 10, name: 'Random Threshold', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:random:3', run: (ctx)=> runRandomThreshold(ctx) },
+  { id: 11, name: 'Dot Diffusion (Simple)', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:dotdiff:4', run: (ctx)=> runDotDiffusionSimple(ctx) },
 ];
 
 // Export a consistently sorted list (category group order defined here)

@@ -21,6 +21,7 @@ export interface AlgorithmMeta {
   name: string;
   category: string;
   supportsThreshold: boolean;
+  supportsPalette?: boolean;
   orderKey?: string;
   run: AlgorithmRunner;
 }

@@ -208,6 +208,11 @@ const ImageDitheringTool: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const selectedAlgo = algorithms.find(a=>a.id===pattern);
+  const paletteSupported = !!selectedAlgo?.supportsPalette;
+  // If current algorithm does not support palette, ensure palette disabled
+  useEffect(()=>{ if(!paletteSupported && paletteId){ setPaletteId(null); } },[paletteSupported, paletteId]);
+
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = useDithering({
     image,
     pattern,
@@ -216,7 +221,7 @@ const ImageDitheringTool: React.FC = () => {
     invert,
     serpentine,
     isErrorDiffusion: isErrorDiffusion(pattern),
-    paletteId,
+    paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
   });
 
@@ -552,8 +557,10 @@ const ImageDitheringTool: React.FC = () => {
                         {/* Algorithm & Threshold */}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} />
 
-                        {/* Palette */}
-                        <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />
+                        {/* Palette (hidden if unsupported) */}
+                        {paletteSupported && (
+                          <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />
+                        )}
 
                         {/* Working Resolution */}
                         <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} />
