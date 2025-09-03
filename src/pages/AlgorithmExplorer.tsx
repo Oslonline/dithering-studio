@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { findAlgorithm } from "../utils/algorithms";
 let importedSample: string | undefined;
@@ -29,7 +29,22 @@ const AlgorithmCard: React.FC<{ algo: AlgorithmDetail; active: boolean; onSelect
 
 const AlgorithmExplorer: React.FC = () => {
   const orderedDetails = getOrderedAlgorithmDetails();
-  const [activeId, setActiveId] = useState<number>(orderedDetails[0]?.id ?? 1);
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Parse query param for deep link (?algo=ID)
+  const searchParams = new URLSearchParams(location.search);
+  const initialParam = parseInt(searchParams.get("algo") || "", 10);
+  const initial = orderedDetails.some((a) => a.id === initialParam) ? initialParam : (orderedDetails[0]?.id ?? 1);
+  const [activeId, setActiveId] = useState<number>(initial);
+  // Keep URL in sync when activeId changes (replace to avoid history spam)
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    const current = sp.get("algo");
+    if (String(activeId) !== current) {
+      sp.set("algo", String(activeId));
+      navigate({ pathname: location.pathname, search: sp.toString() }, { replace: true });
+    }
+  }, [activeId]);
   const active = orderedDetails.find((a) => a.id === activeId) || orderedDetails[0];
   const baseImgRef = useRef<HTMLImageElement | null>(null);
   const [baseLoaded, setBaseLoaded] = useState(false);
@@ -49,7 +64,7 @@ const AlgorithmExplorer: React.FC = () => {
     grd.addColorStop(1, "#fff");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, w, h);
-  const rg = ctx.createRadialGradient(w * 0.7, h * 0.3, 10, w * 0.7, h * 0.3, w * 0.8);
+    const rg = ctx.createRadialGradient(w * 0.7, h * 0.3, 10, w * 0.7, h * 0.3, w * 0.8);
     rg.addColorStop(0, "rgba(255,255,255,0.6)");
     rg.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = rg;
@@ -106,7 +121,7 @@ const AlgorithmExplorer: React.FC = () => {
       setBasePreview(baseCanvas.toDataURL("image/webp"));
     }
 
-  const makeImageFromData = (data: Uint8ClampedArray, w: number, h: number) => {
+    const makeImageFromData = (data: Uint8ClampedArray, w: number, h: number) => {
       const c = document.createElement("canvas");
       c.width = w;
       c.height = h;
@@ -125,7 +140,7 @@ const AlgorithmExplorer: React.FC = () => {
       return makeImageFromData(out, w, h);
     };
 
-  const newExamples: Record<number, ExampleSet> = {};
+    const newExamples: Record<number, ExampleSet> = {};
     for (const a of algorithmDetails) {
       try {
         const dithered = processAlgo(a.id, THRESHOLD);
@@ -143,156 +158,164 @@ const AlgorithmExplorer: React.FC = () => {
           <h1 className="font-mono text-xs tracking-wide text-gray-300">Algorithms</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">Tool</Link>
-          <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
+          <Link to="/Dithering" className="clean-btn px-3 py-1 !text-[11px]">
+            Tool
+          </Link>
+          <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">
+            Home
+          </Link>
         </div>
       </header>
-      <div className="flex flex-1 overflow-hidden md:flex-row flex-col">
-        <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-b-0 md:border-r md:h-full">
+      <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
+        <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:h-full md:w-80 md:border-r md:border-b-0">
           <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">
-          {orderedDetails.map((a) => (
-            <AlgorithmCard key={a.id} algo={a} active={a.id === activeId} onSelect={() => setActiveId(a.id)} />
-          ))}
+            {orderedDetails.map((a) => (
+              <AlgorithmCard key={a.id} algo={a} active={a.id === activeId} onSelect={() => setActiveId(a.id)} />
+            ))}
           </div>
-          <div className="space-y-1 p-4 pt-2 pb-6 text-[10px] text-gray-500 border-t border-neutral-800">
+          <div className="space-y-1 border-t border-neutral-800 p-4 pt-2 pb-6 text-[10px] text-gray-500">
             <p>
               Examples generated live from one sample ({WORKING_WIDTH}px width) at fixed threshold {THRESHOLD}.
             </p>
           </div>
         </aside>
         <main className="relative flex flex-1 flex-col overflow-y-auto p-6">
-        <div className="w-full max-w-6xl">
-          <div className="mb-6 pr-4">
-            <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
-            <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
-            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500 font-mono">
-              {active.year && <span className="px-2 py-0.5 rounded border border-neutral-800">Year: {active.year}</span>}
-              {active.origin && <span className="px-2 py-0.5 rounded border border-neutral-800">Origin: {active.origin}</span>}
-              {typeof active.errorConserving === 'boolean' && <span className="px-2 py-0.5 rounded border border-neutral-800">Error-Conserving: {active.errorConserving ? 'Yes':'No'}</span>}
-              {typeof active.deterministic === 'boolean' && <span className="px-2 py-0.5 rounded border border-neutral-800">Deterministic: {active.deterministic ? 'Yes':'No'}</span>}
-              {active.neighborhood && <span className="px-2 py-0.5 rounded border border-neutral-800">Neighborhood: {active.neighborhood}</span>}
-              {active.memoryFootprint && <span className="px-2 py-0.5 rounded border border-neutral-800">Memory: {active.memoryFootprint}</span>}
-            </div>
-            {active.papers && active.papers.length>0 && (
-              <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-                {active.papers.map((p,i)=>(
-                  <a key={i} href={p.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-neutral-800 px-2 py-0.5 text-blue-300 hover:border-blue-600 hover:text-blue-200 transition">
-                    <span className="i-mdi-file-document-outline text-[12px]" />{p.title}{p.note && <span className="text-gray-500">({p.note})</span>}
-                  </a>
-                ))}
+          <div className="w-full max-w-6xl">
+            <div className="mb-6 pr-4">
+              <h2 className="font-anton text-2xl leading-tight text-gray-100">{active.name}</h2>
+              <p className="mt-1 text-[11px] text-gray-400">{active.overview}</p>
+              <div className="mt-2 flex flex-wrap gap-2 font-mono text-[10px] text-gray-500">
+                {active.year && <span className="rounded border border-neutral-800 px-2 py-0.5">Year: {active.year}</span>}
+                {active.origin && <span className="rounded border border-neutral-800 px-2 py-0.5">Origin: {active.origin}</span>}
+                {typeof active.errorConserving === "boolean" && <span className="rounded border border-neutral-800 px-2 py-0.5">Error-Conserving: {active.errorConserving ? "Yes" : "No"}</span>}
+                {typeof active.deterministic === "boolean" && <span className="rounded border border-neutral-800 px-2 py-0.5">Deterministic: {active.deterministic ? "Yes" : "No"}</span>}
+                {active.neighborhood && <span className="rounded border border-neutral-800 px-2 py-0.5">Neighborhood: {active.neighborhood}</span>}
+                {active.memoryFootprint && <span className="rounded border border-neutral-800 px-2 py-0.5">Memory: {active.memoryFootprint}</span>}
               </div>
+              {active.papers && active.papers.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+                  {active.papers.map((p, i) => (
+                    <a key={i} href={p.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-neutral-800 px-2 py-0.5 text-blue-300 transition hover:border-blue-600 hover:text-blue-200">
+                      <span className="i-mdi-file-document-outline text-[12px]" />
+                      {p.title}
+                      {p.note && <span className="text-gray-500">({p.note})</span>}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            <section className="mb-8 grid gap-6 pr-4 md:grid-cols-2 xl:grid-cols-3">
+              <div>
+                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Characteristics</h3>
+                <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
+                  {active.characteristics.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Artifacts</h3>
+                <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
+                  {active.artifacts.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Best For</h3>
+                <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
+                  {active.bestFor.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Complexity</h3>
+                  <p className="text-[11px] text-gray-300">{active.complexity}</p>
+                </div>
+                {(active.tonalBias || active.noiseProfile) && (
+                  <div>
+                    <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Behavioral Notes</h3>
+                    <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
+                      {active.tonalBias && <li>Tonal Bias: {active.tonalBias}</li>}
+                      {active.noiseProfile && <li>Noise Profile: {active.noiseProfile}</li>}
+                    </ul>
+                  </div>
+                )}
+                {active.recommendedPalettes && active.recommendedPalettes.length > 0 && (
+                  <div>
+                    <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Recommended Palettes</h3>
+                    <p className="text-[11px] text-gray-300">{active.recommendedPalettes.join(", ")}</p>
+                  </div>
+                )}
+                {(active.reference || (active.references && active.references.length)) && (
+                  <div>
+                    <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">References</h3>
+                    <ul className="list-disc space-y-1 pl-4 text-[10px] text-gray-500">
+                      {active.reference && <li>{active.reference}</li>}
+                      {active.references && active.references.map((r, i) => <li key={i}>{r}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              {/* Spectral density section removed per request */}
+            </section>
+            {(active.kernel || active.orderedMatrixSize || active.implementationNotes) && (
+              <section className="mb-8">
+                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Structure</h3>
+                {active.kernel && (
+                  <div className="mb-3">
+                    <pre className="overflow-x-auto rounded bg-neutral-900 p-3 text-[10px] leading-tight text-gray-300">{active.kernel.map((r) => r.join("\t")).join("\n")}</pre>
+                    {active.kernelDivisor && <p className="mt-1 text-[10px] text-gray-500">Divisor: {active.kernelDivisor}</p>}
+                  </div>
+                )}
+                {active.orderedMatrixSize && <p className="text-[11px] text-gray-300">Ordered matrix size: {active.orderedMatrixSize}</p>}
+                {active.implementationNotes && active.implementationNotes.length > 0 && (
+                  <div className="mt-3">
+                    <h4 className="mb-1 font-mono text-[10px] tracking-wide text-gray-500 uppercase">Implementation Notes</h4>
+                    <ul className="list-disc space-y-1 pl-4 text-[10px] text-gray-400">
+                      {active.implementationNotes.map((n, i) => (
+                        <li key={i}>{n}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </section>
+            )}
+            <section className="mb-10">
+              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Example (Threshold {THRESHOLD})</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {(() => {
+                  const ex = examples[active.id];
+                  if (!baseLoaded) return <div className="col-span-2 text-center text-[11px] text-gray-500">Loading sample...</div>;
+                  if (!ex) return <div className="col-span-2 text-center text-[11px] text-gray-500">Generating...</div>;
+                  if (ex.error) return <div className="col-span-2 text-center text-[11px] text-red-500">Generation error.</div>;
+                  return [
+                    <div key="base" className="rounded-md border border-neutral-800 bg-neutral-950 p-2">
+                      <p className="mb-1 text-center text-[10px] text-gray-400">Base Sample</p>
+                      {basePreview && <img src={basePreview} alt="base sample" className="mx-auto block max-w-full" />}
+                    </div>,
+                    <div key="dith" className="rounded-md border border-neutral-800 bg-neutral-950 p-2">
+                      <p className="mb-1 text-center text-[10px] text-gray-400">{active.name}</p>
+                      <img src={ex.dithered} alt="dithered example" className="mx-auto block max-w-full" />
+                    </div>,
+                  ];
+                })()}
+              </div>
+              <p className="mt-3 text-[10px] leading-relaxed text-gray-500">All algorithms run on the same downscaled sample (width {WORKING_WIDTH}px) without inversion or palettes for a neutral comparison.</p>
+            </section>
+            {active && active.notes && (
+              <section className="mb-12">
+                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Additional Notes</h3>
+                <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
+                  {active.notes.map((n: string, i: number) => (
+                    <li key={i}>{n}</li>
+                  ))}
+                </ul>
+              </section>
             )}
           </div>
-          <section className="mb-8 grid gap-6 xl:grid-cols-3 md:grid-cols-2 pr-4">
-            <div>
-              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Characteristics</h3>
-              <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
-                {active.characteristics.map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Artifacts</h3>
-              <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
-                {active.artifacts.map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Best For</h3>
-              <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
-                {active.bestFor.map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Complexity</h3>
-                <p className="text-[11px] text-gray-300">{active.complexity}</p>
-              </div>
-              {(active.tonalBias || active.noiseProfile) && (
-                <div>
-                  <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Behavioral Notes</h3>
-                  <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-300">
-                    {active.tonalBias && <li>Tonal Bias: {active.tonalBias}</li>}
-                    {active.noiseProfile && <li>Noise Profile: {active.noiseProfile}</li>}
-                  </ul>
-                </div>
-              )}
-              {active.recommendedPalettes && active.recommendedPalettes.length > 0 && (
-                <div>
-                  <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Recommended Palettes</h3>
-                  <p className="text-[11px] text-gray-300">{active.recommendedPalettes.join(', ')}</p>
-                </div>
-              )}
-              {(active.reference || (active.references && active.references.length)) && (
-                <div>
-                  <h3 className="mb-1 font-mono text-[11px] tracking-wide text-gray-400 uppercase">References</h3>
-                  <ul className="list-disc pl-4 space-y-1 text-[10px] text-gray-500">
-                    {active.reference && <li>{active.reference}</li>}
-                    {active.references && active.references.map((r,i)=>(<li key={i}>{r}</li>))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            {/* Spectral density section removed per request */}
-          </section>
-          {(active.kernel || active.orderedMatrixSize || active.implementationNotes) && (
-            <section className="mb-8">
-              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Structure</h3>
-              {active.kernel && (
-                <div className="mb-3">
-                  <pre className="overflow-x-auto rounded bg-neutral-900 p-3 text-[10px] leading-tight text-gray-300">{active.kernel.map((r) => r.join("\t")).join("\n")}</pre>
-                  {active.kernelDivisor && <p className="mt-1 text-[10px] text-gray-500">Divisor: {active.kernelDivisor}</p>}
-                </div>
-              )}
-              {active.orderedMatrixSize && <p className="text-[11px] text-gray-300">Ordered matrix size: {active.orderedMatrixSize}</p>}
-              {active.implementationNotes && active.implementationNotes.length>0 && (
-                <div className="mt-3">
-                  <h4 className="mb-1 font-mono text-[10px] tracking-wide text-gray-500 uppercase">Implementation Notes</h4>
-                  <ul className="list-disc pl-4 space-y-1 text-[10px] text-gray-400">
-                    {active.implementationNotes.map((n,i)=>(<li key={i}>{n}</li>))}
-                  </ul>
-                </div>
-              )}
-            </section>
-          )}
-          <section className="mb-10">
-            <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Example (Threshold {THRESHOLD})</h3>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(() => {
-                const ex = examples[active.id];
-                if (!baseLoaded) return <div className="col-span-2 text-center text-[11px] text-gray-500">Loading sample...</div>;
-                if (!ex) return <div className="col-span-2 text-center text-[11px] text-gray-500">Generating...</div>;
-                if (ex.error) return <div className="col-span-2 text-center text-[11px] text-red-500">Generation error.</div>;
-                return [
-                  <div key="base" className="rounded-md border border-neutral-800 bg-neutral-950 p-2">
-                    <p className="mb-1 text-center text-[10px] text-gray-400">Base Sample</p>
-                    {basePreview && <img src={basePreview} alt="base sample" className="mx-auto block max-w-full" />}
-                  </div>,
-                  <div key="dith" className="rounded-md border border-neutral-800 bg-neutral-950 p-2">
-                    <p className="mb-1 text-center text-[10px] text-gray-400">{active.name}</p>
-                    <img src={ex.dithered} alt="dithered example" className="mx-auto block max-w-full" />
-                  </div>,
-                ];
-              })()}
-            </div>
-            <p className="mt-3 text-[10px] leading-relaxed text-gray-500">All algorithms run on the same downscaled sample (width {WORKING_WIDTH}px) without inversion or palettes for a neutral comparison.</p>
-          </section>
-      {active && active.notes && (
-            <section className="mb-12">
-              <h3 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">Additional Notes</h3>
-              <ul className="list-disc space-y-1 pl-4 text-[11px] text-gray-300">
-        {active.notes.map((n: string, i: number) => (
-                  <li key={i}>{n}</li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
         </main>
       </div>
     </div>
