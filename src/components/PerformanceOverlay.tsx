@@ -3,7 +3,9 @@ import { perf, PerfFrame } from '../utils/perf';
 
 const fmt = (n: number | undefined) => (n == null ? '-' : n.toFixed(1));
 
-const PerformanceOverlay: React.FC = () => {
+interface Props { hasImage: boolean; originalBytes?: number | null; processedBytes?: number | null; }
+
+const PerformanceOverlay: React.FC<Props> = ({ hasImage, originalBytes, processedBytes }) => {
   const [frames, setFrames] = useState<PerfFrame[]>(() => perf.getFrames());
   const [open, setOpen] = useState(false);
   useEffect(() => perf.subscribe(setFrames), []);
@@ -11,11 +13,14 @@ const PerformanceOverlay: React.FC = () => {
   const phases = latest?.phases || {};
   const total = latest?.total || 0;
   const entries = Object.entries(phases).sort((a,b)=>b[1]-a[1]);
+  const kb = (b?: number | null) => (b == null ? '-' : (b / 1024).toFixed(b < 200*1024 ? 1 : 0) + ' KB');
   return (
-    <div className="fixed bottom-2 right-2 z-50 text-[10px] font-mono tracking-wide">
-      <button onClick={()=>setOpen(o=>!o)} className="clean-btn px-2 py-1 !text-[10px] border border-neutral-700 bg-neutral-900/80 backdrop-blur-sm">Perf {open?'▼':'▲'} {fmt(total)}ms</button>
-      {open && (
-        <div className="mt-1 w-56 rounded border border-neutral-800 bg-[#111]/95 p-2 shadow-xl backdrop-blur-sm">
+    <div className="fixed bottom-2 right-2 z-50 flex flex-col items-end gap-1 font-mono tracking-wide text-[10px]">
+      {hasImage && (
+        <button onClick={()=>setOpen(o=>!o)} className="clean-btn px-2 py-1 !text-[10px] border border-neutral-700 bg-neutral-900/80 backdrop-blur-sm">Perf {open?'▼':'▲'} {fmt(total)}ms</button>
+      )}
+      {open && hasImage && (
+        <div className="w-56 rounded border border-neutral-800 bg-[#111]/95 p-2 shadow-xl backdrop-blur-sm">
           <div className="mb-1 flex items-center justify-between"><span className="text-neutral-400">Latest frame</span><span className="text-neutral-500">token {latest?.token ?? '-'}</span></div>
           <div className="max-h-40 overflow-auto pr-1 space-y-0.5">
             {entries.map(([l,ms]) => (
@@ -24,8 +29,15 @@ const PerformanceOverlay: React.FC = () => {
             {!entries.length && <div className="text-neutral-500">No data</div>}
           </div>
           <div className="mt-2 border-t border-neutral-800 pt-1 text-neutral-500">Avg (10): {fmt(avg(frames.slice(-10).map(f=>f.total||0)))}ms</div>
+          <div className="mt-1 text-[9px] text-neutral-500 leading-snug">
+            <div>Original: {kb(originalBytes)}</div>
+            <div>Processed: {kb(processedBytes)}</div>
+          </div>
         </div>
       )}
+      <div className="pointer-events-none select-none text-gray-500 opacity-70 text-right">
+        <div>All processing local • No uploads</div>
+      </div>
     </div>
   );
 };

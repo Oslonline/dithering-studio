@@ -18,10 +18,11 @@ class PerfTracker {
   getFrames() { return this.frames.slice(); }
   subscribe(fn: Listener) { this.listeners.add(fn); try { fn(this.getFrames()); } catch {} return () => { this.listeners.delete(fn); }; }
   private emit() { for (const l of this.listeners) { try { l(this.getFrames()); } catch {} } }
+  reset() { this.frames = []; this.activeFrame = null; this.phaseStarts.clear(); this.seq = 0; this.emit(); }
 }
 
 function now(): number { return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
 
 const perfTracker = new PerfTracker();
-export const perf = { newFrame: (t:number)=>perfTracker.newFrame(t), phaseStart:(l:string)=>perfTracker.phaseStart(l), phaseEnd:(l:string)=>perfTracker.phaseEnd(l), mark:(l:string)=>perfTracker.mark(l), endFrame:()=>perfTracker.endFrame(), subscribe:(fn:Listener)=>perfTracker.subscribe(fn), getFrames:()=>perfTracker.getFrames() };
+export const perf = { newFrame: (t:number)=>perfTracker.newFrame(t), phaseStart:(l:string)=>perfTracker.phaseStart(l), phaseEnd:(l:string)=>perfTracker.phaseEnd(l), mark:(l:string)=>perfTracker.mark(l), endFrame:()=>perfTracker.endFrame(), subscribe:(fn:Listener)=>perfTracker.subscribe(fn), getFrames:()=>perfTracker.getFrames(), reset:()=>perfTracker.reset() };
 export type { Listener as PerfListener };
