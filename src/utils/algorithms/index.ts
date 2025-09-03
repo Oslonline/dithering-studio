@@ -3,6 +3,7 @@ import runFS from './floydSteinberg';
 import runAtkinson from './atkinson';
 import runBayer4 from './orderedBayer4';
 import { createErrorDiffusionKernelRunner } from './errorDiffusionKernels';
+import { createAdaptiveFSDiffusion } from './adaptiveThreshold';
 import { runBayer2, runBayer8, runBlueNoise, runBinaryThreshold, runRandomThreshold, runDotDiffusionSimple, runHalftone, runFalseFloydSteinberg, runBayer16, runAdaptiveOstromoukhov } from './orderedAndOther';
 
 // Predefined diffusion kernels (matrix centered horizontally) matching legacy PatternDrawer patterns
@@ -27,6 +28,8 @@ const registry: AlgorithmMeta[] = [
   { id: 13, name: 'Two-Row Sierra', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:two-row-sierra:9', run: twoRowSierra },
   { id: 14, name: 'Stevenson–Arce', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:stevenson-arce:10', run: stevensonArce },
   { id: 18, name: 'Ostromoukhov', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:ostro:11', run: (ctx)=> runAdaptiveOstromoukhov(ctx) },
+  { id: 21, name: 'Adaptive FS 3×3', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:afs3:12', run: createAdaptiveFSDiffusion(1) },
+  { id: 22, name: 'Adaptive FS 7×7', category: 'Error Diffusion', supportsThreshold: true, orderKey: 'error:afs7:13', run: createAdaptiveFSDiffusion(3) },
 
   { id: 16, name: 'Bayer 2×2', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bayer:2', run: (ctx)=> runBayer2(ctx) },
   { id: 2, name: 'Bayer 4×4', category: 'Ordered', supportsThreshold: true, orderKey: 'ordered:bayer:4', run: (ctx)=> runBayer4(ctx) },
