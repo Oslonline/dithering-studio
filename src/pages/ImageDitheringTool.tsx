@@ -99,6 +99,14 @@ const ImageDitheringTool: React.FC = () => {
       return true;
     }
   });
+  const [asciiRamp, setAsciiRamp] = useState<string>(() => {
+    try {
+      const v = localStorage.getItem("ds_asciiRamp");
+      return v && v.length >= 2 ? v : "@%#*+=-:. ";
+    } catch {
+      return "@%#*+=-:. ";
+    }
+  });
   const [showGrid, setShowGrid] = useState<boolean>(() => {
     try {
       return localStorage.getItem("ds_showGrid") === "1";
@@ -115,12 +123,7 @@ const ImageDitheringTool: React.FC = () => {
     }
   });
   const [focusMode, setFocusMode] = useState(false);
-  // (share modal removed)
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
-  // Prevent palette + invert conflict (moved from render-time mutation)
-  useEffect(() => {
-    if (paletteId && invert) setInvert(false);
-  }, [paletteId, invert]);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const [settingsHeight, setSettingsHeight] = useState<number | null>(null);
@@ -182,6 +185,11 @@ const ImageDitheringTool: React.FC = () => {
     }
     if (params.get("inv") === "1") setInvert(true);
     if (params.get("ser") === "1") setSerpentine(true);
+    const ramp = params.get("ramp");
+    if (ramp) {
+      const decoded = decodeURIComponent(ramp).replace(/\s/g, " ").slice(0, 64);
+      if (decoded.length >= 2) setAsciiRamp(decoded);
+    }
     const pal = params.get("pal");
     if (pal) {
       const cols = params.get("cols");
@@ -208,10 +216,19 @@ const ImageDitheringTool: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedAlgo = algorithms.find(a=>a.id===pattern);
+  const selectedAlgo = algorithms.find((a) => a.id === pattern);
   const paletteSupported = !!selectedAlgo?.supportsPalette;
+  const isAscii = selectedAlgo?.name === "ASCII Mosaic";
+  // Allow invert with palette only for ASCII algorithm; otherwise preserve prior auto-disable behavior.
+  useEffect(() => {
+    if (paletteId && invert && !isAscii) setInvert(false);
+  }, [paletteId, invert, isAscii]);
   // If current algorithm does not support palette, ensure palette disabled
-  useEffect(()=>{ if(!paletteSupported && paletteId){ setPaletteId(null); } },[paletteSupported, paletteId]);
+  useEffect(() => {
+    if (!paletteSupported && paletteId) {
+      setPaletteId(null);
+    }
+  }, [paletteSupported, paletteId]);
 
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = useDithering({
     image,
@@ -223,12 +240,18 @@ const ImageDitheringTool: React.FC = () => {
     isErrorDiffusion: isErrorDiffusion(pattern),
     paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
+    asciiRamp: isAscii ? asciiRamp : undefined,
   });
 
   // Reset perf data when active image changes (fresh stats per image)
   useEffect(() => {
     perf.reset();
   }, [activeImageId]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("ds_asciiRamp", asciiRamp);
+    } catch {}
+  }, [asciiRamp]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -320,23 +343,25 @@ const ImageDitheringTool: React.FC = () => {
     setPattern(1);
     setThreshold(128);
     setWorkingResolution(512);
-    setWorkingResInput('512');
+    setWorkingResInput("512");
     setPaletteId(null);
     setActivePaletteColors(null);
     setInvert(false);
     setSerpentine(true);
+    setAsciiRamp("@%#*+=-:. ");
     setShowGrid(false);
     setGridSize(8);
     try {
-      localStorage.removeItem('ds_pattern');
-      localStorage.removeItem('ds_threshold');
-      localStorage.removeItem('ds_workingResolution');
-      localStorage.removeItem('ds_paletteId');
-      localStorage.removeItem('ds_customPalette');
-      localStorage.removeItem('ds_invert');
-      localStorage.removeItem('ds_serpentine');
-      localStorage.removeItem('ds_showGrid');
-      localStorage.removeItem('ds_gridSize');
+      localStorage.removeItem("ds_pattern");
+      localStorage.removeItem("ds_threshold");
+      localStorage.removeItem("ds_workingResolution");
+      localStorage.removeItem("ds_paletteId");
+      localStorage.removeItem("ds_customPalette");
+      localStorage.removeItem("ds_invert");
+      localStorage.removeItem("ds_serpentine");
+      localStorage.removeItem("ds_asciiRamp");
+      localStorage.removeItem("ds_showGrid");
+      localStorage.removeItem("ds_gridSize");
     } catch {}
     perf.reset();
   };
@@ -367,8 +392,6 @@ const ImageDitheringTool: React.FC = () => {
       document.removeEventListener("keydown", onKey);
     };
   }, [showDownload]);
-
-  // (Share modal logic removed)
 
   const [focusHintStyle, setFocusHintStyle] = useState<{ left: number; top: number }>({ left: 16, top: 72 });
   const [showFocusHintDevice, setShowFocusHintDevice] = useState(true);
@@ -536,31 +559,31 @@ const ImageDitheringTool: React.FC = () => {
                         {images.length <= 1 && activeImageId && (
                           <div className="flex gap-2">
                             <button
-                              onClick={() => { clearAllImages(); }}
+                              onClick={() => {
+                                clearAllImages();
+                              }}
                               className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide"
                               title="Choose another image (replaces current)"
                             >
-                              <span className="text-[13px]" aria-hidden>⬆</span>
+                              <span className="text-[13px]" aria-hidden>
+                                ⬆
+                              </span>
                               <span>Change Image</span>
                             </button>
-                            <button
-                              onClick={resetSettings}
-                              className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide"
-                              title="Reset all settings to defaults"
-                            >
-                              <span className="text-[13px]" aria-hidden>↺</span>
+                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Reset all settings to defaults">
+                              <span className="text-[13px]" aria-hidden>
+                                ↺
+                              </span>
                               <span>Reset</span>
                             </button>
                           </div>
                         )}
 
                         {/* Algorithm & Threshold */}
-                        <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} />
+                        <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
 
                         {/* Palette (hidden if unsupported) */}
-                        {paletteSupported && (
-                          <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />
-                        )}
+                        {paletteSupported && <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />}
 
                         {/* Working Resolution */}
                         <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} />
@@ -589,7 +612,6 @@ const ImageDitheringTool: React.FC = () => {
                       <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
                         Download
                       </button>
-                      {/* Share button removed */}
                     </div>
                   ) : (
                     <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">
@@ -614,11 +636,7 @@ const ImageDitheringTool: React.FC = () => {
                     <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered image preview" style={{ display: "block" }} />
                     {showGrid && (
                       <>
-                        <div
-                          className="grid-overlay pointer-events-none absolute inset-0"
-                          aria-hidden
-                          style={{ backgroundSize: `${gridSize}px ${gridSize}px` }}
-                        />
+                        <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
                         <button
                           type="button"
                           onClick={() => {
@@ -690,12 +708,7 @@ const ImageDitheringTool: React.FC = () => {
             F Focus | G Grid | Shift+G Size
           </div>
         )}
-  {/* Local processing notice moved into PerformanceOverlay */}
-        <PerformanceOverlay
-          hasImage={!!image}
-          originalBytes={image ? images.find(i=>i.id===activeImageId)?.size || null : null}
-          processedBytes={image ? processedSizeBytes : null}
-        />
+        <PerformanceOverlay hasImage={!!image} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={image ? processedSizeBytes : null} />
       </div>
     </>
   );
