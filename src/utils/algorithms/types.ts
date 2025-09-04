@@ -5,6 +5,7 @@ export interface DitherParams {
   serpentine: boolean;
   isErrorDiffusion: boolean;
   palette?: [number, number, number][];
+  asciiRamp?: string;
 }
 
 export interface AlgorithmRunContext {

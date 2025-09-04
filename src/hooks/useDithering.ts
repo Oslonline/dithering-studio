@@ -3,9 +3,9 @@ import { perf } from "../utils/perf";
 import { findPalette } from "../utils/palettes";
 import { findAlgorithm } from "../utils/algorithms";
 
-interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; }
+interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -80,15 +80,15 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const src = procCtx.getImageData(0, 0, width, height);
     const srcData = src.data;
 
-  // Use palette only if it has at least 2 colors; otherwise fall back to predefined or null
-  const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
+    // Use palette only if it has at least 2 colors; otherwise fall back to predefined or null
+    const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
 
     {
       let out: ImageData | null = null;
       perf.phaseStart('dither');
       const algo = findAlgorithm(pattern);
       if (algo) {
-        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert, serpentine, isErrorDiffusion, palette: palette || undefined } as any });
+        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
         if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
       } else {
         out = new ImageData(width, height); out.data.set(srcData); // fallback (should not happen once all migrated)
@@ -132,18 +132,18 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
           const dataUrl = displayCanvas.toDataURL('image/png');
           // Strip header 'data:image/png;base64,' then compute bytes from base64 length
           const comma = dataUrl.indexOf(',');
-            if (comma !== -1) {
-              const b64 = dataUrl.slice(comma + 1);
-              const bytes = Math.floor((b64.length * 3) / 4 - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0));
-              setProcessedSizeBytes(bytes);
-            }
-        } catch {}
+          if (comma !== -1) {
+            const b64 = dataUrl.slice(comma + 1);
+            const bytes = Math.floor((b64.length * 3) / 4 - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0));
+            setProcessedSizeBytes(bytes);
+          }
+        } catch { }
         const t = setTimeout(() => token === renderTokenRef.current && setCanvasUpdatedFlag(false), 400);
         return () => clearTimeout(t);
       }
       perf.endFrame();
     }
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors]);
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;

@@ -5,6 +5,9 @@ import runBayer4 from './orderedBayer4';
 import { createErrorDiffusionKernelRunner } from './errorDiffusionKernels';
 import { createAdaptiveFSDiffusion } from './adaptiveThreshold';
 import { runBayer2, runBayer8, runBlueNoise, runBinaryThreshold, runRandomThreshold, runDotDiffusionSimple, runHalftone, runFalseFloydSteinberg, runBayer16, runAdaptiveOstromoukhov } from './orderedAndOther';
+import runAsciiMosaic from './asciiMosaic';
+import runBayer32 from './bayer32';
+import { runSierra24A } from './sierraDither';
 
 // Predefined diffusion kernels (matrix centered horizontally) matching legacy PatternDrawer patterns
 const burkes = createErrorDiffusionKernelRunner([[0,0,0,8,4],[2,4,8,4,2]], 32, true); // 4
@@ -30,17 +33,20 @@ const registry: AlgorithmMeta[] = [
   { id: 18, name: 'Ostromoukhov', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: false, orderKey: 'error:ostro:11', run: (ctx)=> runAdaptiveOstromoukhov(ctx) },
   { id: 21, name: 'Adaptive FS 3×3', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, orderKey: 'error:afs3:12', run: createAdaptiveFSDiffusion(1) },
   { id: 22, name: 'Adaptive FS 7×7', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, orderKey: 'error:afs7:13', run: createAdaptiveFSDiffusion(3) },
+  { id: 23, name: 'Sierra 2-4A', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, orderKey: 'error:sierra-24a:14', run: runSierra24A },
 
   { id: 16, name: 'Bayer 2×2', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:2', run: (ctx)=> runBayer2(ctx) },
   { id: 2, name: 'Bayer 4×4', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:4', run: (ctx)=> runBayer4(ctx) },
   { id: 8, name: 'Bayer 8×8', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:8', run: (ctx)=> runBayer8(ctx) },
   { id: 20, name: 'Bayer 16×16', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:16', run: (ctx)=> runBayer16(ctx) },
   { id: 17, name: 'Blue Noise 64×64', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bluenoise:64', run: (ctx)=> runBlueNoise(ctx) },
+  { id: 24, name: 'Bayer 32×32', category: 'Ordered', supportsThreshold: true, supportsPalette: true, orderKey: 'ordered:bayer:32', run: (ctx)=> runBayer32(ctx) },
 
   { id: 15, name: 'Binary Threshold', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:binary:1', run: (ctx)=> runBinaryThreshold(ctx) },
   { id: 9, name: 'Halftone', category: 'Other', supportsThreshold: true, supportsPalette: false, orderKey: 'other:halftone:2', run: (ctx)=> runHalftone(ctx) },
   { id: 10, name: 'Random Threshold', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:random:3', run: (ctx)=> runRandomThreshold(ctx) },
   { id: 11, name: 'Dot Diffusion (Simple)', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:dotdiff:4', run: (ctx)=> runDotDiffusionSimple(ctx) },
+  { id: 25, name: 'ASCII Mosaic', category: 'Other', supportsThreshold: true, supportsPalette: true, orderKey: 'other:ascii:5', run: (ctx)=> runAsciiMosaic(ctx) },
 ];
 
 // Export a consistently sorted list (category group order defined here)
