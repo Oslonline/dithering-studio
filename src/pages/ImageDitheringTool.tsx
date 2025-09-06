@@ -3,12 +3,15 @@ import { canvasToSVG } from "../utils/export";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/ImageUploader";
+import VideoUploader from "../components/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/ImagesPanel";
 import AlgorithmPanel from "../components/AlgorithmPanel";
 import PalettePanel from "../components/PalettePanel";
 import ResolutionPanel from "../components/ResolutionPanel";
 import UploadIntro from "../components/UploadIntro";
+import VideoUploadIntro from "../components/VideoUploadIntro";
 import useDithering from "../hooks/useDithering";
+import useVideoDithering from "../hooks/useVideoDithering";
 import PerformanceOverlay from "../components/PerformanceOverlay";
 import { perf } from "../utils/perf";
 import { predefinedPalettes } from "../utils/palettes";
@@ -123,17 +126,17 @@ const ImageDitheringTool: React.FC = () => {
     }
   });
   const [focusMode, setFocusMode] = useState(false);
+  const [videoMode, setVideoMode] = useState(false);
+  const [videoItem, setVideoItem] = useState<{ url: string; name?: string } | null>(null);
+  const [videoPlaying, setVideoPlaying] = useState(true);
+  const [videoFps, setVideoFps] = useState(12);
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const [settingsHeight, setSettingsHeight] = useState<number | null>(null);
-
   useEffect(() => {
     const calcHeights = () => {
-      if (focusMode) {
-        setSettingsHeight(null);
-        return;
-      }
+      if (focusMode) { setSettingsHeight(null); return; }
       const headerH = headerRef.current ? headerRef.current.getBoundingClientRect().height : 0;
       const footerH = footerRef.current ? footerRef.current.getBoundingClientRect().height : 0;
       const vh = window.innerHeight;
@@ -141,9 +144,10 @@ const ImageDitheringTool: React.FC = () => {
       setSettingsHeight(h > 0 ? h : null);
     };
     calcHeights();
-    window.addEventListener("resize", calcHeights);
-    return () => window.removeEventListener("resize", calcHeights);
-  }, [focusMode, image]);
+    const t = setTimeout(calcHeights, 50);
+    window.addEventListener('resize', calcHeights);
+    return () => { window.removeEventListener('resize', calcHeights); clearTimeout(t); };
+  }, [focusMode, image, videoMode, videoItem]);
 
   const effectivePaletteId = paletteId;
   const effectivePalette = (effectivePaletteId ? predefinedPalettes.find((p) => p.id === effectivePaletteId)?.colors : null) || null;
@@ -217,11 +221,9 @@ const ImageDitheringTool: React.FC = () => {
   }, []);
 
   const selectedAlgo = algorithms.find((a) => a.id === pattern);
-  // Binary-style palette enforcement for Binary Threshold (15) and Random Threshold (10)
   const isBinary = pattern === 15 || pattern === 10;
   const paletteSupported = isBinary ? true : !!selectedAlgo?.supportsPalette;
   const isAscii = selectedAlgo?.name === "ASCII Mosaic";
-  // Allow invert with palette only for ASCII algorithm; otherwise preserve prior auto-disable behavior.
   useEffect(() => {
     if (paletteId && invert && !isAscii) setInvert(false);
   }, [paletteId, invert, isAscii]);
@@ -245,7 +247,7 @@ const ImageDitheringTool: React.FC = () => {
     }
   }, [paletteSupported, paletteId, isBinary, activePaletteColors]);
 
-  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = useDithering({
+  const imageHook = useDithering({
     image,
     pattern,
     threshold,
@@ -257,6 +259,156 @@ const ImageDitheringTool: React.FC = () => {
     paletteColors: activePaletteColors || undefined,
     asciiRamp: isAscii ? asciiRamp : undefined,
   });
+  const videoHook = useVideoDithering({
+    video: videoItem?.url || null,
+    pattern,
+    threshold,
+    workingResolution,
+    invert,
+    serpentine,
+    isErrorDiffusion: isErrorDiffusion(pattern),
+    paletteId: paletteSupported ? paletteId : null,
+    paletteColors: activePaletteColors || undefined,
+    asciiRamp: isAscii ? asciiRamp : undefined,
+    fps: videoFps,
+  playing: videoPlaying,
+  loop: false, // we manage looping logic manually (esp. for recording end)
+  });
+  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = videoMode ? videoHook : imageHook;
+  const videoDuration = videoMode ? (videoHook as any).duration : 0;
+  const videoCurrentTime = videoMode ? (videoHook as any).currentTime : 0;
+  const videoReady = videoMode ? (videoHook as any).ready : false;
+  const videoCanvasForPalette: HTMLCanvasElement | null = videoMode ? (videoHook as any).processedCanvasRef?.current || (videoHook as any).canvasRef?.current || null : null;
+  const imageOrig = (imageHook as any).origDims as {width:number;height:number};
+  const videoOrig = (videoHook as any).naturalDims as {width:number;height:number};
+  let dynamicMaxResolution: number | undefined;
+  if (!videoMode && imageOrig?.width && imageOrig?.height) {
+    dynamicMaxResolution = Math.max(imageOrig.width, imageOrig.height);
+  } else if (videoMode && videoOrig?.width && videoOrig?.height) {
+    dynamicMaxResolution = Math.max(videoOrig.width, videoOrig.height);
+  }
+  if (dynamicMaxResolution && workingResolution > dynamicMaxResolution) {
+    setWorkingResolution(dynamicMaxResolution);
+    setWorkingResInput(String(dynamicMaxResolution));
+  }
+
+  const [recordingVideo, setRecordingVideo] = useState(false);
+  const [recordingProgress, setRecordingProgress] = useState(0);
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const recordingMimeRef = useRef<string>("video/mp4");
+  const [recordedBlobUrl, setRecordedBlobUrl] = useState<string | null>(null);
+  const [videoExportFormat, setVideoExportFormat] = useState<'mp4' | 'webm'>('mp4');
+  const [videoFormatNote, setVideoFormatNote] = useState<string | null>(null);
+  
+  const pickBestVideoMime = (preferred: 'mp4' | 'webm') => {
+    const mp4Candidates = [
+      'video/mp4;codecs=avc1.42E01E,mp4a.40.2', // baseline H264 + AAC
+      'video/mp4'
+    ];
+    const webmCandidates = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm'
+    ];
+    const tryList = preferred === 'mp4' ? [...mp4Candidates, ...webmCandidates] : [...webmCandidates, ...mp4Candidates];
+    for (const c of tryList) {
+      try { if ((window as any).MediaRecorder && MediaRecorder.isTypeSupported(c)) return c; } catch {}
+    }
+    return 'video/webm';
+  };
+
+  useEffect(() => {
+    if (!videoMode || !videoItem || !recordingVideo) return;
+    if (!videoDuration) return;
+    setRecordingProgress(Math.min(1, videoCurrentTime / videoDuration));
+    if (videoCurrentTime >= videoDuration - 0.01) {
+      recorderRef.current?.state === 'recording' && recorderRef.current.stop();
+      setRecordingVideo(false);
+    }
+  }, [videoCurrentTime, videoDuration, recordingVideo, videoMode, videoItem]);
+
+  const cleanupRecording = () => {
+    recorderRef.current = null;
+    recordedChunksRef.current = [];
+  };
+
+  const startVideoExport = () => {
+    if (!canvasRef.current || !videoItem) return;
+    if (recordingVideo) return;
+    setRecordingError(null);
+    setRecordedBlobUrl(r => { if (r) URL.revokeObjectURL(r); return null; });
+    recordedChunksRef.current = [];
+    const mime = pickBestVideoMime(videoExportFormat);
+    recordingMimeRef.current = mime;
+    if (videoExportFormat === 'mp4' && !mime.includes('mp4')) {
+      setVideoFormatNote('MP4 not supported by this browser; fell back to WebM.');
+    } else if (videoExportFormat === 'webm' && mime.includes('mp4')) {
+      setVideoFormatNote('Browser forced MP4 despite WebM preference.');
+    } else {
+      setVideoFormatNote(null);
+    }
+    try {
+      const stream = (canvasRef.current as HTMLCanvasElement).captureStream(videoFps || 12);
+      const rec = new MediaRecorder(stream, { mimeType: mime });
+      recorderRef.current = rec;
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) recordedChunksRef.current.push(e.data); };
+      rec.onerror = (e) => { setRecordingError(e.error?.message || 'Recorder error'); };
+      rec.onstop = () => {
+        try {
+          const blob = new Blob(recordedChunksRef.current, { type: recordingMimeRef.current });
+          const url = URL.createObjectURL(blob);
+          setRecordedBlobUrl(url);
+        } catch (err: any) {
+          setRecordingError(err?.message || 'Failed to finalize video');
+        } finally {
+          cleanupRecording();
+        }
+      };
+      const vEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
+      if (vEl) {
+        vEl.currentTime = 0;
+        vEl.play().catch(()=>{});
+        setVideoPlaying(true);
+      }
+      setRecordingVideo(true);
+      setRecordingProgress(0);
+      rec.start();
+    } catch (err: any) {
+      setRecordingError(err?.message || 'Failed to start recording');
+      cleanupRecording();
+    }
+  };
+
+  const cancelVideoExport = () => {
+    if (recorderRef.current && recorderRef.current.state === 'recording') {
+      recorderRef.current.stop();
+    }
+    setRecordingVideo(false);
+  };
+
+  const mediaActive = (!videoMode && !!image) || (videoMode && !!videoItem);
+
+  const switchMode = () => {
+    if (videoMode) {
+      // switch to image mode
+      setVideoMode(false);
+      setVideoItem(null);
+      setVideoPlaying(true);
+    } else {
+      // switch to video mode: clear images
+      setImages([]);
+      setActiveImageId(null);
+      try {
+        localStorage.removeItem("ds_images");
+        localStorage.removeItem("ds_activeImageId");
+      } catch {}
+      setVideoMode(true);
+      setVideoItem(null);
+      setVideoPlaying(true);
+    }
+  };
 
   // Reset perf data when active image changes (fresh stats per image)
   useEffect(() => {
@@ -539,71 +691,72 @@ const ImageDitheringTool: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Image Dithering Tool | Multi Algorithm (Floyd–Steinberg, Bayer, Sierra)</title>
-        <meta name="description" content="Client-side image dithering: Floyd–Steinberg, Atkinson, Stucki, Sierra family, Jarvis, Bayer ordered, halftone & more." />
+        <title>Image & Video Dithering Tool | Multi Algorithm</title>
+        <meta name="description" content="Client-side image & video dithering: Floyd–Steinberg, Bayer, Sierra family, palettes & more." />
         <link rel="canonical" href="https://steinberg-image.vercel.app/Dithering" />
       </Helmet>
-      <div id="tool" className={`flex min-h-screen w-full flex-col ${focusMode ? "focus-mode" : ""}`}>
-        <header ref={headerRef} className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? "hidden" : ""}`}>
+  <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? 'focus-mode' : ''}`}>
+        <header ref={headerRef} className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? 'hidden' : ''}`}>
           <div className="flex items-center gap-4">
             <h1 className="font-mono text-xs tracking-wide text-gray-300">Dithering Studio</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/Algorithms" className="clean-btn px-3 py-1 !text-[11px]" title="Algorithm reference">
-              Explore
-            </Link>
-            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">
-              Home
-            </Link>
+            <button type="button" onClick={switchMode} className="clean-btn px-3 py-1 !text-[11px]" title={videoMode ? 'Switch to Images' : 'Switch to Video'}>{videoMode ? 'Image Mode' : 'Video Mode'}</button>
+            <Link to="/Algorithms" className="clean-btn px-3 py-1 !text-[11px]" title="Algorithm reference">Explore</Link>
+            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">Home</Link>
           </div>
         </header>
-        <div className="flex flex-1 flex-col md:flex-row">
+  <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
           {!focusMode && (
             <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
               <div className="flex flex-1 flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto" style={settingsHeight ? { maxHeight: settingsHeight } : undefined}>
-                  {!image && (
-                    <div className="px-4 pt-4 pb-6">
-                      <UploadIntro />
+                  {!mediaActive && (
+                    <div className="px-4 pt-4 pb-6 space-y-4">
+                      {!videoMode && <UploadIntro />}
+                      {videoMode && <VideoUploadIntro />}
                     </div>
                   )}
-                  {image && (
+                  {mediaActive && (
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
-                        {images.length > 1 && <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />}
-                        {images.length <= 1 && activeImageId && (
+                        {videoMode && videoItem && (
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => {
-                                clearAllImages();
-                              }}
-                              className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide"
-                              title="Choose another image (replaces current)"
-                            >
-                              <span className="text-[13px]" aria-hidden>
-                                ⬆
-                              </span>
-                              <span>Change Image</span>
-                            </button>
-                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Reset all settings to defaults">
-                              <span className="text-[13px]" aria-hidden>
-                                ↺
-                              </span>
-                              <span>Reset</span>
-                            </button>
+                            <button onClick={() => setVideoItem(null)} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Choose another video"><span className="text-[13px]">⬆</span><span>Change Video</span></button>
+                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Reset all settings"><span className="text-[13px]">↺</span><span>Reset</span></button>
                           </div>
                         )}
-
-                        {/* Algorithm & Threshold */}
+                        {!videoMode && images.length > 1 && (
+                          <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />
+                        )}
+                        {!videoMode && images.length <= 1 && activeImageId && (
+                          <div className="flex gap-2">
+                            <button onClick={clearAllImages} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Choose another image (replaces current)"><span className="text-[13px]">⬆</span><span>Change Image</span></button>
+                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Reset all settings to defaults"><span className="text-[13px]">↺</span><span>Reset</span></button>
+                          </div>
+                        )}
+                        {videoMode && videoItem && (
+                          <div className="min-panel p-0">
+                            <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300"><span className="flex items-center gap-2"><span>▾</span> Video</span><span className="text-[10px] text-gray-500">{videoCurrentTime.toFixed(1)} / {videoDuration.toFixed(1)}s</span></button>
+                            <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <button type="button" onClick={() => setVideoPlaying(p => !p)} className="clean-btn px-3 py-1 text-[11px]" title={videoPlaying ? 'Pause playback' : 'Resume playback'}>{videoPlaying ? 'Pause' : 'Play'}</button>
+                                <button type="button" onClick={() => { const v = (videoHook as any).videoElRef?.current as HTMLVideoElement | null; if (v) { v.currentTime = 0; } }} className="clean-btn px-3 py-1 text-[11px]" title="Restart video">⟲ Start</button>
+                                <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                                  <span>FPS</span>
+                                  <input type="range" min={2} max={30} value={videoFps} onChange={e => setVideoFps(Number(e.target.value))} className="clean-range !w-28" />
+                                  <span className="w-6 text-right tabular-nums">{videoFps}</span>
+                                </div>
+                              </div>
+                              {!videoReady && <p className="text-[10px] text-gray-500">Loading video metadata…</p>}
+                            </div>
+                          </div>
+                        )}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
-
-                        {/* Palette (hidden if unsupported) */}
-                        {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />}
-
-                        {/* Working Resolution */}
-                        <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} />
-
-                        {/* Presets */}
+                        {paletteSupported && (
+                          <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />
+                        )}
+                        <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} maxResolution={dynamicMaxResolution} />
                         <PresetPanel
                           current={{ params: { pattern, threshold, invert, serpentine, isErrorDiffusion: isErrorDiffusion(pattern), palette: activePaletteColors || undefined }, workingResolution, paletteId, activePaletteColors }}
                           apply={(p) => {
@@ -622,66 +775,68 @@ const ImageDitheringTool: React.FC = () => {
                   )}
                 </div>
                 <div ref={footerRef} className="border-t border-neutral-800 p-4">
-                  {image ? (
+                  {mediaActive ? (
                     <div className="flex gap-2">
-                      <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
-                        Download
-                      </button>
+                      <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? 'cursor-not-allowed opacity-50' : ''}`}>Download</button>
                     </div>
                   ) : (
-                    <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">
-                      Explore Algorithms
-                    </Link>
+                    <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">Explore Algorithms</Link>
                   )}
                 </div>
               </div>
             </aside>
           )}
-          <main className="flex flex-1 items-center justify-center">
-            {!image && (
+          <main className="flex flex-1 items-center justify-center overflow-auto">
+            {!mediaActive && (
               <div className="w-full max-w-lg space-y-4">
-                <ImageUploader onImagesAdded={(items) => addImages(items)} />
-                <p className="text-center text-[10px] text-gray-500">Select one or multiple images to begin. They will appear in the Images panel.</p>
+                {!videoMode && <ImageUploader onImagesAdded={(items) => addImages(items)} />}
+                {videoMode && !videoItem && <VideoUploader onVideoSelected={(v) => setVideoItem({ url: v.url, name: v.name })} />}
+                {!videoMode && <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>Switch to Video Mode</button>}
+                {videoMode && <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>Switch to Image Mode</button>}
+                <p className="text-center text-[10px] text-gray-500">Select media to begin.</p>
               </div>
             )}
-            {image && (
+            {mediaActive && !videoMode && image && (
               <div className="flex h-full w-full items-center justify-center overflow-auto">
-                <div className="canvas-frame flex items-center justify-center p-2" style={{ background: "transparent", border: "none" }}>
+                <div className="canvas-frame flex items-center justify-center p-2" style={{ background: 'transparent', border: 'none' }}>
                   <div className="relative">
-                    <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered image preview" style={{ display: "block" }} />
+                    <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? 'updated' : ''}`} aria-label="Dithered image preview" />
                     {showGrid && (
                       <>
                         <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const order = [4, 6, 8, 12, 16];
-                            setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
-                          }}
-                          className="grid-size-badge"
-                          title="Cycle grid size (Shift+G)"
-                        >
-                          {gridSize}px
-                        </button>
+                        <button type="button" onClick={() => { const order=[4,6,8,12,16]; setGridSize((gs:number)=> order[(order.indexOf(gs)+1)%order.length]); }} className="grid-size-badge" title="Cycle grid size (Shift+G)">{gridSize}px</button>
                       </>
                     )}
                   </div>
                 </div>
               </div>
             )}
+            {mediaActive && videoMode && videoItem && (
+              <div className="flex h-full w-full flex-col items-center justify-center overflow-auto gap-2 p-2">
+                <div className="canvas-frame flex items-center justify-center" style={{ background: 'transparent', border: 'none' }}>
+                  <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? 'updated' : ''}`} aria-label="Dithered video frame" />
+                </div>
+              </div>
+            )}
           </main>
         </div>
-        {showDownload && image && (
+        {showDownload && ((image && !videoMode) || (videoMode && videoItem)) && (
           <div className="fixed inset-0 z-40 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-mono text-xs tracking-wide text-gray-300">Export Result</h2>
+                <h2 className="font-mono text-xs tracking-wide text-gray-300">{videoMode ? 'Export Frame or Video' : 'Export Result'}</h2>
                 <button onClick={() => setShowDownload(false)} className="clean-btn px-2 py-0 text-[11px]">
                   ✕
                 </button>
               </div>
-              <div className="mb-4 grid grid-cols-4 gap-2">
+              {/* Frame export section */}
+              <div className="mb-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="font-mono text-[11px] tracking-wide text-gray-400">Frame Export</span>
+                  {videoMode && <span className="text-[10px] text-gray-500">Current processed frame</span>}
+                </div>
+                <div className="grid grid-cols-4 gap-2">
                 <button onClick={() => downloadImageAs("png")} className="clean-btn w-full text-[11px]">
                   PNG
                 </button>
@@ -691,9 +846,11 @@ const ImageDitheringTool: React.FC = () => {
                 <button onClick={() => downloadImageAs("webp")} disabled={!webpSupported} className={`clean-btn w-full text-[11px] ${!webpSupported ? "cursor-not-allowed opacity-40" : ""}`}>
                   WEBP
                 </button>
-                <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">
-                  SVG
-                </button>
+                {!videoMode && (
+                  <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">
+                    SVG
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     const canvas = processedCanvasRef.current || canvasRef.current;
@@ -708,8 +865,55 @@ const ImageDitheringTool: React.FC = () => {
                 >
                   Clipboard
                 </button>
+                </div>
               </div>
-              <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? "(modern)" : "(unsupported)"}; SVG vector (large for big images).</p>
+              {videoMode && (
+                <div className="mb-4 space-y-3">
+                  <div className="border-t border-neutral-800 my-3" />
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] tracking-wide text-gray-400">Full Video Export</span>
+                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                      <label className="flex items-center gap-1">
+                        <span className="text-gray-400">Format</span>
+                        <select value={videoExportFormat} onChange={e => { const val = e.target.value === 'mp4' ? 'mp4':'webm'; setVideoExportFormat(val); setRecordedBlobUrl(r=>{ if(r) URL.revokeObjectURL(r); return null; }); }} className="clean-input !h-7 !px-2 !py-0 text-[10px]">
+                          <option value="mp4">MP4</option>
+                          <option value="webm">WebM</option>
+                        </select>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={startVideoExport} disabled={recordingVideo} className={`clean-btn px-3 py-1 text-[11px] ${recordingVideo ? 'cursor-not-allowed opacity-50' : ''}`}>Record</button>
+                    {recordingVideo && <button onClick={cancelVideoExport} className="clean-btn px-3 py-1 text-[11px]">Stop</button>}
+                    {recordedBlobUrl && (
+                      <a href={recordedBlobUrl} download={`dithered-video.${recordingMimeRef.current.includes('mp4') ? 'mp4' : 'webm'}`} className="clean-btn px-3 py-1 text-[11px]">Download</a>
+                    )}
+                  </div>
+                  {videoFormatNote && <p className="text-[10px] text-amber-400">{videoFormatNote}</p>}
+                  {recordingVideo && (
+                    <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                      <div className="h-1 flex-1 rounded bg-neutral-800 overflow-hidden">
+                        <div className="h-full bg-blue-500 transition-all" style={{ width: `${(recordingProgress * 100).toFixed(1)}%` }} />
+                      </div>
+                      <span>{(recordingProgress * 100).toFixed(0)}%</span>
+                    </div>
+                  )}
+                  {recordingError && <p className="text-[10px] text-red-500">{recordingError}</p>}
+                  {recordedBlobUrl && !recordingVideo && <p className="text-[10px] text-gray-500">Finished. Download ready.</p>}
+                </div>
+              )}
+              {videoMode && (
+                <div className="mb-4 space-y-3">
+                  <div className="border-t border-neutral-800 pt-3" />
+                  <div className="space-y-1 text-[10px] leading-snug text-gray-500">
+                    <p><span className="font-semibold text-gray-400">Frame Export:</span> PNG (lossless), JPEG (smaller), WEBP {webpSupported ? '(modern)' : '(unsupported)'} clipboard copy.</p>
+                    <p><span className="font-semibold text-gray-400">Full Video:</span> {recordingMimeRef.current.includes('mp4') ? 'MP4 (H.264/AAC if supported)' : 'WebM (VP8/VP9 + Opus)'} — Windows legacy players may need codecs for WebM.</p>
+                  </div>
+                </div>
+              )}
+              {!videoMode && (
+                <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? "(modern)" : "(unsupported)"}; SVG vector (large for big images).</p>
+              )}
               <div className="flex items-center justify-between">
                 <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || "Dithered an image via @Oslo418")}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-400 hover:underline">
                   Share the result on X
@@ -723,7 +927,7 @@ const ImageDitheringTool: React.FC = () => {
             F Focus | G Grid | Shift+G Size
           </div>
         )}
-        <PerformanceOverlay hasImage={!!image} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={image ? processedSizeBytes : null} />
+  <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />
       </div>
     </>
   );

@@ -8,13 +8,15 @@ interface PalettePanelProps {
   setActivePaletteColors: React.Dispatch<React.SetStateAction<[number, number, number][] | null>>;
   effectivePalette: [number, number, number][] | null;
   image?: string | null;
+  videoCanvas?: HTMLCanvasElement | null;
   binaryMode?: boolean;
+  isVideoMode?: boolean;
 }
 
 const CUSTOM_ID = "__custom";
 const ORIGINAL_ID = "__original";
 
-const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, effectivePalette, image, binaryMode }) => {
+const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, effectivePalette, image, videoCanvas, binaryMode, isVideoMode }) => {
   const [open, setOpen] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newColor, setNewColor] = useState("#ffffff");
@@ -90,129 +92,81 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
   };
 
   const extractOriginalFull = useCallback(async () => {
-    // Derive a representative palette (median cut) capped to avoid performance issues.
-    if (!image) return;
+    if (!image && !videoCanvas) return;
     try {
-      const MAX_COLORS = 64; // hard cap to keep per-pixel quantization fast
-      const TARGET_PIXELS = 65536; // ~256x256 sample cap
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      const done = new Promise<HTMLImageElement>((res, rej) => {
-        img.onload = () => res(img);
-        img.onerror = () => rej(new Error("load"));
-      });
-      img.src = image;
-      await done;
-      let { width, height } = img;
-      const total = width * height;
-      let scale = 1;
-      if (total > TARGET_PIXELS) scale = Math.sqrt(TARGET_PIXELS / total);
-      const sw = Math.max(1, Math.round(width * scale));
-      const sh = Math.max(1, Math.round(height * scale));
-      const canvas = document.createElement("canvas");
-      canvas.width = sw;
-      canvas.height = sh;
-      const ctx = canvas.getContext("2d");
+      const MAX_COLORS = 64;
+      const TARGET_PIXELS = 65536;
+      let sourceCanvas: HTMLCanvasElement;
+      if (videoCanvas) {
+        sourceCanvas = document.createElement('canvas');
+        const vw = videoCanvas.width;
+        const vh = videoCanvas.height;
+        let scale = 1;
+        const total = vw * vh;
+        if (total > TARGET_PIXELS) scale = Math.sqrt(TARGET_PIXELS / total);
+        const sw = Math.max(1, Math.round(vw * scale));
+        const sh = Math.max(1, Math.round(vh * scale));
+        sourceCanvas.width = sw; sourceCanvas.height = sh;
+        const sctx = sourceCanvas.getContext('2d');
+        if (!sctx) return;
+        sctx.drawImage(videoCanvas, 0, 0, sw, sh);
+      } else {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const done = new Promise<HTMLImageElement>((res, rej) => { img.onload = () => res(img); img.onerror = () => rej(new Error('load')); });
+        img.src = image!;
+        await done;
+        let { width, height } = img;
+        const total = width * height;
+        let scale = 1;
+        if (total > TARGET_PIXELS) scale = Math.sqrt(TARGET_PIXELS / total);
+        const sw = Math.max(1, Math.round(width * scale));
+        const sh = Math.max(1, Math.round(height * scale));
+        sourceCanvas = document.createElement('canvas');
+        sourceCanvas.width = sw; sourceCanvas.height = sh;
+        const sctx = sourceCanvas.getContext('2d');
+        if (!sctx) return;
+        sctx.drawImage(img, 0, 0, sw, sh);
+      }
+      const ctx = sourceCanvas.getContext('2d');
       if (!ctx) return;
-      ctx.drawImage(img, 0, 0, sw, sh);
-      const data = ctx.getImageData(0, 0, sw, sh).data;
+      const data = ctx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
       const pixels: [number, number, number][] = [];
       for (let i = 0; i < data.length; i += 4) {
-        if (data[i + 3] < 20) continue; // skip mostly transparent
+        if (data[i + 3] < 20) continue;
         pixels.push([data[i], data[i + 1], data[i + 2]]);
       }
       if (pixels.length < 2) return;
-      interface Box {
-        idxs: number[];
-        rMin: number;
-        rMax: number;
-        gMin: number;
-        gMax: number;
-        bMin: number;
-        bMax: number;
-      }
+      interface Box { idxs: number[]; rMin: number; rMax: number; gMin: number; gMax: number; bMin: number; bMax: number; }
       const boxes: Box[] = [];
       const init: Box = { idxs: pixels.map((_, i) => i), rMin: 255, rMax: 0, gMin: 255, gMax: 0, bMin: 255, bMax: 0 };
-      init.idxs.forEach((i) => {
-        const [r, g, b] = pixels[i];
-        if (r < init.rMin) init.rMin = r;
-        if (r > init.rMax) init.rMax = r;
-        if (g < init.gMin) init.gMin = g;
-        if (g > init.gMax) init.gMax = g;
-        if (b < init.bMin) init.bMin = b;
-        if (b > init.bMax) init.bMax = b;
-      });
+      init.idxs.forEach(i => { const [r,g,b]=pixels[i]; if (r<init.rMin) init.rMin=r; if (r>init.rMax) init.rMax=r; if (g<init.gMin) init.gMin=g; if (g>init.gMax) init.gMax=g; if (b<init.bMin) init.bMin=b; if (b>init.bMax) init.bMax=b; });
       boxes.push(init);
       const range = (b: Box) => Math.max(b.rMax - b.rMin, b.gMax - b.gMin, b.bMax - b.bMin);
       while (boxes.length < MAX_COLORS) {
-        // pick box with largest range & more than 1 pixel
-        let bi = -1;
-        let br = -1;
-        for (let i = 0; i < boxes.length; i++) {
-          const b = boxes[i];
-          if (b.idxs.length < 2) continue;
-          const rr = range(b);
-          if (rr > br) {
-            br = rr;
-            bi = i;
-          }
-        }
+        let bi = -1, br = -1;
+        for (let i = 0; i < boxes.length; i++) { const b = boxes[i]; if (b.idxs.length < 2) continue; const rr = range(b); if (rr > br) { br = rr; bi = i; } }
         if (bi === -1) break;
-        const box = boxes.splice(bi, 1)[0];
-        // choose channel with largest span
-        const rSpan = box.rMax - box.rMin;
-        const gSpan = box.gMax - box.gMin;
-        const bSpan = box.bMax - box.bMin;
-        let ch: 0 | 1 | 2 = 0;
-        if (gSpan >= rSpan && gSpan >= bSpan) ch = 1;
-        else if (bSpan >= rSpan && bSpan >= gSpan) ch = 2;
-        // sort indexes by that channel
-        box.idxs.sort((a, b) => pixels[a][ch] - pixels[b][ch]);
-        const mid = Math.floor(box.idxs.length / 2);
-        const leftIdxs = box.idxs.slice(0, mid);
-        const rightIdxs = box.idxs.slice(mid);
-        const mkBox = (idxs: number[]): Box => {
-          const b2: Box = { idxs, rMin: 255, rMax: 0, gMin: 255, gMax: 0, bMin: 255, bMax: 0 };
-          idxs.forEach((i) => {
-            const [r, g, b] = pixels[i];
-            if (r < b2.rMin) b2.rMin = r;
-            if (r > b2.rMax) b2.rMax = r;
-            if (g < b2.gMin) b2.gMin = g;
-            if (g > b2.gMax) b2.gMax = g;
-            if (b < b2.bMin) b2.bMin = b;
-            if (b > b2.bMax) b2.bMax = b;
-          });
-          return b2;
-        };
-        boxes.push(mkBox(leftIdxs));
-        boxes.push(mkBox(rightIdxs));
+        const box = boxes.splice(bi,1)[0];
+        const rSpan = box.rMax - box.rMin; const gSpan = box.gMax - box.gMin; const bSpan = box.bMax - box.bMin;
+        let ch:0|1|2 = 0; if (gSpan >= rSpan && gSpan >= bSpan) ch = 1; else if (bSpan >= rSpan && bSpan >= gSpan) ch = 2;
+        box.idxs.sort((a,b)=> pixels[a][ch]-pixels[b][ch]);
+        const mid = Math.floor(box.idxs.length/2);
+        const leftIdxs = box.idxs.slice(0, mid); const rightIdxs = box.idxs.slice(mid);
+        const mkBox = (idxs:number[]):Box => { const b2:Box={ idxs, rMin:255,rMax:0,gMin:255,gMax:0,bMin:255,bMax:0}; idxs.forEach(i=>{ const [r,g,b]=pixels[i]; if(r<b2.rMin)b2.rMin=r; if(r>b2.rMax)b2.rMax=r; if(g<b2.gMin)b2.gMin=g; if(g>b2.gMax)b2.gMax=g; if(b<b2.bMin)b2.bMin=b; if(b>b2.bMax)b2.bMax=b; }); return b2; };
+        boxes.push(mkBox(leftIdxs)); boxes.push(mkBox(rightIdxs));
       }
-      const palette: [number, number, number][] = boxes.map((b) => {
-        let r = 0,
-          g = 0,
-          bv = 0;
-        b.idxs.forEach((i) => {
-          r += pixels[i][0];
-          g += pixels[i][1];
-          bv += pixels[i][2];
-        });
-        const n = b.idxs.length || 1;
-        return [Math.round(r / n), Math.round(g / n), Math.round(bv / n)] as [number, number, number];
-      });
-      // Sort by luminance for determinism
-      palette.sort((a, b) => 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2] - (0.2126 * b[0] + 0.7152 * b[1] + 0.0722 * b[2]));
+      const palette: [number, number, number][] = boxes.map(b=>{ let r=0,g=0,bv=0; b.idxs.forEach(i=>{ r+=pixels[i][0]; g+=pixels[i][1]; bv+=pixels[i][2]; }); const n=b.idxs.length||1; return [Math.round(r/n), Math.round(g/n), Math.round(bv/n)] as [number,number,number]; });
+      palette.sort((a,b)=> 0.2126*a[0]+0.7152*a[1]+0.0722*a[2] - (0.2126*b[0]+0.7152*b[1]+0.0722*b[2]));
       if (palette.length >= 2) setActivePaletteColors(palette);
-    } catch {
-      // silent fail; leave palette unchanged
-    }
-  }, [image, setActivePaletteColors]);
+    } catch { }
+  }, [image, videoCanvas, setActivePaletteColors]);
 
-  // Re-extract when selecting original image colors or when image changes
   useEffect(() => {
-    if (paletteId === ORIGINAL_ID && image) {
+    if (paletteId === ORIGINAL_ID && (image || videoCanvas)) {
       extractOriginalFull();
     }
-  }, [paletteId, image, extractOriginalFull]);
+  }, [paletteId, image, videoCanvas, extractOriginalFull]);
 
   const reorder = (from: number, to: number) => {
     if (from === to) return;
@@ -226,7 +180,6 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
     });
   };
 
-  // Binary mode: only keep a two-color pair when custom selected; default keeps null for pure B/W
   useEffect(() => {
     if (!binaryMode) return;
     if (paletteId === CUSTOM_ID) {
@@ -362,7 +315,6 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
               }
               if (v === CUSTOM_ID) {
                 setPaletteId(CUSTOM_ID);
-                // Always start fresh with random pair for custom per new user requirement
                 setActivePaletteColors(randomPair());
                 return;
               }
@@ -376,7 +328,7 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
           >
             <option value="">None (Binary BW)</option>
             <option value={CUSTOM_ID}>Custom Palette…</option>
-            <option value={ORIGINAL_ID}>Original Image Colors</option>
+            <option value={ORIGINAL_ID}>{isVideoMode ? 'Original Video Colors' : 'Original Image Colors'}</option>
             <option disabled>── Preset Palettes ──</option>
             {predefinedPalettes.map((p) => (
               <option key={p.id} value={p.id}>
@@ -496,7 +448,6 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
             </div>
           )}
           {paletteId === CUSTOM_ID && !adding && <p className="mt-1 text-[10px] text-gray-500">Drag to reorder. Min 2 colors. Remove with ×.</p>}
-          {/* ORIGINAL_ID intentionally shows no swatches or extras */}
         </div>
       )}
     </div>

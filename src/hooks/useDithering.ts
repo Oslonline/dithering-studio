@@ -10,6 +10,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
   const [hasApplied, setHasApplied] = useState(false);
+  const [origDims, setOrigDims] = useState<{width:number;height:number}>({width:0,height:0});
   const [canvasUpdatedFlag, setCanvasUpdatedFlag] = useState(false);
   const baseImageRef = useRef<HTMLImageElement | null>(null);
   const renderTokenRef = useRef(0);
@@ -35,6 +36,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       baseImageRef.current = img;
       originalDimensions.current.width = img.width;
       originalDimensions.current.height = img.height;
+      setOrigDims({width: img.width, height: img.height});
       renderTokenRef.current++;
       setRenderBump((v: number) => v + 1);
       setHasApplied(false);
@@ -59,9 +61,11 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const token = ++renderTokenRef.current;
     perf.newFrame(token);
 
-    perf.phaseStart('calc-dimensions');
-    const width = Math.min(Math.max(16, workingResolution), img.width);
-    const height = Math.round((width / img.width) * img.height);
+  perf.phaseStart('calc-dimensions');
+  const maxDim = Math.max(img.width, img.height);
+  const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
+  const width = Math.max(1, Math.round(img.width * scale));
+  const height = Math.max(1, Math.round(img.height * scale));
     perf.phaseEnd('calc-dimensions');
 
     if (procCanvas.width !== width || procCanvas.height !== height) {
@@ -80,7 +84,6 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const src = procCtx.getImageData(0, 0, width, height);
     const srcData = src.data;
 
-    // Use palette only if it has at least 2 colors; otherwise fall back to predefined or null
     const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
 
     {
@@ -91,7 +94,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
         const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
         if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
       } else {
-        out = new ImageData(width, height); out.data.set(srcData); // fallback (should not happen once all migrated)
+  out = new ImageData(width, height); out.data.set(srcData);
       }
       perf.phaseEnd('dither');
 
@@ -127,10 +130,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       if (out) {
         setHasApplied(true);
         setCanvasUpdatedFlag(true);
-        // Estimate PNG size of current canvas for perf overlay (KB display)
         try {
           const dataUrl = displayCanvas.toDataURL('image/png');
-          // Strip header 'data:image/png;base64,' then compute bytes from base64 length
           const comma = dataUrl.indexOf(',');
           if (comma !== -1) {
             const b64 = dataUrl.slice(comma + 1);
@@ -154,7 +155,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     setHasApplied(false);
   };
 
-  return { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, originalDimensions, resetCanvas, busy, processedSizeBytes };
+  return { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, originalDimensions, resetCanvas, busy, processedSizeBytes, origDims };
 };
 
 export default useDithering;
