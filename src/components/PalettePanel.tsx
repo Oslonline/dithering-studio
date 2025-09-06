@@ -8,12 +8,13 @@ interface PalettePanelProps {
   setActivePaletteColors: React.Dispatch<React.SetStateAction<[number, number, number][] | null>>;
   effectivePalette: [number, number, number][] | null;
   image?: string | null;
+  binaryMode?: boolean;
 }
 
 const CUSTOM_ID = "__custom";
 const ORIGINAL_ID = "__original";
 
-const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, effectivePalette, image }) => {
+const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, effectivePalette, image, binaryMode }) => {
   const [open, setOpen] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newColor, setNewColor] = useState("#ffffff");
@@ -225,6 +226,102 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
     });
   };
 
+  // Binary mode: only keep a two-color pair when custom selected; default keeps null for pure B/W
+  useEffect(() => {
+    if (!binaryMode) return;
+    if (paletteId === CUSTOM_ID) {
+      setActivePaletteColors((prev) => {
+        if (!prev || prev.length !== 2) return randomPair();
+        return prev.slice(0, 2);
+      });
+    } else {
+      if (activePaletteColors) setActivePaletteColors(null);
+    }
+  }, [binaryMode, paletteId, setActivePaletteColors]);
+
+  if (binaryMode) {
+    return (
+      <div className="min-panel p-0">
+        <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={open}>
+          <span className="flex items-center gap-2">
+            <span>{open ? "▾" : "▸"}</span> Palette
+          </span>
+          {paletteId === CUSTOM_ID && <span className="badge">Custom</span>}
+        </button>
+        {open && (
+          <div className="space-y-2 border-t border-neutral-800 px-4 pt-3 pb-4">
+            <div className="flex items-center justify-between">
+              <label htmlFor="binary-palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">
+                Select
+              </label>
+              {paletteId === CUSTOM_ID && (
+                <button
+                  className="clean-btn px-2 py-0 text-[10px]"
+                  onClick={() => {
+                    setPaletteId(null);
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <select
+              id="binary-palette-select"
+              className="clean-input"
+              value={paletteId ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") {
+                  setPaletteId(null);
+                  return;
+                }
+                if (v === CUSTOM_ID) {
+                  setPaletteId(CUSTOM_ID);
+                  return;
+                }
+              }}
+            >
+              <option value="">None (Binary BW)</option>
+              <option value={CUSTOM_ID}>Random 2 (Binary colors)</option>
+            </select>
+            {paletteId === CUSTOM_ID && (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-1">
+                  {activePaletteColors?.slice(0, 2).map((c, i) => (
+                    <div key={i} className="relative h-6 w-6 rounded-sm border border-neutral-600" style={{ background: `rgb(${c[0]},${c[1]},${c[2]})` }}>
+                      <input
+                        type="color"
+                        value={"#" + c.map((v) => v.toString(16).padStart(2, "0")).join("")}
+                        onChange={(e) => {
+                          const hex = e.target.value.slice(1);
+                          const r = parseInt(hex.slice(0, 2), 16);
+                          const g = parseInt(hex.slice(2, 4), 16);
+                          const b = parseInt(hex.slice(4, 6), 16);
+                          setActivePaletteColors((prev) => {
+                            const base = prev && prev.length === 2 ? ([...prev] as [number, number, number][]) : randomPair();
+                            base[i] = [r, g, b];
+                            return base.slice(0, 2);
+                          });
+                        }}
+                        className="absolute inset-0 cursor-pointer opacity-0"
+                        aria-label={`Pick color ${i + 1}`}
+                      />
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => setActivePaletteColors(randomPair())} className="relative h-6 w-6 cursor-pointer rounded-sm border border-neutral-600 text-[13px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]" title="Randomize two colors" aria-label="Randomize two colors">
+                    ↺
+                  </button>
+                </div>
+                <p className="text-[10px] text-gray-500">Edit or randomize the two colors. Applies to Binary & Random Threshold.</p>
+              </div>
+            )}
+            {paletteId !== CUSTOM_ID && <p className="mt-1 text-[10px] text-gray-500">Default uses pure black/white output.</p>}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="min-panel p-0">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={open}>
@@ -239,11 +336,14 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
             <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">
               Select
             </label>
-            {paletteId && paletteId !== CUSTOM_ID && (
+            {paletteId && (
               <button
                 className="clean-btn px-2 py-0 text-[10px]"
                 onClick={() => {
                   setPaletteId(null);
+                  setActivePaletteColors(null);
+                  setAdding(false);
+                  setInvalid(false);
                 }}
               >
                 Clear
@@ -256,21 +356,22 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
             value={paletteId ?? ""}
             onChange={(e) => {
               const v = e.target.value;
-              if (v === "") setPaletteId(null);
-              else if (v === CUSTOM_ID) {
-                const wasCustom = paletteId === CUSTOM_ID;
+              if (v === "") {
+                setPaletteId(null);
+                return;
+              }
+              if (v === CUSTOM_ID) {
                 setPaletteId(CUSTOM_ID);
-                if (!wasCustom) {
-                  // If there is an existing custom palette persisted (passed from parent) keep it; otherwise seed with random pair.
-                  if (!activePaletteColors || activePaletteColors.length < 2) setActivePaletteColors(randomPair());
-                } else if (!activePaletteColors || activePaletteColors.length < 2) {
-                  setActivePaletteColors(randomPair());
-                }
-              } else if (v === ORIGINAL_ID) {
+                // Always start fresh with random pair for custom per new user requirement
+                setActivePaletteColors(randomPair());
+                return;
+              }
+              if (v === ORIGINAL_ID) {
                 setPaletteId(ORIGINAL_ID);
-                // clear to null so dithering treats it as absent until extraction fills it
-                setActivePaletteColors(null);
-              } else setPaletteId(v);
+                setActivePaletteColors(null); // will be populated asynchronously
+                return;
+              }
+              setPaletteId(v);
             }}
           >
             <option value="">None (Binary BW)</option>

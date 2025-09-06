@@ -10,9 +10,11 @@ export function runBlueNoise(ctx: AlgorithmRunContext) {
 }
 
 export function runBinaryThreshold(ctx: AlgorithmRunContext) {
-  const { srcData, params }=ctx; const out=new Uint8ClampedArray(srcData); const pal=params.palette; const thresh = params.threshold ?? 128;
-  if (pal && pal.length) {
-for(let i=0;i<out.length;i+=4){ let v = out[i]; if(params.invert) v = 255 - v; const bw = v < thresh ? 0 : 255; const [r,g,b] = quantizeToPalette(bw,bw,bw,pal,0); out[i]=r; out[i+1]=g; out[i+2]=b; out[i+3]=255; }
+  const { srcData, params }=ctx; const out=new Uint8ClampedArray(srcData); let pal=params.palette; const thresh = params.threshold ?? 128;
+  if (pal && pal.length >= 2) {
+    if (pal.length > 2) pal = pal.slice(0,2);
+    const c0 = pal[0]; const c1 = pal[1];
+    for(let i=0;i<out.length;i+=4){ let v = out[i]; if(params.invert) v = 255 - v; const chooseFirst = v < thresh; const c = chooseFirst ? c0 : c1; out[i]=c[0]; out[i+1]=c[1]; out[i+2]=c[2]; out[i+3]=255; }
     return out;
   }
   for(let i=0;i<out.length;i+=4){ const v= out[i] < thresh ? 0:255; out[i]=out[i+1]=out[i+2]=v; out[i+3]=255; }
@@ -20,9 +22,17 @@ for(let i=0;i<out.length;i+=4){ let v = out[i]; if(params.invert) v = 255 - v; c
   return out; }
 
 export function runRandomThreshold(ctx: AlgorithmRunContext) {
-  const { srcData,width,height,params }=ctx; const out=new Uint8ClampedArray(srcData); const userT=params.threshold ?? 128; const pal=params.palette;
-  for(let y=0;y<height;y++) for(let x=0;x<width;x++){ const i=(y*width+x)*4; let g=out[i]; if(params.invert) g=255-g; const pivot = userT/255; const r=Math.random(); const normalized=g/255; const mix=(normalized + r)/2; const bw = mix < pivot ? 0:255; if(pal&&pal.length){ const [rC,gC,bC]= quantizeToPalette(bw,bw,bw,pal,0); out[i]=rC; out[i+1]=gC; out[i+2]=bC; } else { out[i]=out[i+1]=out[i+2]=bw; } out[i+3]=255; }
-  if(!pal||!pal.length){ if(params.invert){ for(let i=0;i<out.length;i+=4){ out[i]=255-out[i]; out[i+1]=255-out[i+1]; out[i+2]=255-out[i+2]; } } }
+  const { srcData,width,height,params }=ctx; const out=new Uint8ClampedArray(srcData); const userT=params.threshold ?? 128; let pal=params.palette;
+  if (pal && pal.length >= 2) {
+    if (pal.length > 2) pal = pal.slice(0,2);
+    const c0 = pal[0]; const c1 = pal[1];
+    const pivot = userT / 255; // 0..1
+    for (let y=0;y<height;y++) for(let x=0;x<width;x++){
+      const i=(y*width+x)*4; let g=out[i]; if(params.invert) g = 255 - g; const normalized = g/255; const r=Math.random(); const mix=(normalized + r)/2; const chooseFirst = mix < pivot; const c = chooseFirst ? c0 : c1; out[i]=c[0]; out[i+1]=c[1]; out[i+2]=c[2]; out[i+3]=255; }
+    return out;
+  }
+  for(let y=0;y<height;y++) for(let x=0;x<width;x++){ const i=(y*width+x)*4; let g=out[i]; if(params.invert) g=255-g; const pivot=userT/255; const r=Math.random(); const normalized=g/255; const mix=(normalized + r)/2; const bw = mix < pivot ? 0:255; out[i]=out[i+1]=out[i+2]=bw; out[i+3]=255; }
+  if(params.invert){ for(let i=0;i<out.length;i+=4){ out[i]=255-out[i]; out[i+1]=255-out[i+1]; out[i+2]=255-out[i+2]; } }
   return out; }
 
 export function runDotDiffusionSimple(ctx: AlgorithmRunContext) {

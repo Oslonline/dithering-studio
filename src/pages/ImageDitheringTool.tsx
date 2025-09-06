@@ -217,7 +217,9 @@ const ImageDitheringTool: React.FC = () => {
   }, []);
 
   const selectedAlgo = algorithms.find((a) => a.id === pattern);
-  const paletteSupported = !!selectedAlgo?.supportsPalette;
+  // Binary-style palette enforcement for Binary Threshold (15) and Random Threshold (10)
+  const isBinary = pattern === 15 || pattern === 10;
+  const paletteSupported = isBinary ? true : !!selectedAlgo?.supportsPalette;
   const isAscii = selectedAlgo?.name === "ASCII Mosaic";
   // Allow invert with palette only for ASCII algorithm; otherwise preserve prior auto-disable behavior.
   useEffect(() => {
@@ -228,7 +230,20 @@ const ImageDitheringTool: React.FC = () => {
     if (!paletteSupported && paletteId) {
       setPaletteId(null);
     }
-  }, [paletteSupported, paletteId]);
+    // For Binary enforce exactly two colors if custom palette exists
+    if (isBinary && activePaletteColors && activePaletteColors.length !== 2) {
+      setActivePaletteColors((prev) => {
+        if (!prev || prev.length < 2) {
+          const rand = () => Math.floor(Math.random() * 256);
+          return [
+            [rand(), rand(), rand()],
+            [rand(), rand(), rand()],
+          ];
+        }
+        return prev.slice(0, 2);
+      });
+    }
+  }, [paletteSupported, paletteId, isBinary, activePaletteColors]);
 
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = useDithering({
     image,
@@ -583,7 +598,7 @@ const ImageDitheringTool: React.FC = () => {
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
 
                         {/* Palette (hidden if unsupported) */}
-                        {paletteSupported && <PalettePanel paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />}
+                        {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={image} />}
 
                         {/* Working Resolution */}
                         <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} />

@@ -23,6 +23,7 @@ export interface AlgorithmMeta {
   category: string;
   supportsThreshold: boolean;
   supportsPalette?: boolean;
+  supportsSerpentine?: boolean;
   orderKey?: string;
   run: AlgorithmRunner;
 }
