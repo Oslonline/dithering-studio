@@ -9,7 +9,6 @@ import AlgorithmPanel from "../components/AlgorithmPanel";
 import PalettePanel from "../components/PalettePanel";
 import ResolutionPanel from "../components/ResolutionPanel";
 import UploadIntro from "../components/UploadIntro";
-import VideoUploadIntro from "../components/VideoUploadIntro";
 import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
 import PerformanceOverlay from "../components/PerformanceOverlay";
@@ -713,8 +712,7 @@ const ImageDitheringTool: React.FC = () => {
                 <div className="flex-1 overflow-y-auto" style={settingsHeight ? { maxHeight: settingsHeight } : undefined}>
                   {!mediaActive && (
                     <div className="px-4 pt-4 pb-6 space-y-4">
-                      {!videoMode && <UploadIntro />}
-                      {videoMode && <VideoUploadIntro />}
+                      <UploadIntro mode={videoMode ? 'video' : 'image'} />
                     </div>
                   )}
                   {mediaActive && (
