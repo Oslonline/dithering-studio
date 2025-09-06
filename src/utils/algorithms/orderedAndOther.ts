@@ -2,31 +2,6 @@ import { AlgorithmRunContext } from './types';
 import { blueNoiseThreshold } from './blueNoise';
 import { mapGrayWithCell, quantizeToPalette } from './paletteUtil';
 
-export function runBayer2(ctx: AlgorithmRunContext) {
-  const { srcData, width, height, params } = ctx; const out = new Uint8ClampedArray(srcData); const pal = params.palette; const userT = params.threshold ?? 128; const bias = ((userT-128)/255)*2; // amplify to widen influence (-1..1 approx after clamp)
-  const m = [[0,2],[3,1]]; const size=2; const scale=4;
-  for (let y=0;y<height;y++) for (let x=0;x<width;x++){ const i=(y*width+x)*4; const g=out[i]; if (pal&&pal.length){ const cell=m[y%size][x%size]/(scale-1); const c=mapGrayWithCell(g,cell,pal,bias); out[i]=c[0]; out[i+1]=c[1]; out[i+2]=c[2]; } else { const matrixT=(m[y%size][x%size]/scale)*255; // shift matrix threshold by user slider
-      let t = matrixT + (userT-128); if(t<0)t=0; else if(t>255)t=255; const v=g<t?0:255; out[i]=out[i+1]=out[i+2]=v; } out[i+3]=255; }
-  if (params.invert && !pal){ for(let i=0;i<out.length;i+=4){ out[i]=255-out[i]; out[i+1]=255-out[i+1]; out[i+2]=255-out[i+2]; } }
-  return out;
-}
-
-export function runBayer8(ctx: AlgorithmRunContext) {
-  const { srcData,width,height,params }=ctx; const out=new Uint8ClampedArray(srcData); const pal=params.palette; const userT=params.threshold ?? 128; const bias=((userT)-128)/255*2; const m=[[0,48,12,60,3,51,15,63],[32,16,44,28,35,19,47,31],[8,56,4,52,11,59,7,55],[40,24,36,20,43,27,39,23],[2,50,14,62,1,49,13,61],[34,18,46,30,33,17,45,29],[10,58,6,54,9,57,5,53],[42,26,38,22,41,25,37,21]]; const size=8; const scale=64;
-  for (let y=0;y<height;y++) for(let x=0;x<width;x++){ const i=(y*width+x)*4; const g=out[i]; if(pal&&pal.length){ const cell=m[y%size][x%size]/(scale-1); const c=mapGrayWithCell(g,cell,pal,bias); out[i]=c[0]; out[i+1]=c[1]; out[i+2]=c[2]; } else { const matrixT=(m[y%size][x%size]/scale)*255; let t=matrixT + (userT-128); if(t<0)t=0; else if(t>255)t=255; const v=g<t?0:255; out[i]=out[i+1]=out[i+2]=v; } out[i+3]=255; }
-  if (params.invert && !pal){ for(let i=0;i<out.length;i+=4){ out[i]=255-out[i]; out[i+1]=255-out[i+1]; out[i+2]=255-out[i+2]; } }
-  return out;
-}
-
-export function runBayer16(ctx: AlgorithmRunContext) {
-  const { srcData,width,height,params }=ctx; const out=new Uint8ClampedArray(srcData); const pal=params.palette; const userT=params.threshold ?? 128; const bias=((userT)-128)/255*2;
-  const buildBayer=(n:number):number[][]=>{ let m:number[][]=[[0]]; let size=1; while(size<n){ const newSize=size*2; const next:number[][]=Array.from({length:newSize},()=>Array(newSize).fill(0)); for(let y=0;y<size;y++){ for(let x=0;x<size;x++){ const v=m[y][x]; next[y][x]=4*v; next[y][x+size]=4*v+2; next[y+size][x]=4*v+3; next[y+size][x+size]=4*v+1; } } m=next; size=newSize;} return m; };
-  const matrix=buildBayer(16); const denom=256;
-  for(let y=0;y<height;y++) for(let x=0;x<width;x++){ const idx=(y*width+x)*4; const g=out[idx]; const cell=matrix[y%16][x%16]/(denom-1); if(pal&&pal.length){ const c=mapGrayWithCell(g,cell,pal,bias); out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2]; } else { const matrixT=(matrix[y%16][x%16]/denom)*255; let t=matrixT + (userT-128); if(t<0)t=0; else if(t>255)t=255; const v=g<t?0:255; out[idx]=out[idx+1]=out[idx+2]=v; } out[idx+3]=255; }
-  if (params.invert && !pal){ for(let i=0;i<out.length;i+=4){ out[i]=255-out[i]; out[i+1]=255-out[i+1]; out[i+2]=255-out[i+2]; } }
-  return out;
-}
-
 export function runBlueNoise(ctx: AlgorithmRunContext) {
   const { srcData,width,height,params }=ctx; const out=new Uint8ClampedArray(srcData); const pal=params.palette; const userT=params.threshold ?? 128; const bias=((userT)-128)/255*2;
   for(let y=0;y<height;y++) for(let x=0;x<width;x++){ const idx=(y*width+x)*4; const g=out[idx]; const cell=blueNoiseThreshold(x,y); if(pal&&pal.length){ const c=mapGrayWithCell(g,cell,pal,bias); out[idx]=c[0]; out[idx+1]=c[1]; out[idx+2]=c[2]; } else { const matrixT=cell*255; let t=matrixT + (userT-128); if(t<0)t=0; else if(t>255)t=255; const v=g<t?0:255; out[idx]=out[idx+1]=out[idx+2]=v; } out[idx+3]=255; }
