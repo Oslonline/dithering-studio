@@ -19,7 +19,6 @@ import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
 import useVideoRecording from "../hooks/useVideoRecording";
 import useSettingsHeight from "../hooks/useSettingsHeight";
 import useApplyUrlParams from "../hooks/useApplyUrlParams";
-import usePersistSettings from "../hooks/usePersistSettings";
 import { perf } from "../utils/perf";
 import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
@@ -209,7 +208,6 @@ const DitheringTool: React.FC = () => {
   useEffect(() => {
     perf.reset();
   }, [activeImageId]);
-  usePersistSettings({ pattern, threshold, workingResolution, paletteId, invert, serpentine, showGrid, gridSize, activeImageId, images, activePaletteColors, asciiRamp });
 
   useToolKeyboardShortcuts({ images, activeImageId, setActiveImageId, setFocusMode: (fn: any) => setFocusMode(fn), setShowGrid: (fn: any) => setShowGrid(fn), setGridSize });
 
@@ -275,18 +273,7 @@ const DitheringTool: React.FC = () => {
     setAsciiRamp("@%#*+=-:. ");
     setShowGrid(false);
     setGridSize(8);
-    try {
-      localStorage.removeItem("ds_pattern");
-      localStorage.removeItem("ds_threshold");
-      localStorage.removeItem("ds_workingResolution");
-      localStorage.removeItem("ds_paletteId");
-      localStorage.removeItem("ds_customPalette");
-      localStorage.removeItem("ds_invert");
-      localStorage.removeItem("ds_serpentine");
-      localStorage.removeItem("ds_asciiRamp");
-      localStorage.removeItem("ds_showGrid");
-      localStorage.removeItem("ds_gridSize");
-    } catch {}
+  try { localStorage.removeItem('ds_settings'); } catch {}
     perf.reset();
   };
   // showDownload from context

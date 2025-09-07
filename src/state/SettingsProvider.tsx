@@ -1,30 +1,48 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { SettingsContext } from './SettingsContext';
 import type { UploadedImage } from '../components/ImagesPanel';
+import { loadSettings, persistSettings } from './settingsPersistence';
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Core media & algorithm state (mirrors existing initialization logic; persistence still handled externally)
-  const [images, setImages] = useState<UploadedImage[]>(() => {
-    try { const raw = localStorage.getItem('ds_images'); if (raw) return JSON.parse(raw); } catch {}; return []; });
-  const [activeImageId, setActiveImageId] = useState<string | null>(() => { try { return localStorage.getItem('ds_activeImageId'); } catch { return null; } });
-  const [pattern, setPattern] = useState<number>(() => { try { return +(localStorage.getItem('ds_pattern') || 1); } catch { return 1; } });
-  const [threshold, setThreshold] = useState<number>(() => { try { return +(localStorage.getItem('ds_threshold') || 128); } catch { return 128; } });
-  const [workingResolution, setWorkingResolution] = useState<number>(() => { try { return +(localStorage.getItem('ds_workingResolution') || 512); } catch { return 512; } });
-  const [workingResInput, setWorkingResInput] = useState<string>(() => String(workingResolution));
+  const initial = loadSettings();
+  const [images, setImages] = useState<UploadedImage[]>(() => initial.images as UploadedImage[]);
+  const [activeImageId, setActiveImageId] = useState<string | null>(() => initial.activeImageId);
+  const [pattern, setPattern] = useState<number>(() => initial.pattern);
+  const [threshold, setThreshold] = useState<number>(() => initial.threshold);
+  const [workingResolution, setWorkingResolution] = useState<number>(() => initial.workingResolution);
+  const [workingResInput, setWorkingResInput] = useState<string>(() => String(initial.workingResolution));
   const [webpSupported, setWebpSupported] = useState(true);
-  const [paletteId, setPaletteId] = useState<string | null>(() => { try { return localStorage.getItem('ds_paletteId'); } catch { return null; } });
-  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => { try { const raw = localStorage.getItem('ds_customPalette'); if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) return parsed; } } catch {}; return null; });
-  const [invert, setInvert] = useState<boolean>(() => { try { return localStorage.getItem('ds_invert') === '1'; } catch { return false; } });
-  const [serpentine, setSerpentine] = useState<boolean>(() => { try { return localStorage.getItem('ds_serpentine') !== '0'; } catch { return true; } });
-  const [asciiRamp, setAsciiRamp] = useState<string>(() => { try { const v = localStorage.getItem('ds_asciiRamp'); return v && v.length >= 2 ? v : '@%#*+=-:. '; } catch { return '@%#*+=-:. '; } });
-  const [showGrid, setShowGrid] = useState<boolean>(() => { try { return localStorage.getItem('ds_showGrid') === '1'; } catch { return false; } });
-  const [gridSize, setGridSize] = useState<number>(() => { try { const v = +(localStorage.getItem('ds_gridSize') || 8); return [4,6,8,12,16].includes(v) ? v : 8; } catch { return 8; } });
+  const [paletteId, setPaletteId] = useState<string | null>(() => initial.paletteId);
+  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => initial.customPalette);
+  const [invert, setInvert] = useState<boolean>(() => initial.invert);
+  const [serpentine, setSerpentine] = useState<boolean>(() => initial.serpentine);
+  const [asciiRamp, setAsciiRamp] = useState<string>(() => initial.asciiRamp);
+  const [showGrid, setShowGrid] = useState<boolean>(() => initial.showGrid);
+  const [gridSize, setGridSize] = useState<number>(() => initial.gridSize);
   const [focusMode, setFocusMode] = useState(false);
   const [videoMode, setVideoMode] = useState(false);
   const [videoItem, setVideoItem] = useState<{ url: string; name?: string } | null>(null);
   const [videoPlaying, setVideoPlaying] = useState(true);
   const [videoFps, setVideoFps] = useState(12);
   const [showDownload, setShowDownload] = useState(false);
+
+  useEffect(() => {
+    persistSettings({
+      version: 1,
+      images,
+      activeImageId,
+      pattern,
+      threshold,
+      workingResolution,
+      paletteId,
+      customPalette: paletteId === '__custom' ? activePaletteColors : null,
+      invert,
+      serpentine,
+      asciiRamp,
+      showGrid,
+      gridSize,
+    });
+  }, [images, activeImageId, pattern, threshold, workingResolution, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize]);
 
   const value = useMemo(() => ({
     images, setImages,
