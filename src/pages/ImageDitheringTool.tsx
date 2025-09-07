@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useSettings } from '../state/SettingsContext';
 import { canvasToSVG } from "../utils/export";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -27,115 +28,38 @@ import PresetPanel from "../components/PresetPanel";
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
 const ImageDitheringTool: React.FC = () => {
-  const [images, setImages] = useState<UploadedImage[]>(() => {
-    try {
-      const raw = localStorage.getItem("ds_images");
-      if (raw) return JSON.parse(raw) as UploadedImage[];
-    } catch {}
-    return [];
-  });
-  const [activeImageId, setActiveImageId] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem("ds_activeImageId");
-    } catch {
-      return null;
-    }
-  });
+  const {
+    images, setImages,
+    activeImageId, setActiveImageId,
+    pattern, setPattern,
+    threshold, setThreshold,
+    workingResolution, setWorkingResolution,
+    workingResInput, setWorkingResInput,
+    webpSupported, setWebpSupported,
+    paletteId, setPaletteId,
+    activePaletteColors, setActivePaletteColors,
+    invert, setInvert,
+    serpentine, setSerpentine,
+    asciiRamp, setAsciiRamp,
+    showGrid, setShowGrid,
+    gridSize, setGridSize,
+    focusMode, setFocusMode,
+    videoMode, setVideoMode,
+    videoItem, setVideoItem,
+    videoPlaying, setVideoPlaying,
+    videoFps, setVideoFps,
+    showDownload, setShowDownload,
+  } = useSettings();
   const image = activeImageId ? images.find((i: UploadedImage) => i.id === activeImageId)?.url || null : null;
-  const [pattern, setPattern] = useState<number>(() => {
-    try {
-      return +(localStorage.getItem("ds_pattern") || 1);
-    } catch {
-      return 1;
-    }
-  });
-  const [threshold, setThreshold] = useState<number>(() => {
-    try {
-      return +(localStorage.getItem("ds_threshold") || 128);
-    } catch {
-      return 128;
-    }
-  });
-  const [workingResolution, setWorkingResolution] = useState<number>(() => {
-    try {
-      return +(localStorage.getItem("ds_workingResolution") || 512);
-    } catch {
-      return 512;
-    }
-  });
-  const [workingResInput, setWorkingResInput] = useState<string>(() => String(workingResolution));
-  const [webpSupported, setWebpSupported] = useState(true);
+  const [localWebpChecked, setLocalWebpChecked] = useState(false);
   useEffect(() => {
+    if (localWebpChecked) return;
     try {
-      const c = document.createElement("canvas");
-      c.width = c.height = 2;
-      const data = c.toDataURL("image/webp");
-      if (!data.startsWith("data:image/webp")) setWebpSupported(false);
-    } catch {
-      setWebpSupported(false);
-    }
-  }, []);
-  const [paletteId, setPaletteId] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem("ds_paletteId");
-    } catch {
-      return null;
-    }
-  });
-  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => {
-    try {
-      const raw = localStorage.getItem("ds_customPalette");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.every((c) => Array.isArray(c) && c.length === 3 && c.every((n) => typeof n === "number"))) {
-          return parsed as [number, number, number][];
-        }
-      }
-    } catch {}
-    return null;
-  });
-  const [invert, setInvert] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("ds_invert") === "1";
-    } catch {
-      return false;
-    }
-  });
-  const [serpentine, setSerpentine] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("ds_serpentine") !== "0";
-    } catch {
-      return true;
-    }
-  });
-  const [asciiRamp, setAsciiRamp] = useState<string>(() => {
-    try {
-      const v = localStorage.getItem("ds_asciiRamp");
-      return v && v.length >= 2 ? v : "@%#*+=-:. ";
-    } catch {
-      return "@%#*+=-:. ";
-    }
-  });
-  const [showGrid, setShowGrid] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem("ds_showGrid") === "1";
-    } catch {
-      return false;
-    }
-  });
-  const [gridSize, setGridSize] = useState<number>(() => {
-    try {
-      const v = +(localStorage.getItem("ds_gridSize") || 8);
-      return [4, 6, 8, 12, 16].includes(v) ? v : 8;
-    } catch {
-      return 8;
-    }
-  });
-  const [focusMode, setFocusMode] = useState(false);
-  const [videoMode, setVideoMode] = useState(false);
-  const [videoItem, setVideoItem] = useState<{ url: string; name?: string } | null>(null);
-  const [videoPlaying, setVideoPlaying] = useState(true);
-  const [videoFps, setVideoFps] = useState(12);
+      const c = document.createElement('canvas'); c.width=c.height=2; const data=c.toDataURL('image/webp'); if (!data.startsWith('data:image/webp')) setWebpSupported(false);
+    } catch { setWebpSupported(false); }
+    setLocalWebpChecked(true);
+  }, [localWebpChecked, setWebpSupported]);
+  // (state migrated to context above)
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
@@ -340,7 +264,7 @@ const ImageDitheringTool: React.FC = () => {
     } catch {}
     perf.reset();
   };
-  const [showDownload, setShowDownload] = useState(false);
+  // showDownload from context
 
 
   const downloadImageAs = (fmt: "png" | "jpeg" | "webp") => {
