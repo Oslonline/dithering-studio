@@ -1,0 +1,64 @@
+import { useEffect } from 'react';
+import { algorithms } from '../utils/algorithms';
+
+interface Params {
+  setPattern: (n: number) => void;
+  setThreshold: (n: number) => void;
+  setWorkingResolution: (n: number) => void;
+  setWorkingResInput: (s: string) => void;
+  setInvert: (b: boolean) => void;
+  setSerpentine: (b: boolean) => void;
+  setAsciiRamp: (s: string) => void;
+  setPaletteId: (s: string | null) => void;
+  paletteFromURL: React.MutableRefObject<[number, number, number][] | null>;
+}
+
+export function useApplyUrlParams(p: Params) {
+  const { setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL } = p;
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.size === 0) return;
+    const num = (key: string, min: number, max: number) => {
+      const v = parseInt(params.get(key) || '', 10);
+      if (isNaN(v)) return undefined;
+      return Math.min(max, Math.max(min, v));
+    };
+    const pid = num('p', 1, 999);
+    if (typeof pid === 'number' && algorithms.some(a => a.id === pid)) setPattern(pid);
+    const t = num('t', 0, 255);
+    if (typeof t === 'number') setThreshold(t);
+    const r = num('r', 16, 4096);
+    if (typeof r === 'number') { setWorkingResolution(r); setWorkingResInput(String(r)); }
+    if (params.get('inv') === '1') setInvert(true);
+    if (params.get('ser') === '1') setSerpentine(true);
+    const ramp = params.get('ramp');
+    if (ramp) {
+      const decoded = decodeURIComponent(ramp).replace(/\s/g, ' ').slice(0, 64);
+      if (decoded.length >= 2) setAsciiRamp(decoded);
+    }
+    const pal = params.get('pal');
+    if (pal) {
+      const cols = params.get('cols');
+      if (cols) {
+        const parsed: [number, number, number][] = [];
+        cols.split('-').forEach(part => {
+          const seg = part.split('.');
+            if (seg.length === 3) {
+              const r = +seg[0], g = +seg[1], b = +seg[2];
+              if ([r,g,b].every(n => n >= 0 && n <= 255)) parsed.push([r,g,b]);
+            }
+        });
+        if (parsed.length >= 2) paletteFromURL.current = parsed;
+      }
+      setPaletteId(pal);
+    }
+    try {
+      const clean = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', clean || '/');
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+}
+
+export default useApplyUrlParams;

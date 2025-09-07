@@ -12,6 +12,13 @@ import UploadIntro from "../components/UploadIntro";
 import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
 import PerformanceOverlay from "../components/PerformanceOverlay";
+import ExportDialog from "../components/ExportDialog";
+import FocusHint from "../components/FocusHint";
+import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
+import useVideoRecording from "../hooks/useVideoRecording";
+import useSettingsHeight from "../hooks/useSettingsHeight";
+import useApplyUrlParams from "../hooks/useApplyUrlParams";
+import usePersistSettings from "../hooks/usePersistSettings";
 import { perf } from "../utils/perf";
 import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
@@ -132,21 +139,7 @@ const ImageDitheringTool: React.FC = () => {
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
-  const [settingsHeight, setSettingsHeight] = useState<number | null>(null);
-  useEffect(() => {
-    const calcHeights = () => {
-      if (focusMode) { setSettingsHeight(null); return; }
-      const headerH = headerRef.current ? headerRef.current.getBoundingClientRect().height : 0;
-      const footerH = footerRef.current ? footerRef.current.getBoundingClientRect().height : 0;
-      const vh = window.innerHeight;
-      const h = vh - headerH - footerH;
-      setSettingsHeight(h > 0 ? h : null);
-    };
-    calcHeights();
-    const t = setTimeout(calcHeights, 50);
-    window.addEventListener('resize', calcHeights);
-    return () => { window.removeEventListener('resize', calcHeights); clearTimeout(t); };
-  }, [focusMode, image, videoMode, videoItem]);
+  const settingsHeight = useSettingsHeight(headerRef, footerRef, [image, videoMode, videoItem], focusMode);
 
   const effectivePaletteId = paletteId;
   const effectivePalette = (effectivePaletteId ? predefinedPalettes.find((p) => p.id === effectivePaletteId)?.colors : null) || null;
@@ -165,59 +158,7 @@ const ImageDitheringTool: React.FC = () => {
     // For custom/original we preserve whatever Panel manages.
   }, [effectivePaletteId, paletteId]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.size === 0) return;
-    const num = (key: string, min: number, max: number) => {
-      const v = parseInt(params.get(key) || "", 10);
-      if (isNaN(v)) return undefined;
-      return Math.min(max, Math.max(min, v));
-    };
-    const p = num("p", 1, 999);
-    if (typeof p === "number") {
-      // Accept only ids present in algorithms registry
-      if (algorithms.some((a) => a.id === p)) setPattern(p);
-    }
-    const t = num("t", 0, 255);
-    if (typeof t === "number") setThreshold(t);
-    const r = num("r", 16, 4096);
-    if (typeof r === "number") {
-      setWorkingResolution(r);
-      setWorkingResInput(String(r));
-    }
-    if (params.get("inv") === "1") setInvert(true);
-    if (params.get("ser") === "1") setSerpentine(true);
-    const ramp = params.get("ramp");
-    if (ramp) {
-      const decoded = decodeURIComponent(ramp).replace(/\s/g, " ").slice(0, 64);
-      if (decoded.length >= 2) setAsciiRamp(decoded);
-    }
-    const pal = params.get("pal");
-    if (pal) {
-      const cols = params.get("cols");
-      if (cols) {
-        const parsed: [number, number, number][] = [];
-        cols.split("-").forEach((part) => {
-          const seg = part.split(".");
-          if (seg.length === 3) {
-            const r = +seg[0],
-              g = +seg[1],
-              b = +seg[2];
-            if ([r, g, b].every((n) => n >= 0 && n <= 255)) parsed.push([r, g, b]);
-          }
-        });
-        if (parsed.length >= 2) paletteFromURL.current = parsed;
-      }
-      setPaletteId(pal);
-    }
-    // Clean URL (remove applied params) while preserving hash if any.
-    try {
-      const clean = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, "", clean || "/");
-    } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL });
 
   const selectedAlgo = algorithms.find((a) => a.id === pattern);
   const isBinary = pattern === 15 || pattern === 10;
@@ -291,101 +232,7 @@ const ImageDitheringTool: React.FC = () => {
     setWorkingResInput(String(dynamicMaxResolution));
   }
 
-  const [recordingVideo, setRecordingVideo] = useState(false);
-  const [recordingProgress, setRecordingProgress] = useState(0);
-  const [recordingError, setRecordingError] = useState<string | null>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const recordedChunksRef = useRef<Blob[]>([]);
-  const recordingMimeRef = useRef<string>("video/mp4");
-  const [recordedBlobUrl, setRecordedBlobUrl] = useState<string | null>(null);
-  const [videoExportFormat, setVideoExportFormat] = useState<'mp4' | 'webm'>('mp4');
-  const [videoFormatNote, setVideoFormatNote] = useState<string | null>(null);
-  
-  const pickBestVideoMime = (preferred: 'mp4' | 'webm') => {
-    const mp4Candidates = [
-      'video/mp4;codecs=avc1.42E01E,mp4a.40.2', // baseline H264 + AAC
-      'video/mp4'
-    ];
-    const webmCandidates = [
-      'video/webm;codecs=vp9,opus',
-      'video/webm;codecs=vp8,opus',
-      'video/webm'
-    ];
-    const tryList = preferred === 'mp4' ? [...mp4Candidates, ...webmCandidates] : [...webmCandidates, ...mp4Candidates];
-    for (const c of tryList) {
-      try { if ((window as any).MediaRecorder && MediaRecorder.isTypeSupported(c)) return c; } catch {}
-    }
-    return 'video/webm';
-  };
-
-  useEffect(() => {
-    if (!videoMode || !videoItem || !recordingVideo) return;
-    if (!videoDuration) return;
-    setRecordingProgress(Math.min(1, videoCurrentTime / videoDuration));
-    if (videoCurrentTime >= videoDuration - 0.01) {
-      recorderRef.current?.state === 'recording' && recorderRef.current.stop();
-      setRecordingVideo(false);
-    }
-  }, [videoCurrentTime, videoDuration, recordingVideo, videoMode, videoItem]);
-
-  const cleanupRecording = () => {
-    recorderRef.current = null;
-    recordedChunksRef.current = [];
-  };
-
-  const startVideoExport = () => {
-    if (!canvasRef.current || !videoItem) return;
-    if (recordingVideo) return;
-    setRecordingError(null);
-    setRecordedBlobUrl(r => { if (r) URL.revokeObjectURL(r); return null; });
-    recordedChunksRef.current = [];
-    const mime = pickBestVideoMime(videoExportFormat);
-    recordingMimeRef.current = mime;
-    if (videoExportFormat === 'mp4' && !mime.includes('mp4')) {
-      setVideoFormatNote('MP4 not supported by this browser; fell back to WebM.');
-    } else if (videoExportFormat === 'webm' && mime.includes('mp4')) {
-      setVideoFormatNote('Browser forced MP4 despite WebM preference.');
-    } else {
-      setVideoFormatNote(null);
-    }
-    try {
-      const stream = (canvasRef.current as HTMLCanvasElement).captureStream(videoFps || 12);
-      const rec = new MediaRecorder(stream, { mimeType: mime });
-      recorderRef.current = rec;
-      rec.ondataavailable = (e) => { if (e.data && e.data.size) recordedChunksRef.current.push(e.data); };
-      rec.onerror = (e) => { setRecordingError(e.error?.message || 'Recorder error'); };
-      rec.onstop = () => {
-        try {
-          const blob = new Blob(recordedChunksRef.current, { type: recordingMimeRef.current });
-          const url = URL.createObjectURL(blob);
-          setRecordedBlobUrl(url);
-        } catch (err: any) {
-          setRecordingError(err?.message || 'Failed to finalize video');
-        } finally {
-          cleanupRecording();
-        }
-      };
-      const vEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
-      if (vEl) {
-        vEl.currentTime = 0;
-        vEl.play().catch(()=>{});
-        setVideoPlaying(true);
-      }
-      setRecordingVideo(true);
-      setRecordingProgress(0);
-      rec.start();
-    } catch (err: any) {
-      setRecordingError(err?.message || 'Failed to start recording');
-      cleanupRecording();
-    }
-  };
-
-  const cancelVideoExport = () => {
-    if (recorderRef.current && recorderRef.current.state === 'recording') {
-      recorderRef.current.stop();
-    }
-    setRecordingVideo(false);
-  };
+  const { recordingVideo, recordingProgress, recordingError, startVideoExport, cancelVideoExport, recordedBlobUrl, videoExportFormat, setVideoExportFormat, videoFormatNote, recordingMimeRef, setRecordedBlobUrl } = useVideoRecording({ videoMode, videoItem, canvasRef, videoHook, videoFps, setVideoPlaying });
 
   const mediaActive = (!videoMode && !!image) || (videoMode && !!videoItem);
 
@@ -413,47 +260,9 @@ const ImageDitheringTool: React.FC = () => {
   useEffect(() => {
     perf.reset();
   }, [activeImageId]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_asciiRamp", asciiRamp);
-    } catch {}
-  }, [asciiRamp]);
+  usePersistSettings({ pattern, threshold, workingResolution, paletteId, invert, serpentine, showGrid, gridSize, activeImageId, images, activePaletteColors, asciiRamp });
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "f" || e.key === "F") {
-        const t = e.target as HTMLElement;
-        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-        setFocusMode((f: boolean) => !f);
-        e.preventDefault();
-      } else if (e.key === "g" || e.key === "G") {
-        const t = e.target as HTMLElement;
-        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-        if (e.shiftKey) {
-          // Cycle grid size when grid visible or (optionally) enable it first
-          setShowGrid(true);
-          setGridSize((gs: number) => {
-            const order = [4, 6, 8, 12, 16];
-            const idx = order.indexOf(gs);
-            return order[(idx + 1) % order.length];
-          });
-        } else {
-          setShowGrid((s: boolean) => !s);
-        }
-        e.preventDefault();
-      } else if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && images.length > 1) {
-        const idx = images.findIndex((i: UploadedImage) => i.id === activeImageId);
-        if (idx >= 0) {
-          const dir = e.key === "ArrowRight" ? 1 : -1;
-          const next = (idx + dir + images.length) % images.length;
-          setActiveImageId(images[next].id);
-          e.preventDefault();
-        }
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  useToolKeyboardShortcuts({ images, activeImageId, setActiveImageId, setFocusMode: (fn:any)=>setFocusMode(fn), setShowGrid: (fn:any)=>setShowGrid(fn), setGridSize });
 
   const addImages = (items: { url: string; name?: string; file?: File }[]) => {
     setImages((prev: UploadedImage[]) => {
@@ -532,63 +341,7 @@ const ImageDitheringTool: React.FC = () => {
     perf.reset();
   };
   const [showDownload, setShowDownload] = useState(false);
-  const downloadRef = useRef<HTMLDivElement | null>(null);
-  const [shareText, setShareText] = useState("");
-  const shareMessages = useRef<string[]>(["Floyd–Steinberg diffusion result", "High contrast ordered-to-diffusion comparison", "Palette-constrained pixel texture", "Classic error diffusion aesthetic", "Retro styled monochrome grain", "Algorithmic dithering output", "Diffusion + palette quantization", "Minimal color, maximal texture", "Granular luminance mapping", "Pixel-level tone dispersion"]);
-  useEffect(() => {
-    if (showDownload) {
-      const base = shareMessages.current[Math.floor(Math.random() * shareMessages.current.length)];
-      setShareText(`${base} — Dithering Studio by @Oslo418`);
-    }
-  }, [showDownload]);
-  useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      if (!showDownload) return;
-      if (downloadRef.current && !downloadRef.current.contains(e.target as Node)) {
-        setShowDownload(false);
-      }
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowDownload(false);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [showDownload]);
 
-  const [focusHintStyle, setFocusHintStyle] = useState<{ left: number; top: number }>({ left: 16, top: 72 });
-  const [showFocusHintDevice, setShowFocusHintDevice] = useState(true);
-  useEffect(() => {
-    const evalDevice = () => {
-      const belowMd = window.innerWidth < 768; // tailwind md breakpoint
-      const coarse = matchMedia("(pointer: coarse)").matches;
-      setShowFocusHintDevice(!(belowMd || coarse));
-    };
-    evalDevice();
-    window.addEventListener("resize", evalDevice);
-    return () => window.removeEventListener("resize", evalDevice);
-  }, []);
-  useEffect(() => {
-    const calc = () => {
-      if (focusMode) {
-        setFocusHintStyle({ left: 8, top: 8 });
-        return;
-      }
-      const header = document.querySelector("#tool > header");
-      const aside = document.querySelector("#tool aside");
-      const headerH = header ? header.getBoundingClientRect().height : 48;
-      const asideW = aside ? aside.getBoundingClientRect().width : 0;
-      const top = headerH + 16;
-      const left = window.innerWidth >= 768 ? asideW + 16 : 16;
-      setFocusHintStyle({ left, top });
-    };
-    calc();
-    window.addEventListener("resize", calc);
-    return () => window.removeEventListener("resize", calc);
-  }, [focusMode]);
 
   const downloadImageAs = (fmt: "png" | "jpeg" | "webp") => {
     const canvas = processedCanvasRef.current || canvasRef.current;
@@ -627,65 +380,6 @@ const ImageDitheringTool: React.FC = () => {
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
-  // Persistence effects
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_pattern", String(pattern));
-    } catch {}
-  }, [pattern]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_threshold", String(threshold));
-    } catch {}
-  }, [threshold]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_workingResolution", String(workingResolution));
-    } catch {}
-  }, [workingResolution]);
-  useEffect(() => {
-    try {
-      if (paletteId) localStorage.setItem("ds_paletteId", paletteId);
-      else localStorage.removeItem("ds_paletteId");
-    } catch {}
-  }, [paletteId]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_invert", invert ? "1" : "0");
-    } catch {}
-  }, [invert]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_serpentine", serpentine ? "1" : "0");
-    } catch {}
-  }, [serpentine]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_showGrid", showGrid ? "1" : "0");
-    } catch {}
-  }, [showGrid]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_gridSize", String(gridSize));
-    } catch {}
-  }, [gridSize]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_activeImageId", activeImageId || "");
-    } catch {}
-  }, [activeImageId]);
-  useEffect(() => {
-    try {
-      localStorage.setItem("ds_images", JSON.stringify(images));
-    } catch {}
-  }, [images]);
-  useEffect(() => {
-    try {
-      if (paletteId === "__custom" && activePaletteColors && activePaletteColors.length >= 2) {
-        localStorage.setItem("ds_customPalette", JSON.stringify(activePaletteColors));
-      }
-    } catch {}
-  }, [activePaletteColors, paletteId]);
 
   return (
     <>
@@ -774,8 +468,8 @@ const ImageDitheringTool: React.FC = () => {
                 </div>
                 <div ref={footerRef} className="border-t border-neutral-800 p-4">
                   {mediaActive ? (
-                    <div className="flex gap-2">
-                      <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? 'cursor-not-allowed opacity-50' : ''}`}>Download</button>
+              <div className="flex gap-2">
+                <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? 'cursor-not-allowed opacity-50' : ''}`}>Download</button>
                     </div>
                   ) : (
                     <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">Explore Algorithms</Link>
@@ -818,113 +512,30 @@ const ImageDitheringTool: React.FC = () => {
             )}
           </main>
         </div>
-        {showDownload && ((image && !videoMode) || (videoMode && videoItem)) && (
-          <div className="fixed inset-0 z-40 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-            <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-mono text-xs tracking-wide text-gray-300">{videoMode ? 'Export Frame or Video' : 'Export Result'}</h2>
-                <button onClick={() => setShowDownload(false)} className="clean-btn px-2 py-0 text-[11px]">
-                  ✕
-                </button>
-              </div>
-              {/* Frame export section */}
-              <div className="mb-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="font-mono text-[11px] tracking-wide text-gray-400">Frame Export</span>
-                  {videoMode && <span className="text-[10px] text-gray-500">Current processed frame</span>}
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                <button onClick={() => downloadImageAs("png")} className="clean-btn w-full text-[11px]">
-                  PNG
-                </button>
-                <button onClick={() => downloadImageAs("jpeg")} className="clean-btn w-full text-[11px]">
-                  JPEG
-                </button>
-                <button onClick={() => downloadImageAs("webp")} disabled={!webpSupported} className={`clean-btn w-full text-[11px] ${!webpSupported ? "cursor-not-allowed opacity-40" : ""}`}>
-                  WEBP
-                </button>
-                {!videoMode && (
-                  <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">
-                    SVG
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    const canvas = processedCanvasRef.current || canvasRef.current;
-                    if (!canvas) return;
-                    canvas.toBlob((b) => {
-                      if (!b) return;
-                      const item = new ClipboardItem({ "image/png": b });
-                      navigator.clipboard?.write([item]).catch(() => {});
-                    }, "image/png");
-                  }}
-                  className="clean-btn w-full text-[11px]"
-                >
-                  Clipboard
-                </button>
-                </div>
-              </div>
-              {videoMode && (
-                <div className="mb-4 space-y-3">
-                  <div className="border-t border-neutral-800 my-3" />
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] tracking-wide text-gray-400">Full Video Export</span>
-                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                      <label className="flex items-center gap-1">
-                        <span className="text-gray-400">Format</span>
-                        <select value={videoExportFormat} onChange={e => { const val = e.target.value === 'mp4' ? 'mp4':'webm'; setVideoExportFormat(val); setRecordedBlobUrl(r=>{ if(r) URL.revokeObjectURL(r); return null; }); }} className="clean-input !h-7 !px-2 !py-0 text-[10px]">
-                          <option value="mp4">MP4</option>
-                          <option value="webm">WebM</option>
-                        </select>
-                      </label>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={startVideoExport} disabled={recordingVideo} className={`clean-btn px-3 py-1 text-[11px] ${recordingVideo ? 'cursor-not-allowed opacity-50' : ''}`}>Record</button>
-                    {recordingVideo && <button onClick={cancelVideoExport} className="clean-btn px-3 py-1 text-[11px]">Stop</button>}
-                    {recordedBlobUrl && (
-                      <a href={recordedBlobUrl} download={`dithered-video.${recordingMimeRef.current.includes('mp4') ? 'mp4' : 'webm'}`} className="clean-btn px-3 py-1 text-[11px]">Download</a>
-                    )}
-                  </div>
-                  {videoFormatNote && <p className="text-[10px] text-amber-400">{videoFormatNote}</p>}
-                  {recordingVideo && (
-                    <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                      <div className="h-1 flex-1 rounded bg-neutral-800 overflow-hidden">
-                        <div className="h-full bg-blue-500 transition-all" style={{ width: `${(recordingProgress * 100).toFixed(1)}%` }} />
-                      </div>
-                      <span>{(recordingProgress * 100).toFixed(0)}%</span>
-                    </div>
-                  )}
-                  {recordingError && <p className="text-[10px] text-red-500">{recordingError}</p>}
-                  {recordedBlobUrl && !recordingVideo && <p className="text-[10px] text-gray-500">Finished. Download ready.</p>}
-                </div>
-              )}
-              {videoMode && (
-                <div className="mb-4 space-y-3">
-                  <div className="border-t border-neutral-800 pt-3" />
-                  <div className="space-y-1 text-[10px] leading-snug text-gray-500">
-                    <p><span className="font-semibold text-gray-400">Frame Export:</span> PNG (lossless), JPEG (smaller), WEBP {webpSupported ? '(modern)' : '(unsupported)'} clipboard copy.</p>
-                    <p><span className="font-semibold text-gray-400">Full Video:</span> {recordingMimeRef.current.includes('mp4') ? 'MP4 (H.264/AAC if supported)' : 'WebM (VP8/VP9 + Opus)'} — Windows legacy players may need codecs for WebM.</p>
-                  </div>
-                </div>
-              )}
-              {!videoMode && (
-                <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? "(modern)" : "(unsupported)"}; SVG vector (large for big images).</p>
-              )}
-              <div className="flex items-center justify-between">
-                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || "Dithered an image via @Oslo418")}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-400 hover:underline">
-                  Share the result on X
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
-        {showFocusHintDevice && (
-          <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 font-mono text-[10px] tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: focusHintStyle.left, top: focusHintStyle.top }}>
-            F Focus | G Grid | Shift+G Size
-          </div>
-        )}
+  <ExportDialog
+          open={showDownload}
+          onClose={() => setShowDownload(false)}
+          videoMode={videoMode}
+          image={image}
+          videoItem={videoItem}
+          webpSupported={webpSupported}
+          processedCanvasRef={processedCanvasRef}
+          canvasRef={canvasRef}
+          downloadImageAs={downloadImageAs}
+          downloadAsSVG={downloadAsSVG}
+          recordingVideo={recordingVideo}
+          startVideoExport={startVideoExport}
+          cancelVideoExport={cancelVideoExport}
+          recordedBlobUrl={recordedBlobUrl}
+          recordingProgress={recordingProgress}
+          recordingError={recordingError}
+          videoExportFormat={videoExportFormat}
+          setVideoExportFormat={setVideoExportFormat}
+          videoFormatNote={videoFormatNote}
+          recordingMimeType={recordingMimeRef.current}
+          setRecordedBlobUrl={setRecordedBlobUrl}
+        />
+        <FocusHint focusMode={focusMode} />
   <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />
       </div>
     </>
