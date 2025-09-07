@@ -212,7 +212,7 @@ const ImageDitheringTool: React.FC = () => {
     asciiRamp: isAscii ? asciiRamp : undefined,
     fps: videoFps,
   playing: videoPlaying,
-  loop: false, // we manage looping logic manually (esp. for recording end)
+  loop: true,
   });
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = videoMode ? videoHook : imageHook;
   const videoDuration = videoMode ? (videoHook as any).duration : 0;
@@ -232,7 +232,7 @@ const ImageDitheringTool: React.FC = () => {
     setWorkingResInput(String(dynamicMaxResolution));
   }
 
-  const { recordingVideo, recordingProgress, recordingError, startVideoExport, cancelVideoExport, recordedBlobUrl, videoExportFormat, setVideoExportFormat, videoFormatNote, recordingMimeRef, setRecordedBlobUrl } = useVideoRecording({ videoMode, videoItem, canvasRef, videoHook, videoFps, setVideoPlaying });
+  const { recordingVideo, recordingProgress, recordingError, startVideoExport, cancelVideoExport, recordedBlobUrl, videoExportFormat, setVideoExportFormat, videoFormatNote, recordingMimeRef, setRecordedBlobUrl } = useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, setVideoPlaying });
 
   const mediaActive = (!videoMode && !!image) || (videoMode && !!videoItem);
 
