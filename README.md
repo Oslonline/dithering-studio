@@ -1,65 +1,104 @@
 <div align="center">
-  <h1>Steinberg Image Dithering Studio</h1>
-  <p><strong>Fast, client‑side image dithering with classic + experimental algorithms, palettes & an interactive explorer.</strong></p>
+  <h1>Dithering Studio</h1>
+  <p><strong>Fast, private, client‑side dithering for images and video — with classic + experimental algorithms, palettes, presets, and an interactive explorer.</strong></p>
 </div>
 
-## What it does
-Turn any image into a retro / stylized dithered version directly in your browser. No upload. Just drop, tweak, download.
+## Live demo
 
-## Available Algorithms
-Error Diffusion:
-Floyd–Steinberg · Atkinson · Burkes · Stucki · Sierra · Sierra Lite · Two‑Row Sierra · Stevenson–Arce · Jarvis–Judice–Ninke · Ostromoukhov (adaptive)
+Use it in your browser: https://steinberg-image.vercel.app/
 
-Ordered / Masks:
-Bayer 2×2 · Bayer 4×4 · Bayer 8×8 · Blue Noise Mask (64×64)
+No uploads, no account. Everything runs locally in the tab.
 
-Other / Experimental:
-Binary Threshold · Halftone · Random Threshold · Dot Diffusion (simple)
+## Highlights
 
-## Palettes Included
-Game Boy · NES · PICO‑8 · DawnBringer 16 / 32 · CGA 16 · EGA 16 · Solarized 16 · Grayscale (4 / 8) · C64 subset · Web Safe 16
+- 20+ algorithms: error diffusion, ordered matrices, stochastic, adaptive, ASCII.
+- Image and video modes. Export frames (PNG/JPEG/WEBP/SVG) or full videos (WebM/MP4\*).
+- Built‑in palettes (Game Boy, PICO‑8, DB16/32, CGA/EGA, etc.) with live swatch toggling.
+- Presets you can save, rename, import/export as tokens, and re‑apply.
+- Shareable URLs for algorithm/threshold/resolution/palette/serpentine/invert/ASCII ramp.
+- Keyboard shortcuts and grid overlay for precise inspection.
 
-Palette mode remaps colors before / during diffusion (depending on algorithm) for authentic limited‑color looks.
+\*MP4 availability depends on your browser/OS codecs; WebM is widely supported. WEBP export falls back to PNG if unsupported.
 
-Palettes are editable: when a palette is active you can click swatches to temporarily remove them (keep at least two). Use the restore arrow to bring all colors back.
+## Quick start (local)
 
-## Try It Locally (optional)
-Requires Node 20.19+ (recent LTS works). If you only want to use it, visit the deployed site (see repo description). To hack on it:
-
-```bash
+```powershell
 git clone https://github.com/Oslonline/steinberg-image.git
 cd steinberg-image
 npm install
 npm run dev
 ```
 
-Open the shown local URL. Drop an image. Pick an algorithm. Adjust threshold / resolution / palette / invert (when allowed). Download.
+Open the local URL printed in the terminal, drop an image or select a video, tweak settings, and export.
 
-## Functionalities
-- Error diffusion & ordered algorithms (including Ostromoukhov adaptive).
-- Palette selection & on-the-fly swatch removal / restore.
-- Adjustable luminance threshold (where applicable) & working resolution.
-- Invert (disabled when palette active) & serpentine scanning toggle.
-- Shareable URLs (algorithm, threshold, resolution, palette + reduced colors, invert, serpentine).
-- Downloads: PNG, JPEG, WEBP* plus SVG vector export.
-- Focus Mode (press F) hides UI chrome.
+## How to use
 
-*WEBP support depends on the browser; falls back to PNG when unsupported.
+1. Load media
 
-## Dev Scripts (for contributors)
-dev · build · preview · lint (standard Vite workflow)
+- Images: drag & drop one or more files.
+- Video: switch to Video Mode and pick a file; scrub/play to preview.
 
-## Add an Algorithm (for contributors)
-Add logic, register metadata, verify example appears, update readme list. See CONTRIBUTING for a quick checklist.
+2. Choose an algorithm
 
-## Contribute
-Small focused PRs welcome. Guidelines: [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Error diffusion (Floyd–Steinberg family, Sierra/Stucki/JJN, Ostromoukhov, adaptive FS) or ordered/stochastic (Bayer 2×2…32×32, Blue Noise), or experimental (dot diffusion, halftone, random threshold, ASCII mosaic).
+
+3. Tune controls
+
+- Threshold, resolution, serpentine traversal (diffusion), invert.
+- Palette: apply built‑ins or custom colors.
+
+4. Presets
+
+- Save the current setup as a preset. Rename, delete, export/import via tokens.
+
+5. Export
+
+- Frames: PNG, JPEG, WEBP; plus SVG vector (images only). You can also copy the frame to clipboard.
+- Video: record and download as WebM or MP4\* directly from the browser.
+
+## Algorithms
+
+Error Diffusion
+
+- Floyd–Steinberg • False Floyd–Steinberg • Atkinson • Sierra Lite • Burkes • Stucki • Sierra • Jarvis–Judice–Ninke • Two‑Row Sierra • Stevenson–Arce • Ostromoukhov (adaptive) • Adaptive FS 3×3 • Adaptive FS 7×7 • Sierra 2‑4A
+
+Ordered / Stochastic
+
+- Bayer 2×2 • Bayer 4×4 • Bayer 8×8 • Bayer 16×16 • Bayer 32×32 • Blue Noise 64×64
+
+Other / Experimental
+
+- Binary Threshold • Halftone • Random Threshold • Dot Diffusion (Simple) • ASCII Mosaic
+
+Explore details and live examples in the app’s Algorithm Explorer: `/Algorithms` (deep‑link with `?algo=<id>`).
+
+## Palettes included
+
+- Game Boy (4) • NES (approx 54) • PICO‑8 (16) • DawnBringer 16/32 • CGA (16) • EGA (16) • Solarized (16) • Grayscale (4/8) • C64 subset • Web Safe (16)
+
+## Keyboard shortcuts
+
+- F: toggle Focus Mode (hide UI chrome)
+- G: toggle pixel grid • Shift+G: cycle grid size
+- ←/→: cycle images (when multiple are loaded)
+
+## Privacy
+
+Everything happens in your browser. Media never leaves your machine. No accounts.
+
+## Development
+
+- Scripts: `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`
+- Stack: React • TypeScript • Vite • Tailwind • Canvas API
+
+## Contributing
+
+Small, focused PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
+
 [MIT](./LICENSE)
 
-## Stack
-React · TypeScript · Vite · Tailwind · Canvas API
+## Credits
 
----
-If you like it, star the repo or share a dithered image. ✦
+Built by [Oslo418](https://oslo418.com). Inspired by tools like Dither It and Dither Boy — combined with multi‑algorithm exploration, fast iteration, and palette/threshold tweaking in one place. From a sideproject to a fully functionnal tool !
