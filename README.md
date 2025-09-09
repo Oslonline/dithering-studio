@@ -6,7 +6,7 @@
 
 ## Live demo
 
-Use it in your browser: https://steinberg-image.vercel.app/
+Use it in your browser: https://ditheringstudio.com/
 
 No uploads, no account. Everything runs locally in the tab.
 

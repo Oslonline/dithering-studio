@@ -320,7 +320,7 @@ const DitheringTool: React.FC = () => {
       <Helmet>
         <title>Image & Video Dithering Tool | Multi Algorithm</title>
         <meta name="description" content="Client-side image & video dithering: Floyd–Steinberg, Bayer, Sierra family, palettes & more." />
-        <link rel="canonical" href="https://steinberg-image.vercel.app/Dithering" />
+  <link rel="canonical" href="https://ditheringstudio.com/Dithering" />
       </Helmet>
       <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? "focus-mode" : ""}`}>
         <header ref={headerRef} className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? "hidden" : ""}`}>

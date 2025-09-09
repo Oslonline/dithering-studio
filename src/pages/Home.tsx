@@ -12,11 +12,11 @@ const Home: React.FC = () => {
         <meta property="og:title" content="Free Online Image Dithering Tool" />
         <meta property="og:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://steinberg-image.vercel.app/" />
+  <meta property="og:url" content="https://ditheringstudio.com/" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Free Online Image Dithering Tool" />
         <meta name="twitter:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
-        <link rel="canonical" href="https://steinberg-image.vercel.app/" />
+  <link rel="canonical" href="https://ditheringstudio.com/" />
       </Helmet>
   <div className="relative flex min-h-screen flex-col bg-neutral-950 px-6 py-6 text-neutral-50 md:px-10 md:py-6 lg:px-16 xl:px-24 2xl:px-32">
         <div className="flex flex-1 items-start justify-center">
