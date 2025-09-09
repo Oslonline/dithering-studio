@@ -97,7 +97,7 @@ Small, focused PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-[MIT](./LICENSE)
+[Apache-2.0](./LICENSE). See [NOTICE](./NOTICE) for attribution guidance.
 
 ## Credits
 
