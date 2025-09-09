@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>Dithering Studio</h1>
   <img src="https://i.imgur.com/sauiEx8.png" alt="preview" />
+  <h1>Dithering Studio</h1>
   <p><strong>Fast, private, client‑side dithering for images and video — with classic + experimental algorithms, palettes, presets, and an interactive explorer.</strong></p>
 </div>
 
