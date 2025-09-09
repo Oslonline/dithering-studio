@@ -30,8 +30,10 @@ export function useApplyUrlParams(p: Params) {
     if (typeof t === 'number') setThreshold(t);
     const r = num('r', 16, 4096);
     if (typeof r === 'number') { setWorkingResolution(r); setWorkingResInput(String(r)); }
-    if (params.get('inv') === '1') setInvert(true);
-    if (params.get('ser') === '1') setSerpentine(true);
+  const inv = params.get('inv');
+  if (inv === '1') setInvert(true); else if (inv === '0') setInvert(false);
+  const ser = params.get('ser');
+  if (ser === '1') setSerpentine(true); else if (ser === '0') setSerpentine(false);
     const ramp = params.get('ramp');
     if (ramp) {
       const decoded = decodeURIComponent(ramp).replace(/\s/g, ' ').slice(0, 64);
@@ -53,7 +55,7 @@ export function useApplyUrlParams(p: Params) {
       }
       setPaletteId(pal);
     }
-    try {
+  try {
       const clean = window.location.pathname + window.location.hash;
       window.history.replaceState({}, '', clean || '/');
     } catch {}

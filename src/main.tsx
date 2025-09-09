@@ -4,12 +4,15 @@ import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import App from "./App.tsx";
 import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './components/ToastProvider';
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
     <ErrorBoundary>
-      <Analytics />
-      <App />
+      <ToastProvider>
+        <Analytics />
+        <App />
+      </ToastProvider>
     </ErrorBoundary>
   </HelmetProvider>
 );

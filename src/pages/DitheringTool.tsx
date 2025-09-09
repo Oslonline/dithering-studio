@@ -278,6 +278,57 @@ const DitheringTool: React.FC = () => {
   };
   // showDownload from context
 
+  // Build a shareable URL from current settings
+  const buildShareUrl = () => {
+    const base = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : 'https://ditheringstudio.com/Dithering';
+    const params = new URLSearchParams();
+    if (pattern) params.set('p', String(pattern));
+    params.set('t', String(threshold));
+    params.set('r', String(workingResolution));
+    // booleans as 1/0
+    params.set('inv', invert ? '1' : '0');
+    params.set('ser', serpentine ? '1' : '0');
+    if (paletteId) {
+      params.set('pal', paletteId);
+      if (paletteId === '__custom' && activePaletteColors && activePaletteColors.length) {
+        const cols = activePaletteColors.map(([r,g,b]) => `${r}.${g}.${b}`).join('-');
+        params.set('cols', cols);
+      }
+    }
+    if (asciiRamp && asciiRamp.trim().length >= 2) {
+      // limit length to keep URL manageable
+      const enc = encodeURIComponent(asciiRamp.slice(0, 64));
+      params.set('ramp', enc);
+    }
+    const qs = params.toString();
+    return `${base}?${qs}`;
+  };
+
+  const [shareCopied, setShareCopied] = useState(false);
+  const copyShareUrl = async () => {
+    const url = buildShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 1500);
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 1500);
+      } catch {
+        // Optional: silent fail to avoid extra UI noise; could add inline error state if desired
+      }
+    }
+  };
+
   const downloadImageAs = (fmt: "png" | "jpeg" | "webp") => {
     const canvas = processedCanvasRef.current || canvasRef.current;
     if (!canvas) return;
@@ -466,7 +517,19 @@ const DitheringTool: React.FC = () => {
                 <div ref={footerRef} className="border-t border-neutral-800 p-4">
                   {mediaActive ? (
                     <div className="flex gap-2">
-                      <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary flex-1 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
+                      <button
+                        type="button"
+                        onClick={copyShareUrl}
+                        className="clean-btn basis-1/3 justify-center text-[11px]"
+                        title="Copy a shareable link to these settings"
+                      >
+                        {shareCopied ? "Copied" : "Share"}
+                      </button>
+                      <button
+                        onClick={() => hasApplied && setShowDownload(true)}
+                        disabled={!hasApplied}
+                        className={`clean-btn clean-btn-primary basis-2/3 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}
+                      >
                         Download
                       </button>
                     </div>
