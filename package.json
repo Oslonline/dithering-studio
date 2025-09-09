@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "Apache-2.0",
+  "homepage": "https://ditheringstudio.com/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

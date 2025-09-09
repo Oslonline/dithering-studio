@@ -1,0 +1,6 @@
+# Allow all crawlers
+User-agent: *
+Disallow:
+
+# Point to the sitemap
+Sitemap: https://ditheringstudio.com/sitemap.xml
