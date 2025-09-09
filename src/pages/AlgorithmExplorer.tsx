@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { findAlgorithm } from "../utils/algorithms";
@@ -152,7 +153,13 @@ const AlgorithmExplorer: React.FC = () => {
     setExamples(newExamples);
   }, [baseLoaded]);
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden">
+    <>
+      <Helmet>
+        <title>Algorithm Explorer | Dithering Studio</title>
+        <meta name="description" content="Browse dithering algorithms with live examples and references." />
+        <link rel="canonical" href="https://ditheringstudio.com/Algorithms" />
+      </Helmet>
+      <div className="flex h-screen w-full flex-col overflow-hidden">
       <header className="flex flex-shrink-0 items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3">
         <div className="flex items-center gap-4">
           <h1 className="font-mono text-xs tracking-wide text-gray-300">Algorithms</h1>
@@ -318,7 +325,8 @@ const AlgorithmExplorer: React.FC = () => {
           </div>
         </main>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

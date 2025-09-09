@@ -321,6 +321,34 @@ const DitheringTool: React.FC = () => {
         <title>Image & Video Dithering Tool | Multi Algorithm</title>
         <meta name="description" content="Client-side image & video dithering: Floyd–Steinberg, Bayer, Sierra family, palettes & more." />
   <link rel="canonical" href="https://ditheringstudio.com/Dithering" />
+        <script type="application/ld+json">
+          {`
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://ditheringstudio.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Dithering Tool",
+                "item": "https://ditheringstudio.com/Dithering"
+              }
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Algorithms details",
+                "item": "https://ditheringstudio.com/Algorithms"
+              }
+            ]
+          }
+          `}
+        </script>
       </Helmet>
       <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? "focus-mode" : ""}`}>
         <header ref={headerRef} className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? "hidden" : ""}`}>
