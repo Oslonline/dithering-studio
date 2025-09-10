@@ -160,7 +160,7 @@ const Home: React.FC = () => {
                 <p>
                   It runs <span className="text-gray-200">fully client‑side</span> (no uploads, no tracking, no accounts) and is{" "}
                   <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
-                    open source (MIT)
+                    open source (Apache 2.0)
                   </a>{" "}
                   so you can read, fork or adapt it.
                 </p>
@@ -204,7 +204,7 @@ const Home: React.FC = () => {
               <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com" rel="noopener noreferrer">
                 Oslo418
               </a>{" "}
-              • MIT
+              • Apache 2.0
             </p>
           </div>
         </footer>
