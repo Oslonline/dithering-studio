@@ -12,22 +12,23 @@ const Home: React.FC = () => {
         <meta property="og:title" content="Free Online Image Dithering Tool" />
         <meta property="og:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
         <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ditheringstudio.com/" />
+        <meta property="og:url" content="https://ditheringstudio.com/" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Free Online Image Dithering Tool" />
         <meta name="twitter:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
-  <link rel="canonical" href="https://ditheringstudio.com/" />
+        <link rel="canonical" href="https://ditheringstudio.com/" />
       </Helmet>
-  <div className="relative flex min-h-screen flex-col bg-neutral-950 px-6 py-6 text-neutral-50 md:px-10 md:py-6 lg:px-16 xl:px-24 2xl:px-32">
+
+      <div className="relative flex min-h-screen flex-col bg-neutral-950 px-6 py-6 text-neutral-50 md:px-10 md:py-6 lg:px-16 xl:px-24 2xl:px-32">
         <div className="flex flex-1 items-start justify-center">
           <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-24 pb-28">
             {/* HERO */}
-            <section data-hero className="flex w-full max-w-6xl flex-col items-center gap-7 sm:gap-8 min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)] justify-center py-6 sm:py-8">
+            <section data-hero className="flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col items-center justify-center gap-7 py-6 sm:gap-8 sm:py-8 md:min-h-[calc(100dvh-5rem)]">
               <header className="w-full max-w-3xl space-y-6 text-center">
                 <h1 className="font-anton text-[2.85rem] leading-tight tracking-tight sm:text-[3.2rem] md:text-[3.6rem] lg:text-[3.9rem]">Multi‑Algorithm Image Dithering</h1>
                 <p className="mx-auto max-w-xl text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px]">Drop an image → pick an algorithm → adjust settings → export instantly. 100% client‑side & free.</p>
               </header>
-              <div className="relative w-full max-w-4xl rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3 shadow-[0_0_0_1px_#181818,0_4px_18px_-6px_rgba(0,0,0,0.6)] backdrop-blur-sm md:p-4 max-h-[380px] sm:max-h-[400px] overflow-hidden">
+              <div className="relative max-h-[380px] w-full max-w-4xl overflow-hidden rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3 shadow-[0_0_0_1px_#181818,0_4px_18px_-6px_rgba(0,0,0,0.6)] backdrop-blur-sm sm:max-h-[400px] md:p-4">
                 <InfiniteImageScroll />
                 <p className="mt-3 text-center text-[10px] tracking-wide text-gray-500">Generated live • No account • No uploads leave your browser</p>
               </div>
@@ -38,6 +39,11 @@ const Home: React.FC = () => {
                 <Link to="/Algorithms" className="clean-btn">
                   Algorithm Reference
                 </Link>
+              </div>
+              <div className="mt-2 flex justify-center">
+                <a href="https://www.producthunt.com/products/dithering-studio?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-dithering&#0045;studio" target="_blank" rel="noopener noreferrer">
+                  <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1014642&theme=dark&t=1757504244543" alt="Dithering&#0032;Studio - Fast&#0044;&#0032;privacy‑friendly&#0032;image&#0032;&#0038;&#0032;video&#0032;dithering | Product Hunt" width="250" height="54" />
+                </a>
               </div>
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
