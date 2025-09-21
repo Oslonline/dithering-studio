@@ -40,11 +40,6 @@ const Home: React.FC = () => {
                   Algorithm Reference
                 </Link>
               </div>
-              <div className="mt-2 flex justify-center">
-                <a href="https://www.producthunt.com/products/dithering-studio?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-dithering&#0045;studio" target="_blank" rel="noopener noreferrer">
-                  <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1014642&theme=dark&t=1757504244543" alt="Dithering&#0032;Studio - Fast&#0044;&#0032;privacy‑friendly&#0032;image&#0032;&#0038;&#0032;video&#0032;dithering | Product Hunt" width="250" height="54" />
-                </a>
-              </div>
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
 
