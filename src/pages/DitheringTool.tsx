@@ -118,9 +118,6 @@ const DitheringTool: React.FC = () => {
   const isBinary = pattern === 15 || pattern === 10;
   const paletteSupported = isBinary ? true : !!selectedAlgo?.supportsPalette;
   const isAscii = selectedAlgo?.name === "ASCII Mosaic";
-  useEffect(() => {
-    if (paletteId && invert && !isAscii) setInvert(false);
-  }, [paletteId, invert, isAscii]);
   // If current algorithm does not support palette, ensure palette disabled
   useEffect(() => {
     if (!paletteSupported && paletteId) {

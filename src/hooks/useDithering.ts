@@ -11,7 +11,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
   const [hasApplied, setHasApplied] = useState(false);
-  const [origDims, setOrigDims] = useState<{width:number;height:number}>({width:0,height:0});
+  const [origDims, setOrigDims] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const [canvasUpdatedFlag, setCanvasUpdatedFlag] = useState(false);
   const baseImageRef = useRef<HTMLImageElement | null>(null);
   const renderTokenRef = useRef(0);
@@ -37,7 +37,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       baseImageRef.current = img;
       originalDimensions.current.width = img.width;
       originalDimensions.current.height = img.height;
-      setOrigDims({width: img.width, height: img.height});
+      setOrigDims({ width: img.width, height: img.height });
       renderTokenRef.current++;
       setRenderBump((v: number) => v + 1);
       setHasApplied(false);
@@ -62,11 +62,11 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const token = ++renderTokenRef.current;
     perf.newFrame(token);
 
-  perf.phaseStart('calc-dimensions');
-  const maxDim = Math.max(img.width, img.height);
-  const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
-  const width = Math.max(1, Math.round(img.width * scale));
-  const height = Math.max(1, Math.round(img.height * scale));
+    perf.phaseStart('calc-dimensions');
+    const maxDim = Math.max(img.width, img.height);
+    const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
+    const width = Math.max(1, Math.round(img.width * scale));
+    const height = Math.max(1, Math.round(img.height * scale));
     perf.phaseEnd('calc-dimensions');
 
     if (procCanvas.width !== width || procCanvas.height !== height) {
@@ -96,16 +96,23 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     applyLuminancePreprocess(srcData, { contrast, midtones, highlights });
 
     const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
+    if (palette && invert) {
+      for (let i = 0; i < srcData.length; i += 4) {
+        srcData[i] = 255 - srcData[i];
+        srcData[i + 1] = 255 - srcData[i + 1];
+        srcData[i + 2] = 255 - srcData[i + 2];
+      }
+    }
 
     {
       let out: ImageData | null = null;
       perf.phaseStart('dither');
       const algo = findAlgorithm(pattern);
       if (algo) {
-        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
+        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
         if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
       } else {
-  out = new ImageData(width, height); out.data.set(srcData);
+        out = new ImageData(width, height); out.data.set(srcData);
       }
       perf.phaseEnd('dither');
 

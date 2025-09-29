@@ -32,7 +32,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [processedSizeBytes, setProcessedSizeBytes] = useState<number | null>(null);
-  const [naturalDims, setNaturalDims] = useState<{width:number;height:number}>({width:0,height:0});
+  const [naturalDims, setNaturalDims] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
   const tokenRef = useRef(0);
   const lastFrameTimeRef = useRef(0);
   const needResizeRef = useRef(true);
@@ -56,23 +56,23 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
     const v = document.createElement('video');
     v.src = video;
     v.crossOrigin = 'anonymous';
-  v.muted = true;
+    v.muted = true;
     v.playsInline = true;
     v.preload = 'auto';
     v.onloadedmetadata = () => {
       setDuration(v.duration || 0);
       if (v.videoWidth && v.videoHeight) {
-        setNaturalDims({width: v.videoWidth, height: v.videoHeight});
+        setNaturalDims({ width: v.videoWidth, height: v.videoHeight });
       }
       setReady(true);
       if (playing) {
-        v.play().catch(() => {});
+        v.play().catch(() => { });
       }
     };
     v.onended = () => {
       if (loop) {
         v.currentTime = 0;
-        v.play().catch(() => {});
+        v.play().catch(() => { });
       }
     };
     videoElRef.current = v;
@@ -85,7 +85,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
     const v = videoElRef.current;
     if (!v) return;
     if (playing) {
-      v.play().catch(() => {});
+      v.play().catch(() => { });
     } else {
       v.pause();
     }
@@ -107,23 +107,23 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       requestAnimationFrame(run);
       const v = videoElRef.current;
       if (!v || !ready || !playing || v.readyState < 2) return;
-  if (t - lastFrameTimeRef.current < frameInterval) return;
+      if (t - lastFrameTimeRef.current < frameInterval) return;
       lastFrameTimeRef.current = t;
       tokenRef.current++;
       const token = tokenRef.current;
       const vw = v.videoWidth;
       const vh = v.videoHeight;
       if (!vw || !vh) return;
-  const maxDim = Math.max(vw, vh);
-  const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
-  const width = Math.max(1, Math.round(vw * scale));
-  const height = Math.max(1, Math.round(vh * scale));
+      const maxDim = Math.max(vw, vh);
+      const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
+      const width = Math.max(1, Math.round(vw * scale));
+      const height = Math.max(1, Math.round(vh * scale));
       if (procCanvas.width !== width || procCanvas.height !== height) {
         procCanvas.width = width; procCanvas.height = height;
       }
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width; canvas.height = height;
-  needResizeRef.current = true;
+        needResizeRef.current = true;
       }
       perf.newFrame(token);
       perf.phaseStart('scale-draw');
@@ -140,11 +140,18 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       const srcData = src.data;
       applyLuminancePreprocess(srcData, { contrast: extras.contrast ?? 0, midtones: extras.midtones ?? 1.0, highlights: extras.highlights ?? 0 });
       const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
+      if (palette && invert) {
+        for (let i = 0; i < srcData.length; i += 4) {
+          srcData[i] = 255 - srcData[i];
+          srcData[i + 1] = 255 - srcData[i + 1];
+          srcData[i + 2] = 255 - srcData[i + 2];
+        }
+      }
       perf.phaseStart('dither');
       const algo = findAlgorithm(pattern);
       let out: ImageData | null = null;
       if (algo) {
-        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
+        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
         out = res instanceof ImageData ? res : new ImageData(width, height);
         if (!(res instanceof ImageData)) out.data.set(res as any);
       } else {
@@ -172,7 +179,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
           const dispH = dispW * (oh / ow);
           canvas.style.width = dispW + 'px';
           canvas.style.height = dispH + 'px';
-        } catch {}
+        } catch { }
       }
 
       setHasApplied(true);
@@ -189,7 +196,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
             const bytes = Math.floor((b64.length * 3) / 4 - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0));
             setProcessedSizeBytes(bytes);
           }
-        } catch {}
+        } catch { }
       }
       perf.endFrame();
     };
