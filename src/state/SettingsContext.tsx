@@ -10,6 +10,10 @@ export interface SettingsContextValue {
   threshold: number; setThreshold: React.Dispatch<React.SetStateAction<number>>;
   workingResolution: number; setWorkingResolution: React.Dispatch<React.SetStateAction<number>>;
   workingResInput: string; setWorkingResInput: React.Dispatch<React.SetStateAction<string>>;
+  contrast: number; setContrast: React.Dispatch<React.SetStateAction<number>>;
+  midtones: number; setMidtones: React.Dispatch<React.SetStateAction<number>>;
+  highlights: number; setHighlights: React.Dispatch<React.SetStateAction<number>>;
+  blurRadius: number; setBlurRadius: React.Dispatch<React.SetStateAction<number>>;
   webpSupported: boolean; setWebpSupported: React.Dispatch<React.SetStateAction<boolean>>;
   paletteId: string | null; setPaletteId: React.Dispatch<React.SetStateAction<string | null>>;
   activePaletteColors: [number, number, number][] | null; setActivePaletteColors: React.Dispatch<React.SetStateAction<[number, number, number][] | null>>;

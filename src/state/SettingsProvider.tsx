@@ -11,6 +11,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [threshold, setThreshold] = useState<number>(() => initial.threshold);
   const [workingResolution, setWorkingResolution] = useState<number>(() => initial.workingResolution);
   const [workingResInput, setWorkingResInput] = useState<string>(() => String(initial.workingResolution));
+  const [contrast, setContrast] = useState<number>(() => initial.contrast);
+  const [midtones, setMidtones] = useState<number>(() => initial.midtones);
+  const [highlights, setHighlights] = useState<number>(() => initial.highlights);
+  const [blurRadius, setBlurRadius] = useState<number>(() => initial.blurRadius);
   const [webpSupported, setWebpSupported] = useState(true);
   const [paletteId, setPaletteId] = useState<string | null>(() => initial.paletteId);
   const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => initial.customPalette);
@@ -34,6 +38,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       pattern,
       threshold,
       workingResolution,
+      contrast,
+      midtones,
+      highlights,
+      blurRadius,
       paletteId,
       customPalette: paletteId === '__custom' ? activePaletteColors : null,
       invert,
@@ -42,7 +50,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       showGrid,
       gridSize,
     });
-  }, [images, activeImageId, pattern, threshold, workingResolution, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize]);
+  }, [images, activeImageId, pattern, threshold, workingResolution, contrast, midtones, highlights, blurRadius, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize]);
 
   const value = useMemo(() => ({
     images, setImages,
@@ -51,6 +59,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     threshold, setThreshold,
     workingResolution, setWorkingResolution,
     workingResInput, setWorkingResInput,
+  contrast, setContrast,
+  midtones, setMidtones,
+  highlights, setHighlights,
+  blurRadius, setBlurRadius,
     webpSupported, setWebpSupported,
     paletteId, setPaletteId,
     activePaletteColors, setActivePaletteColors,
@@ -65,7 +77,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     videoPlaying, setVideoPlaying,
     videoFps, setVideoFps,
     showDownload, setShowDownload,
-  }), [images, activeImageId, pattern, threshold, workingResolution, workingResInput, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
+  }), [images, activeImageId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

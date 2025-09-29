@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { perf } from "../utils/perf";
 import { findPalette } from "../utils/palettes";
+import { applyLuminancePreprocess } from "../utils/preprocess";
 import { findAlgorithm } from "../utils/algorithms";
 
-interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; }
+interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0 }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -79,10 +80,20 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
 
     perf.phaseStart('scale-draw');
     procCtx.clearRect(0, 0, width, height);
-    procCtx.drawImage(img, 0, 0, width, height);
+    if (blurRadius && blurRadius > 0) {
+      // Use CSS filter blur while drawing for speed; approximate radius in px
+      const prev = (procCtx as any).filter as string | undefined;
+      (procCtx as any).filter = `blur(${Math.min(10, Math.max(0, blurRadius)).toFixed(1)}px)`;
+      procCtx.drawImage(img, 0, 0, width, height);
+      (procCtx as any).filter = prev || 'none';
+    } else {
+      procCtx.drawImage(img, 0, 0, width, height);
+    }
     perf.phaseEnd('scale-draw');
     const src = procCtx.getImageData(0, 0, width, height);
     const srcData = src.data;
+    // Apply luminance-based tone mapping before dithering
+    applyLuminancePreprocess(srcData, { contrast, midtones, highlights });
 
     const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
 
@@ -144,7 +155,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
       }
       perf.endFrame();
     }
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp]);
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp, contrast, midtones, highlights, blurRadius]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;

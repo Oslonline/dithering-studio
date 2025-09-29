@@ -8,7 +8,7 @@ import VideoUploader from "../components/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/ImagesPanel";
 import AlgorithmPanel from "../components/AlgorithmPanel";
 import PalettePanel from "../components/PalettePanel";
-import ResolutionPanel from "../components/ResolutionPanel";
+import TonePanel from "../components/TonePanel";
 import UploadIntro from "../components/UploadIntro";
 import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
@@ -38,8 +38,14 @@ const DitheringTool: React.FC = () => {
     setThreshold,
     workingResolution,
     setWorkingResolution,
-    workingResInput,
-    setWorkingResInput,
+    contrast,
+    setContrast,
+    midtones,
+    setMidtones,
+    highlights,
+    setHighlights,
+    blurRadius,
+    setBlurRadius,
     webpSupported,
     setWebpSupported,
     paletteId,
@@ -106,7 +112,7 @@ const DitheringTool: React.FC = () => {
     // For custom/original we preserve whatever Panel manages.
   }, [effectivePaletteId, paletteId]);
 
-  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL });
+  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius });
 
   const selectedAlgo = algorithms.find((a) => a.id === pattern);
   const isBinary = pattern === 15 || pattern === 10;
@@ -146,6 +152,10 @@ const DitheringTool: React.FC = () => {
     paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
     asciiRamp: isAscii ? asciiRamp : undefined,
+    contrast,
+    midtones,
+    highlights,
+    blurRadius,
   });
   const videoHook = useVideoDithering({
     video: videoItem?.url || null,
@@ -161,6 +171,10 @@ const DitheringTool: React.FC = () => {
     fps: videoFps,
     playing: videoPlaying,
     loop: true,
+    contrast,
+    midtones,
+    highlights,
+    blurRadius,
   });
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = videoMode ? videoHook : imageHook;
   const videoDuration = videoMode ? (videoHook as any).duration : 0;
@@ -177,7 +191,6 @@ const DitheringTool: React.FC = () => {
   }
   if (dynamicMaxResolution && workingResolution > dynamicMaxResolution) {
     setWorkingResolution(dynamicMaxResolution);
-    setWorkingResInput(String(dynamicMaxResolution));
   }
 
   const { recordingVideo, recordingProgress, recordingError, startVideoExport, cancelVideoExport, recordedBlobUrl, videoExportFormat, setVideoExportFormat, videoFormatNote, recordingMimeRef, setRecordedBlobUrl } = useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, setVideoPlaying });
@@ -265,40 +278,52 @@ const DitheringTool: React.FC = () => {
     setPattern(1);
     setThreshold(128);
     setWorkingResolution(512);
-    setWorkingResInput("512");
     setPaletteId(null);
     setActivePaletteColors(null);
     setInvert(false);
     setSerpentine(true);
+    setContrast(0);
+    setMidtones(1.0);
+    setHighlights(0);
+    setBlurRadius(0);
     setAsciiRamp("@%#*+=-:. ");
+    setContrast(0);
+    setMidtones(1.0);
+    setHighlights(0);
+    setBlurRadius(0);
     setShowGrid(false);
     setGridSize(8);
-  try { localStorage.removeItem('ds_settings'); } catch {}
+    try {
+      localStorage.removeItem("ds_settings");
+    } catch {}
     perf.reset();
   };
   // showDownload from context
 
   // Build a shareable URL from current settings
   const buildShareUrl = () => {
-    const base = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : 'https://ditheringstudio.com/Dithering';
+    const base = typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "https://ditheringstudio.com/Dithering";
     const params = new URLSearchParams();
-    if (pattern) params.set('p', String(pattern));
-    params.set('t', String(threshold));
-    params.set('r', String(workingResolution));
-    // booleans as 1/0
-    params.set('inv', invert ? '1' : '0');
-    params.set('ser', serpentine ? '1' : '0');
+    if (pattern) params.set("p", String(pattern));
+    params.set("t", String(threshold));
+    params.set("r", String(workingResolution));
+    params.set("inv", invert ? "1" : "0");
+    params.set("ser", serpentine ? "1" : "0");
     if (paletteId) {
-      params.set('pal', paletteId);
-      if (paletteId === '__custom' && activePaletteColors && activePaletteColors.length) {
-        const cols = activePaletteColors.map(([r,g,b]) => `${r}.${g}.${b}`).join('-');
-        params.set('cols', cols);
+      params.set("pal", paletteId);
+      if (paletteId === "__custom" && activePaletteColors && activePaletteColors.length) {
+        const cols = activePaletteColors.map(([r, g, b]) => `${r}.${g}.${b}`).join("-");
+        params.set("cols", cols);
       }
     }
+    if (contrast) params.set("c", String(contrast));
+    if (midtones && midtones !== 1.0) params.set("g", String(midtones));
+    if (highlights) params.set("h", String(highlights));
+    if (blurRadius) params.set("b", String(blurRadius));
     if (asciiRamp && asciiRamp.trim().length >= 2) {
       // limit length to keep URL manageable
       const enc = encodeURIComponent(asciiRamp.slice(0, 64));
-      params.set('ramp', enc);
+      params.set("ramp", enc);
     }
     const qs = params.toString();
     return `${base}?${qs}`;
@@ -313,13 +338,13 @@ const DitheringTool: React.FC = () => {
       setTimeout(() => setShareCopied(false), 1500);
     } catch {
       try {
-        const ta = document.createElement('textarea');
+        const ta = document.createElement("textarea");
         ta.value = url;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
         document.body.appendChild(ta);
         ta.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(ta);
         setShareCopied(true);
         setTimeout(() => setShareCopied(false), 1500);
@@ -371,7 +396,7 @@ const DitheringTool: React.FC = () => {
       <Helmet>
         <title>Image & Video Dithering Tool | Multi Algorithm</title>
         <meta name="description" content="Client-side image & video dithering: Floyd–Steinberg, Bayer, Sierra family, palettes & more." />
-  <link rel="canonical" href="https://ditheringstudio.com/Dithering" />
+        <link rel="canonical" href="https://ditheringstudio.com/Dithering" />
         <script type="application/ld+json">
           {`
           {
@@ -495,8 +520,8 @@ const DitheringTool: React.FC = () => {
                           </div>
                         )}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
+                        <TonePanel contrast={contrast} setContrast={setContrast} midtones={midtones} setMidtones={setMidtones} highlights={highlights} setHighlights={setHighlights} blurRadius={blurRadius} setBlurRadius={setBlurRadius} workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} maxResolution={dynamicMaxResolution} />
                         {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}
-                        <ResolutionPanel workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} workingResInput={workingResInput} setWorkingResInput={setWorkingResInput} maxResolution={dynamicMaxResolution} />
                         <PresetPanel
                           current={{ params: { pattern, threshold, invert, serpentine, isErrorDiffusion: isErrorDiffusion(pattern), palette: activePaletteColors || undefined }, workingResolution, paletteId, activePaletteColors }}
                           apply={(p) => {
@@ -505,7 +530,6 @@ const DitheringTool: React.FC = () => {
                             setInvert(p.invert);
                             setSerpentine(p.serpentine);
                             setWorkingResolution(p.workingResolution);
-                            setWorkingResInput(String(p.workingResolution));
                             if (p.paletteId) setPaletteId(p.paletteId);
                             if (p.activePaletteColors) setActivePaletteColors(p.activePaletteColors);
                           }}
@@ -517,19 +541,10 @@ const DitheringTool: React.FC = () => {
                 <div ref={footerRef} className="border-t border-neutral-800 p-4">
                   {mediaActive ? (
                     <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={copyShareUrl}
-                        className="clean-btn basis-1/3 justify-center text-[11px]"
-                        title="Copy a shareable link to these settings"
-                      >
+                      <button type="button" onClick={copyShareUrl} className="clean-btn basis-1/3 justify-center text-[11px]" title="Copy a shareable link to these settings">
                         {shareCopied ? "Copied" : "Share"}
                       </button>
-                      <button
-                        onClick={() => hasApplied && setShowDownload(true)}
-                        disabled={!hasApplied}
-                        className={`clean-btn clean-btn-primary basis-2/3 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}
-                      >
+                      <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary basis-2/3 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
                         Download
                       </button>
                     </div>

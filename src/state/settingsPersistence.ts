@@ -8,6 +8,11 @@ export interface PersistedSettingsV1 {
   pattern: number;
   threshold: number;
   workingResolution: number;
+  // New preprocessing controls
+  contrast: number;         // -100 .. 100 (0 = neutral)
+  midtones: number;         // gamma 0.5 .. 2.0 (1 = neutral)
+  highlights: number;       // 0 .. 100 (0 = off)
+  blurRadius: number;       // 0 .. 10 px (0 = off)
   paletteId: string | null;
   customPalette: [number, number, number][] | null;
   invert: boolean;
@@ -26,6 +31,10 @@ export const defaultSettings: PersistedSettingsV1 = {
   pattern: 1,
   threshold: 128,
   workingResolution: 512,
+  contrast: 0,
+  midtones: 1.0,
+  highlights: 0,
+  blurRadius: 0,
   paletteId: null,
   customPalette: null,
   invert: false,
@@ -54,6 +63,10 @@ function readLegacy(): PersistedSettingsV1 | null {
       pattern: +(legacyPattern || 1),
       threshold: +(localStorage.getItem('ds_threshold') || 128),
       workingResolution: +(localStorage.getItem('ds_workingResolution') || 512),
+      contrast: 0,
+      midtones: 1.0,
+      highlights: 0,
+      blurRadius: 0,
       paletteId: localStorage.getItem('ds_paletteId'),
       customPalette: customPaletteRaw ? JSON.parse(customPaletteRaw) : null,
       invert: localStorage.getItem('ds_invert') === '1',
@@ -81,6 +94,10 @@ export function loadSettings(): PersistedSettingsV1 {
             pattern: coerceNumber(parsed.pattern, 1),
             threshold: coerceNumber(parsed.threshold, 128),
             workingResolution: coerceNumber(parsed.workingResolution, 512),
+            contrast: coerceNumber(parsed.contrast, 0),
+            midtones: (() => { const m = coerceNumber(parsed.mitones ?? parsed.midtones, 1.0); return isNaN(m) ? 1.0 : Math.max(0.5, Math.min(2.0, m)); })(),
+            highlights: (() => { const h = coerceNumber(parsed.highlights, 0); return Math.max(0, Math.min(100, h)); })(),
+            blurRadius: (() => { const b = coerceNumber(parsed.blurRadius, 0); return Math.max(0, Math.min(10, b)); })(),
             paletteId: typeof parsed.paletteId === 'string' ? parsed.paletteId : null,
             customPalette: coercePalette(parsed.customPalette),
             invert: coerceBool(parsed.invert, false),

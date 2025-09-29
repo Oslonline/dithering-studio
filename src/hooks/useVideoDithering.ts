@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { perf } from '../utils/perf';
 import { findPalette } from '../utils/palettes';
 import { findAlgorithm } from '../utils/algorithms';
+import { applyLuminancePreprocess } from '../utils/preprocess';
 
 interface Params {
   video: string | null;
@@ -19,7 +20,9 @@ interface Params {
   loop?: boolean;
 }
 
-const useVideoDithering = ({ video, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps = 12, playing, loop = true }: Params) => {
+type ExtraParams = { contrast?: number; midtones?: number; highlights?: number; blurRadius?: number };
+
+const useVideoDithering = ({ video, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps = 12, playing, loop = true, ...extras }: Params & ExtraParams) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
   const videoElRef = useRef<HTMLVideoElement | null>(null);
@@ -124,10 +127,18 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       }
       perf.newFrame(token);
       perf.phaseStart('scale-draw');
-      procCtx.drawImage(v, 0, 0, width, height);
+      if (extras.blurRadius && extras.blurRadius > 0) {
+        const prev = (procCtx as any).filter as string | undefined;
+        (procCtx as any).filter = `blur(${Math.min(10, Math.max(0, extras.blurRadius)).toFixed(1)}px)`;
+        procCtx.drawImage(v, 0, 0, width, height);
+        (procCtx as any).filter = prev || 'none';
+      } else {
+        procCtx.drawImage(v, 0, 0, width, height);
+      }
       perf.phaseEnd('scale-draw');
       const src = procCtx.getImageData(0, 0, width, height);
       const srcData = src.data;
+      applyLuminancePreprocess(srcData, { contrast: extras.contrast ?? 0, midtones: extras.midtones ?? 1.0, highlights: extras.highlights ?? 0 });
       const palette = ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
       perf.phaseStart('dither');
       const algo = findAlgorithm(pattern);
@@ -184,7 +195,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
     };
     requestAnimationFrame(run);
     return () => { active = false; };
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps, playing, ready]);
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps, playing, ready, extras.contrast, extras.midtones, extras.highlights, extras.blurRadius]);
 
   return { canvasRef, processedCanvasRef, videoElRef, hasApplied, canvasUpdatedFlag, ready, duration, currentTime, processedSizeBytes, naturalDims };
 };

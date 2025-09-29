@@ -60,7 +60,7 @@ export const AlgorithmControls: React.FC<AlgorithmControlsProps> = ({ pattern, s
       {supportsThreshold && (
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] tracking-wide text-gray-400">Threshold</span>
+            <span className="font-mono text-[10px] tracking-wide text-gray-400">Luminance Threshold</span>
             <span className="text-[10px] text-gray-500">{threshold}</span>
           </div>
           <input type="range" min={0} max={255} value={threshold} className="clean-range" onChange={(e) => setThreshold(Number(e.target.value))} aria-label="Threshold" />

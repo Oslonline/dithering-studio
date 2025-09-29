@@ -72,7 +72,7 @@ const Home: React.FC = () => {
               <ol className="mx-auto max-w-3xl list-inside list-decimal space-y-2 text-[11px] text-gray-400 sm:text-[12px] md:text-[13px]">
                 <li>Load an image (never leaves your machine).</li>
                 <li>Select an algorithm – ordered (Bayer, Blue Noise) or diffusion (Floyd–Steinberg family, Sierra, Stucki, etc.).</li>
-                <li>Adjust threshold / resolution; optionally enable serpentine traversal for diffusion stability.</li>
+                <li>Adjust threshold / scale; optionally enable serpentine traversal for diffusion stability.</li>
                 <li>(If supported) Apply or craft a palette to constrain tones & produce stylized texture.</li>
                 <li>Download instantly in multiple formats — or export as SVG vector geometry.</li>
               </ol>
