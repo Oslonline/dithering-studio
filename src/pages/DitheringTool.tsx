@@ -222,7 +222,11 @@ const DitheringTool: React.FC = () => {
     perf.reset();
   }, [activeImageId]);
 
-  useToolKeyboardShortcuts({ images, activeImageId, setActiveImageId, setFocusMode: (fn: any) => setFocusMode(fn), setShowGrid: (fn: any) => setShowGrid(fn), setGridSize });
+  useToolKeyboardShortcuts({ images, activeImageId, setActiveImageId, setFocusMode: (fn: any) => setFocusMode(fn), setShowGrid: (fn: any) => setShowGrid(fn), setGridSize, mediaActive });
+
+  if (!mediaActive && showGrid) {
+    setShowGrid(false);
+  }
 
   const addImages = (items: { url: string; name?: string; file?: File }[]) => {
     setImages((prev: UploadedImage[]) => {
@@ -632,7 +636,7 @@ const DitheringTool: React.FC = () => {
           recordingMimeType={recordingMimeRef.current}
           setRecordedBlobUrl={setRecordedBlobUrl}
         />
-        <FocusHint focusMode={focusMode} />
+        <FocusHint focusMode={focusMode} mediaActive={mediaActive} />
         <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />
       </div>
     </>
