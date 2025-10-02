@@ -14,6 +14,7 @@ import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
 import PerformanceOverlay from "../components/PerformanceOverlay";
 import ExportDialog from "../components/ExportDialog";
+import PostDownloadShareDialog from "../components/PostDownloadShareDialog";
 import FocusHint from "../components/FocusHint";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
 import useVideoRecording from "../hooks/useVideoRecording";
@@ -355,6 +356,8 @@ const DitheringTool: React.FC = () => {
     }
   };
 
+  const [showPostShare, setShowPostShare] = useState(false);
+  const [lastDownloadFormat, setLastDownloadFormat] = useState<string | undefined>(undefined);
   const downloadImageAs = (fmt: "png" | "jpeg" | "webp") => {
     const canvas = processedCanvasRef.current || canvasRef.current;
     if (!canvas) return;
@@ -375,7 +378,12 @@ const DitheringTool: React.FC = () => {
         link.click();
       }
     }
+    setLastDownloadFormat(fmt);
     setShowDownload(false);
+    // only show post share dialog for image mode (not video) and when image present
+    if (!videoMode && image) {
+      setTimeout(() => setShowPostShare(true), 150); // slight delay for smoother transition
+    }
   };
 
   const downloadAsSVG = () => {
@@ -390,6 +398,15 @@ const DitheringTool: React.FC = () => {
     link.click();
     setShowDownload(false);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
+    setLastDownloadFormat("svg");
+    if (!videoMode && image) {
+      setTimeout(() => setShowPostShare(true), 150);
+    }
+  };
+
+  const handleVideoDownloaded = (fmt: string) => {
+    setLastDownloadFormat(fmt);
+    setTimeout(() => setShowPostShare(true), 150);
   };
 
   return (
@@ -632,6 +649,15 @@ const DitheringTool: React.FC = () => {
           videoFormatNote={videoFormatNote}
           recordingMimeType={recordingMimeRef.current}
           setRecordedBlobUrl={setRecordedBlobUrl}
+          onVideoDownload={handleVideoDownloaded}
+        />
+        <PostDownloadShareDialog
+          open={showPostShare}
+          onClose={() => setShowPostShare(false)}
+          canvasRef={canvasRef}
+          processedCanvasRef={processedCanvasRef}
+          lastFormat={lastDownloadFormat}
+          isVideo={videoMode}
         />
         <FocusHint focusMode={focusMode} mediaActive={mediaActive} />
         <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />

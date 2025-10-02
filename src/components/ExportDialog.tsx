@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface ExportDialogProps {
   open: boolean;
@@ -23,6 +23,7 @@ interface ExportDialogProps {
   videoFormatNote: string | null;
   recordingMimeType: string;
   setRecordedBlobUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  onVideoDownload?: (format: string) => void;
 }
 
 const ExportDialog: React.FC<ExportDialogProps> = ({
@@ -46,19 +47,10 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
   setVideoExportFormat,
   videoFormatNote,
   recordingMimeType,
-  setRecordedBlobUrl
+  setRecordedBlobUrl,
+  onVideoDownload
 }) => {
   const downloadRef = useRef<HTMLDivElement | null>(null);
-  const [shareText, setShareText] = useState('');
-  const shareMessages = useRef<string[]>(["Floyd–Steinberg diffusion result","High contrast ordered-to-diffusion comparison","Palette-constrained pixel texture","Classic error diffusion aesthetic","Retro styled monochrome grain","Algorithmic dithering output","Diffusion + palette quantization","Minimal color, maximal texture","Granular luminance mapping","Pixel-level tone dispersion"]);
-
-  // Random share message when opened
-  useEffect(() => {
-    if (open) {
-      const base = shareMessages.current[Math.floor(Math.random() * shareMessages.current.length)];
-      setShareText(`${base} — Dithering Studio by @Oslo418`);
-    }
-  }, [open]);
 
   // Outside click & ESC close
   useEffect(() => {
@@ -127,7 +119,14 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
               <button onClick={startVideoExport} disabled={recordingVideo} className={`clean-btn px-3 py-1 text-[11px] ${recordingVideo ? 'cursor-not-allowed opacity-50' : ''}`}>Record</button>
               {recordingVideo && <button onClick={cancelVideoExport} className="clean-btn px-3 py-1 text-[11px]">Stop</button>}
               {recordedBlobUrl && (
-                <a href={recordedBlobUrl} download={`dithered-video.${recordingMimeType.includes('mp4') ? 'mp4' : 'webm'}`} className="clean-btn px-3 py-1 text-[11px]">Download</a>
+                <a
+                  href={recordedBlobUrl}
+                  download={`dithered-video.${recordingMimeType.includes('mp4') ? 'mp4' : 'webm'}`}
+                  className="clean-btn px-3 py-1 text-[11px]"
+                  onClick={() => onVideoDownload?.(recordingMimeType.includes('mp4') ? 'mp4' : 'webm')}
+                >
+                  Download
+                </a>
               )}
             </div>
             {videoFormatNote && <p className="text-[10px] text-amber-400">{videoFormatNote}</p>}
@@ -155,9 +154,6 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
         {!videoMode && (
           <p className="mb-4 text-[10px] leading-snug text-gray-500">PNG (lossless), JPEG (smaller), WEBP {webpSupported ? '(modern)' : '(unsupported)'}; SVG vector (large for big images).</p>
         )}
-        <div className="flex items-center justify-between">
-          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText || 'Dithered an image via @Oslo418')}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-400 hover:underline">Share the result on X</a>
-        </div>
       </div>
     </div>
   );
