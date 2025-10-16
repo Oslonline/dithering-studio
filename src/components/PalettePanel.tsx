@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { predefinedPalettes } from "../utils/palettes";
 
 interface PalettePanelProps {
@@ -17,6 +18,7 @@ const CUSTOM_ID = "__custom";
 const ORIGINAL_ID = "__original";
 
 const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, effectivePalette, image, videoCanvas, binaryMode, isVideoMode }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newColor, setNewColor] = useState("#ffffff");
@@ -197,15 +199,15 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
       <div className="min-panel p-0">
         <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={open}>
           <span className="flex items-center gap-2">
-            <span>{open ? "▾" : "▸"}</span> Palette
+            <span>{open ? "▾" : "▸"}</span> {t('tool.palettePanel.title')}
           </span>
-          {paletteId === CUSTOM_ID && <span className="badge">Custom</span>}
+          {paletteId === CUSTOM_ID && <span className="badge">{t('tool.palettePanel.customPalette')}</span>}
         </button>
         {open && (
           <div className="space-y-2 border-t border-neutral-800 px-4 pt-3 pb-4">
             <div className="flex items-center justify-between">
               <label htmlFor="binary-palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">
-                Select
+                {t('tool.palettePanel.select')}
               </label>
               {paletteId === CUSTOM_ID && (
                 <button
@@ -214,7 +216,7 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                     setPaletteId(null);
                   }}
                 >
-                  Clear
+                  {t('tool.palettePanel.clear')}
                 </button>
               )}
             </div>
@@ -234,8 +236,8 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                 }
               }}
             >
-              <option value="">None (Binary BW)</option>
-              <option value={CUSTOM_ID}>Random 2 (Binary colors)</option>
+              <option value="">{t('tool.palettePanel.noPalette')}</option>
+              <option value={CUSTOM_ID}>{t('tool.palettePanel.randomBinary')}</option>
             </select>
             {paletteId === CUSTOM_ID && (
               <div className="space-y-2">
@@ -261,14 +263,14 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                       />
                     </div>
                   ))}
-                  <button type="button" onClick={() => setActivePaletteColors(randomPair())} className="relative h-6 w-6 cursor-pointer rounded-sm border border-neutral-600 text-[13px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]" title="Randomize two colors" aria-label="Randomize two colors">
+                  <button type="button" onClick={() => setActivePaletteColors(randomPair())} className="relative h-6 w-6 cursor-pointer rounded-sm border border-neutral-600 text-[13px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]" title={t('tool.palettePanel.randomize')} aria-label={t('tool.palettePanel.randomize')}>
                     ↺
                   </button>
                 </div>
-                <p className="text-[10px] text-gray-500">Edit or randomize the two colors. Applies to Binary & Random Threshold.</p>
+                <p className="text-[10px] text-gray-500">{t('tool.palettePanel.editBinaryHint')}</p>
               </div>
             )}
-            {paletteId !== CUSTOM_ID && <p className="mt-1 text-[10px] text-gray-500">Default uses pure black/white output.</p>}
+            {paletteId !== CUSTOM_ID && <p className="mt-1 text-[10px] text-gray-500">{t('tool.palettePanel.defaultBW')}</p>}
           </div>
         )}
       </div>
@@ -279,15 +281,15 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
     <div className="min-panel p-0">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={open}>
         <span className="flex items-center gap-2">
-          <span>{open ? "▾" : "▸"}</span> Palette
+          <span>{open ? "▾" : "▸"}</span> {t('tool.palettePanel.title')}
         </span>
-        {paletteId && <span className="badge ml-auto">Active</span>}
+        {paletteId && <span className="badge ml-auto">{t('tool.palettePanel.active')}</span>}
       </button>
       {open && (
         <div className="space-y-2 border-t border-neutral-800 px-4 pt-3 pb-4">
           <div className="flex items-center justify-between">
             <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">
-              Select
+              {t('tool.palettePanel.select')}
             </label>
             {paletteId && (
               <button
@@ -299,7 +301,7 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                   setInvalid(false);
                 }}
               >
-                Clear
+                {t('tool.palettePanel.clear')}
               </button>
             )}
           </div>
@@ -326,10 +328,10 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
               setPaletteId(v);
             }}
           >
-            <option value="">None (Binary BW)</option>
-            <option value={CUSTOM_ID}>Custom Palette…</option>
-            <option value={ORIGINAL_ID}>{isVideoMode ? 'Original Video Colors' : 'Original Image Colors'}</option>
-            <option disabled>── Preset Palettes ──</option>
+            <option value="">{t('tool.palettePanel.noPalette')}</option>
+            <option value={CUSTOM_ID}>{t('tool.palettePanel.customPalette')}…</option>
+            <option value={ORIGINAL_ID}>{isVideoMode ? t('tool.palettePanel.originalVideo') : t('tool.palettePanel.originalImage')}</option>
+            <option disabled>── {t('tool.palettePanel.presetPalettes')} ──</option>
             {predefinedPalettes.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -373,8 +375,8 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                         setActivePaletteColors(next);
                       }}
                       className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-white opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100"
-                      title="Remove"
-                      aria-label={`Remove color rgb(${c[0]},${c[1]},${c[2]})`}
+                      title={t('tool.palettePanel.removeColor')}
+                      aria-label={`${t('tool.palettePanel.removeColor')} rgb(${c[0]},${c[1]},${c[2]})`}
                     >
                       ×
                     </button>
@@ -385,8 +387,8 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                   type="button"
                   onClick={() => effectivePalette && setActivePaletteColors(effectivePalette.map((c) => [...c] as [number, number, number]))}
                   className="relative h-5 w-5 cursor-pointer rounded-sm border border-neutral-600 text-[11px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
-                  title="Restore full palette"
-                  aria-label="Restore full palette"
+                  title={t('tool.palettePanel.restoreFull')}
+                  aria-label={t('tool.palettePanel.restoreFull')}
                 >
                   ↺
                 </button>
@@ -400,8 +402,8 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                       setInvalid(false);
                     }}
                     className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-neutral-600 text-[18px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
-                    title="Add color"
-                    aria-label="Add color"
+                    title={t('tool.palettePanel.addColor')}
+                    aria-label={t('tool.palettePanel.addColor')}
                   >
                     +
                   </button>
@@ -409,8 +411,8 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                     type="button"
                     onClick={() => setActivePaletteColors(randomPair())}
                     className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-neutral-600 text-[14px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
-                    title="Randomize two base colors"
-                    aria-label="Randomize palette"
+                    title={t('tool.palettePanel.randomize')}
+                    aria-label={t('tool.palettePanel.randomize')}
                   >
                     ↺
                   </button>
@@ -441,13 +443,13 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                   placeholder="#rrggbb | r,g,b | rgb(r,g,b)"
                 />
                 <button onClick={addColor} className="clean-btn px-2 py-1 text-[10px]">
-                  Add
+                  {t('tool.palettePanel.add')}
                 </button>
               </div>
-              <p className="text-[10px] text-gray-500">Formats: #fff, #ffffff, r,g,b or rgb(r,g,b).</p>
+              <p className="text-[10px] text-gray-500">{t('tool.palettePanel.formatHint')}</p>
             </div>
           )}
-          {paletteId === CUSTOM_ID && !adding && <p className="mt-1 text-[10px] text-gray-500">Drag to reorder. Min 2 colors. Remove with ×.</p>}
+          {paletteId === CUSTOM_ID && !adding && <p className="mt-1 text-[10px] text-gray-500">{t('tool.palettePanel.dragHint')}</p>}
         </div>
       )}
     </div>

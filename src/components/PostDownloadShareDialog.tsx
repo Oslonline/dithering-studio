@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface PostDownloadShareDialogProps {
   open: boolean;
@@ -22,6 +23,7 @@ const CAPTIONS = [
 const randomCaption = () => CAPTIONS[Math.floor(Math.random() * CAPTIONS.length)];
 
 const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open, onClose, canvasRef, processedCanvasRef, lastFormat, isVideo }) => {
+  const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
@@ -93,7 +95,7 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
         // ignore
       }
       setSharing(false);
-      setNotice("Opened tweet composer. Attach image manually if it is not present.");
+      setNotice(t('tool.shareDialog.tweetComposerNotice'));
     }, "image/png");
   };
 
@@ -102,7 +104,7 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div ref={dialogRef} className="relative w-full max-w-sm overflow-hidden rounded-lg border border-neutral-800/70 bg-gradient-to-b from-[#161616] to-[#0b0b0b] p-5 shadow-[0_0_0_1px_#222,inset_0_0_30px_-10px_rgba(255,255,255,0.07)]">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-mono text-[11px] tracking-wider text-gray-300">Thanks for downloading!</h2>
+          <h2 className="font-mono text-[11px] tracking-wider text-gray-300">{t('tool.shareDialog.title')}</h2>
           <button onClick={onClose} className="clean-btn px-2 py-0 text-[11px]">
             ✕
           </button>
@@ -113,23 +115,23 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
           </div>
         )}
         <div className="mb-5 space-y-2 text-[11px] leading-snug text-gray-400">
-          <p className="font-semibold text-gray-300">{isVideo ? "Video export complete 🎬" : "Saved – nice pixels ✨"}</p>
-          <p className="text-gray-400">Share {isVideo ? "a frame or mention the animation" : "it"} to help others discover the tool.</p>
-          <p className="text-gray-500">One click generates a caption + attaches the {isVideo ? "current frame thumbnail" : "image"} (when supported). You can still edit before posting.</p>
+          <p className="font-semibold text-gray-300">{isVideo ? t('tool.shareDialog.videoComplete') : t('tool.shareDialog.imageSaved')}</p>
+          <p className="text-gray-400">{isVideo ? t('tool.shareDialog.shareVideoHint') : t('tool.shareDialog.shareImageHint')}</p>
+          <p className="text-gray-500">{isVideo ? t('tool.shareDialog.captionHintVideo') : t('tool.shareDialog.captionHintImage')}</p>
           {lastFormat && (
             <p className="text-[10px] text-gray-500">
-              Format: <span className="text-gray-300">{lastFormat.toUpperCase()}</span>
+              {t('tool.shareDialog.format')}: <span className="text-gray-300">{lastFormat.toUpperCase()}</span>
             </p>
           )}
         </div>
         <button onClick={share} disabled={sharing} className={`clean-btn clean-btn-primary mb-3 w-full justify-center text-[11px] ${sharing ? "cursor-not-allowed opacity-60" : ""}`}>
-          {sharing ? "Preparing…" : "Share on X"}
+          {sharing ? t('tool.shareDialog.preparing') : t('tool.shareDialog.shareOnX')}
         </button>
         {notice && <p className="mb-2 text-center text-[10px] text-amber-400">{notice}</p>}
-        <p className="text-center text-[10px] text-gray-500">On supported devices the share sheet attaches the image automatically.</p>
+        <p className="text-center text-[10px] text-gray-500">{t('tool.shareDialog.autoAttach')}</p>
         <div className="mt-4 border-t border-neutral-800 pt-3 text-center">
           <p className="text-[9px] leading-relaxed text-gray-600">
-            Feature request or bug? Reach out on X{" "}
+            {t('tool.shareDialog.feedback')}{" "}
             <a href="https://twitter.com/Oslo418" target="_blank" rel="noopener noreferrer" className="text-gray-400 underline decoration-dotted hover:text-gray-300">
               @Oslo418
             </a>

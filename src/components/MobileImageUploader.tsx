@@ -1,9 +1,11 @@
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { FaImage } from "react-icons/fa";
 
 interface MobileImageUploaderProps { onImagesAdded: (items: { url: string; name?: string; file?: File }[]) => void; }
 
 const MobileImageUploader: React.FC<MobileImageUploaderProps> = ({ onImagesAdded }) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +33,11 @@ const MobileImageUploader: React.FC<MobileImageUploaderProps> = ({ onImagesAdded
         type="button"
         onClick={handleClick}
         className="w-full flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#2a2a2a] bg-[#131313] px-4 py-12 active:scale-[.985] transition hover:border-blue-600 focus-visible:shadow-[var(--focus-ring)]"
-        aria-label="Select image"
+        aria-label={t('tool.ariaSelectImage')}
       >
         <FaImage className="text-5xl text-blue-500" aria-hidden="true" />
-  <span className="font-mono text-xs tracking-wide text-gray-200">Tap to choose images</span>
-  <span className="text-[10px] text-gray-500">Multi-select PNG · JPEG · WebP · GIF · BMP</span>
+  <span className="font-mono text-xs tracking-wide text-gray-200">{t('tool.upload.tapToChoose')}</span>
+  <span className="text-[10px] text-gray-500">{t('tool.upload.imageFormats')}</span>
       </button>
       <input
         ref={inputRef}

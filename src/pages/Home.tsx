@@ -2,8 +2,11 @@ import React from "react";
 import InfiniteImageScroll from "../components/InfiniteImageScroll";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
+  
   return (
     <>
       <Helmet>
@@ -25,19 +28,19 @@ const Home: React.FC = () => {
             {/* HERO */}
             <section data-hero className="flex min-h-[calc(100dvh-4rem)] w-full max-w-[90rem] flex-col items-center justify-center gap-7 py-6 sm:gap-8 sm:py-8 md:min-h-[calc(100dvh-5rem)]">
               <header className="w-full max-w-4xl space-y-6 text-center">
-                <h1 className="font-anton text-[2.85rem] leading-tight tracking-tight sm:text-[3.2rem] md:text-[3.6rem] lg:text-[4.2rem] xl:text-[4.5rem]">Multi‑Algorithm Image & Video Dithering</h1>
-                <p className="mx-auto max-w-2xl text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px] lg:text-[14px]">Drop an image or video → pick an algorithm → adjust settings → export instantly. 100% client‑side & free.</p>
+                <h1 className="font-anton text-[2.85rem] leading-tight tracking-tight sm:text-[3.2rem] md:text-[3.6rem] lg:text-[4.2rem] xl:text-[4.5rem]">{t('hero.title')}</h1>
+                <p className="mx-auto max-w-2xl text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px] lg:text-[14px]">{t('hero.subtitle')}</p>
               </header>
               <div className="relative max-h-[380px] w-full max-w-6xl overflow-hidden rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3 shadow-[0_0_0_1px_#181818,0_4px_18px_-6px_rgba(0,0,0,0.6)] backdrop-blur-sm sm:max-h-[420px] md:max-h-[480px] md:p-4 lg:max-h-[520px]">
                 <InfiniteImageScroll />
-                <p className="mt-3 text-center text-[10px] tracking-wide text-gray-500">Generated live • No account • No uploads leave your browser</p>
+                <p className="mt-3 text-center text-[10px] tracking-wide text-gray-500">{t('hero.liveGenerated')}</p>
               </div>
               <div className="flex flex-col items-center gap-4 text-[11px] sm:text-xs md:text-[13px]">
                 <Link to="/Dithering/Image" className="clean-btn clean-btn-primary text-base px-8 py-3">
-                  Start Dithering
+                  {t('hero.cta')}
                 </Link>
                 <Link to="/Algorithms" className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
-                  View algorithm reference
+                  {t('hero.algorithmReference')}
                 </Link>
               </div>
             </section>
@@ -46,22 +49,22 @@ const Home: React.FC = () => {
             {/* FEATURE GRID */}
             <section className="w-full max-w-5xl space-y-10">
               <div className="space-y-2 text-center">
-                <h3 className="font-anton text-xl tracking-tight sm:text-2xl">Core Features</h3>
-                <p className="mx-auto max-w-md text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">Four anchors — the rest stays out of the way.</p>
+                <h3 className="font-anton text-xl tracking-tight sm:text-2xl">{t('features.title')}</h3>
+                <p className="mx-auto max-w-md text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">{t('features.subtitle')}</p>
               </div>
               <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                 {[
-                  { t: "25+ algorithms", d: "Diffusion families, ordered matrices, stochastic & adaptive variants in one workspace." },
-                  { t: "Image & video support", d: "Apply dithering to static images or videos. Create retro 8-bit effects, lofi aesthetics, vaporwave vibes." },
-                  { t: "Color palette handling", d: "Apply built‑ins or custom sets (only where it adds value)." },
-                  { t: "No account needed", d: "Zero signup. Zero tracking. Just load and work." },
-                  { t: "Instant export", d: "PNG • JPEG • WEBP • SVG for images, MP4 • WebM • GIF for videos — processed locally, ready immediately." },
-                  { t: "Fully client-side", d: "Your media never leaves your device. All processing happens in your browser for maximum privacy." },
+                  { title: t('features.algorithms'), desc: t('features.algorithmsDesc') },
+                  { title: t('features.imageVideo'), desc: t('features.imageVideoDesc') },
+                  { title: t('features.palette'), desc: t('features.paletteDesc') },
+                  { title: t('features.noAccount'), desc: t('features.noAccountDesc') },
+                  { title: t('features.export'), desc: t('features.exportDesc') },
+                  { title: t('features.clientSide'), desc: t('features.clientSideDesc') },
                 ].map((f, i) => (
                   <div key={i} className="relative flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/40 p-5 transition-colors hover:border-neutral-700">
                     <span className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-gradient-to-b from-blue-500/60 via-blue-400/30 to-transparent opacity-80" />
-                    <h4 className="text-[12px] font-medium tracking-wide text-gray-200">{f.t}</h4>
-                    <p className="text-[11px] leading-relaxed text-gray-500">{f.d}</p>
+                    <h4 className="text-[12px] font-medium tracking-wide text-gray-200">{f.title}</h4>
+                    <p className="text-[11px] leading-relaxed text-gray-500">{f.desc}</p>
                   </div>
                 ))}
               </div>
@@ -70,21 +73,21 @@ const Home: React.FC = () => {
 
             {/* HOW IT WORKS */}
             <section className="w-full max-w-5xl space-y-10">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">How It Works</h3>
+              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('howItWorks.title')}</h3>
               <ol className="mx-auto max-w-3xl list-inside list-decimal space-y-2 text-[11px] text-gray-400 sm:text-[12px] md:text-[13px]">
-                <li>Load an image or video (never leaves your machine).</li>
-                <li>Select an algorithm – ordered (Bayer, Blue Noise) or diffusion (Floyd–Steinberg family, Sierra, Stucki, etc.).</li>
-                <li>Adjust threshold / scale; optionally enable serpentine traversal for diffusion stability.</li>
-                <li>(If supported) Apply or craft a palette to constrain tones & produce stylized texture.</li>
-                <li>Download instantly in multiple formats — PNG/JPEG/SVG for images, MP4/WebM/GIF for videos.</li>
+                <li>{t('howItWorks.step1')}</li>
+                <li>{t('howItWorks.step2')}</li>
+                <li>{t('howItWorks.step3')}</li>
+                <li>{t('howItWorks.step4')}</li>
+                <li>{t('howItWorks.step5')}</li>
               </ol>
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
 
-            {/* ALGORITHM COVERAGE (deep‑link enabled) */}
+            {/* ALGORITHM COVERAGE (deep-link enabled) */}
             <section className="w-full max-w-6xl space-y-12">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">Explore Algorithms</h3>
-              <p className="mx-auto max-w-xl text-center text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">Jump straight into any implementation. Compare diffusion, ordered, stochastic & experimental techniques.</p>
+              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('algorithmExplorer.title')}</h3>
+              <p className="mx-auto max-w-xl text-center text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">{t('algorithmExplorer.subtitle')}</p>
               <div className="space-y-12">
                 {[
                   {
@@ -126,7 +129,7 @@ const Home: React.FC = () => {
                   },
                 ].map((group) => (
                   <div key={group.label} className="space-y-4">
-                    <h4 className="text-center font-mono text-[10px] tracking-wide text-gray-400 uppercase">{group.label}</h4>
+                    <h4 className="text-center font-mono text-[10px] tracking-wide text-gray-400 uppercase">{t(`algorithmExplorer.${group.label.replace(/[^a-zA-Z]/g, '').toLowerCase()}`)}</h4>
                     <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
                       {group.items.map((a) => (
                         <Link
@@ -143,39 +146,39 @@ const Home: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <p className="mx-auto max-w-2xl text-center text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">Click a tile to deep‑link into that algorithm’s dedicated reference page.</p>
+              <p className="mx-auto max-w-2xl text-center text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">{t('algorithmExplorer.deepLink')}</p>
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
 
             {/* PRIVACY / PHILOSOPHY + OPEN SOURCE */}
             <section className="w-full max-w-5xl space-y-6">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">Why Dithering Studio?</h3>
+              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('about.title')}</h3>
               <div className="mx-auto max-w-3xl space-y-4 text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px]">
                 <p>
-                  <span className="text-gray-200">Dithering Studio</span> is a complete online image and video dithering tool that brings retro pixel art effects to your browser. Whether you want to create 8-bit style videos, apply classic Floyd-Steinberg dithering to images, or experiment with vaporwave and lofi aesthetics, we've got you covered.
+                  <span className="text-gray-200">{t('about.brandName')}</span> {t('about.intro')}
                 </p>
                 <p>
-                  Everything runs <span className="text-gray-200">100% client‑side</span>—your images and videos never leave your device. No uploads, no tracking, no accounts required. Plus, it's{" "}
+                  {t('about.privacy1')}{" "}
                   <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
-                    open source (Apache 2.0)
+                    {t('about.openSource')}
                   </a>
-                  , so you can inspect the code, fork it, or adapt it for your own projects.
+                  , {t('about.privacy2')}
                 </p>
                 <p>
-                  With <span className="text-gray-200">25+ dithering algorithms</span> including error diffusion (Floyd-Steinberg, Atkinson, Sierra family), ordered matrices (Bayer, Blue Noise), and experimental techniques, you can create everything from newspaper-style halftone effects to retro video game aesthetics. Export your work as PNG, JPEG, SVG for images—or MP4, WebM, GIF for videos.
+                  {t('about.features')}
                 </p>
                 <p>
-                  Inspired by tools like{" "}
+                  {t('about.inspiration1')}{" "}
                   <a href="https://ditherit.com/" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
                     Dither It
                   </a>{" "}
-                  and{" "}
+                  {t('about.inspiration2')}{" "}
                   <a href="https://studioaaa.com/product/dither-boy/" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
                     Dither Boy
                   </a>
-                  , but built to handle both images and videos with real-time preview, custom palettes, and instant exports—all without leaving your browser.
+                  , {t('about.inspiration3')}
                 </p>
-                <p>If this tool saves you time or sparks creativity, a GitHub star helps us reach more artists and developers!</p>
+                <p>{t('about.support')}</p>
               </div>
             </section>
           </div>
@@ -183,24 +186,24 @@ const Home: React.FC = () => {
         <footer className="mt-auto flex flex-col gap-10 border-t border-neutral-900 pt-10 pb-12">
           <div className="flex flex-col items-center gap-5">
             <Link to="/Dithering/Image" className="clean-btn clean-btn-primary">
-              Start Dithering
+              {t('footer.cta')}
             </Link>
-            <p className="text-[10px] tracking-wide text-gray-600">Fast • Local • Open</p>
+            <p className="text-[10px] tracking-wide text-gray-600">{t('footer.tagline')}</p>
           </div>
           <div className="flex flex-col items-center gap-4 text-[10px] text-gray-500 sm:text-[11px] md:text-xs">
             <nav className="flex flex-wrap justify-center gap-6">
               <Link to="/Algorithms" className="transition-colors hover:text-gray-300">
-                Algorithms
+                {t('footer.algorithms')}
               </Link>
               <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">
-                GitHub
+                {t('footer.github')}
               </a>
               <a href="https://github.com/Oslonline/steinberg-image/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">
-                License
+                {t('footer.license')}
               </a>
             </nav>
             <p className="flex items-center gap-1">
-              By{" "}
+              {t('footer.by')}{" "}
               <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com" rel="noopener noreferrer">
                 Oslo418
               </a>{" "}

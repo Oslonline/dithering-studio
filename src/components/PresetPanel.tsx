@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { DitherPreset, loadPresets, savePresets, createPreset, serializePreset, deserializePreset, DitherParams } from "../utils/presets";
 
 interface PresetPanelProps {
@@ -7,6 +8,7 @@ interface PresetPanelProps {
 }
 
 const PresetPanel: React.FC<PresetPanelProps> = ({ current, apply }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [presets, setPresets] = useState<DitherPreset[]>(() => loadPresets());
   const [newName, setNewName] = useState("");
@@ -75,25 +77,25 @@ const PresetPanel: React.FC<PresetPanelProps> = ({ current, apply }) => {
     <div className="min-panel p-0">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]">
         <span className="flex items-center gap-2">
-          <span>{open ? "▾" : "▸"}</span> Presets
+          <span>{open ? "▾" : "▸"}</span> {t('tool.presetPanel.title')}
         </span>
         <span className="text-[10px] text-gray-500">{presets.length}</span>
       </button>
       {open && (
         <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
           <div className="flex gap-2">
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Preset name" className="clean-input flex-1" aria-label="Preset name" />
-            <button onClick={saveCurrent} className="clean-btn !px-3 text-[10px]" title="Save current settings as a new preset">
-              Save
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('tool.presetPanel.nameHint')} className="clean-input flex-1" aria-label={t('tool.presetPanel.presetName')} />
+            <button onClick={saveCurrent} className="clean-btn !px-3 text-[10px]" title={t('tool.presetPanel.saveHint')}>
+              {t('tool.presetPanel.save')}
             </button>
           </div>
           <div className="flex gap-2">
-            <input value={importStr} onChange={(e) => setImportStr(e.target.value)} placeholder="Paste preset token" className="clean-input flex-1" aria-label="Import preset token" />
-            <button onClick={doImport} className="clean-btn !px-3 text-[10px]" title="Import a preset token or JSON array">
-              Import
+            <input value={importStr} onChange={(e) => setImportStr(e.target.value)} placeholder={t('tool.presetPanel.importHint')} className="clean-input flex-1" aria-label={t('tool.presetPanel.importToken')} />
+            <button onClick={doImport} className="clean-btn !px-3 text-[10px]" title={t('tool.presetPanel.importTokenHint')}>
+              {t('tool.presetPanel.import')}
             </button>
           </div>
-          {filtered.length === 0 && <p className="text-[10px] text-gray-500">No presets.</p>}
+          {filtered.length === 0 && <p className="text-[10px] text-gray-500">{t('tool.presetPanel.noPresets')}</p>}
           {filtered.length > 0 && (
             <ul className="max-h-48 space-y-1 overflow-auto pr-1">
               {filtered.map(p => {
@@ -111,15 +113,15 @@ const PresetPanel: React.FC<PresetPanelProps> = ({ current, apply }) => {
                           className="clean-input flex-1 h-6 px-2 text-[11px]"
                         />
                       ) : (
-                        <button type="button" onClick={() => apply(p)} className="flex-1 h-6 truncate text-left font-mono text-[11px] text-gray-200 focus-visible:shadow-[var(--focus-ring)]" title="Apply preset">{p.name}</button>
+                        <button type="button" onClick={() => apply(p)} className="flex-1 h-6 truncate text-left font-mono text-[11px] text-gray-200 focus-visible:shadow-[var(--focus-ring)]" title={t('tool.presetPanel.applyPreset')}>{p.name}</button>
                       )}
-                      <button onClick={() => !editing && startRename(p)} disabled={editing} className="preset-icon-btn h-6 w-6" aria-label="Rename preset" title={editing? 'Finish editing first':'Rename'}>
+                      <button onClick={() => !editing && startRename(p)} disabled={editing} className="preset-icon-btn h-6 w-6" aria-label={t('tool.presetPanel.rename')} title={editing? t('tool.presetPanel.finishEditing'):t('tool.presetPanel.rename')}>
                         <Icon name="edit" className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => !editing && exportSingle(p)} disabled={editing} className={`preset-icon-btn h-6 w-6 ${copiedId === p.id ? 'copied' : ''}`} aria-label="Export preset" title={editing? 'Finish editing first': (copiedId===p.id? 'Copied!':'Copy export token')}>
+                      <button onClick={() => !editing && exportSingle(p)} disabled={editing} className={`preset-icon-btn h-6 w-6 ${copiedId === p.id ? 'copied' : ''}`} aria-label={t('tool.presetPanel.export')} title={editing? t('tool.presetPanel.finishEditing'): (copiedId===p.id? t('tool.presetPanel.copied'):t('tool.presetPanel.copyToken'))}>
                         {copiedId === p.id ? <Icon name='check' className='h-3.5 w-3.5' /> : <Icon name='export' className='h-3.5 w-3.5' />}
                       </button>
-                      <button onClick={() => !editing && remove(p.id)} disabled={editing} className="preset-icon-btn danger h-6 w-6" aria-label="Delete preset" title={editing? 'Finish editing first':'Delete preset'}>
+                      <button onClick={() => !editing && remove(p.id)} disabled={editing} className="preset-icon-btn danger h-6 w-6" aria-label={t('tool.presetPanel.delete')} title={editing? t('tool.presetPanel.finishEditing'):t('tool.presetPanel.deletePreset')}>
                         <Icon name="delete" className="h-3.5 w-3.5" />
                       </button>
                     </div>

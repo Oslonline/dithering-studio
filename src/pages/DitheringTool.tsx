@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG } from "../utils/export";
 import { Link, useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ import PerformanceOverlay from "../components/PerformanceOverlay";
 import ExportDialog from "../components/ExportDialog";
 import PostDownloadShareDialog from "../components/PostDownloadShareDialog";
 import FocusHint from "../components/FocusHint";
+import Header from "../components/Header";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
 import useVideoRecording from "../hooks/useVideoRecording";
 import useSettingsHeight from "../hooks/useSettingsHeight";
@@ -32,6 +34,7 @@ interface DitheringToolProps {
 }
 
 const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     images,
@@ -417,14 +420,10 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   return (
     <>
       <Helmet>
-        <title>{videoMode ? "Video Dithering Tool | Apply 8-Bit Effects to Videos Online" : "Image Dithering Tool | Multi-Algorithm Pixel Art Converter"}</title>
+        <title>{videoMode ? t('tool.seo.videoTitle') : t('tool.seo.imageTitle')}</title>
         <meta
           name="description"
-          content={
-            videoMode
-              ? "Apply retro dithering effects to videos online. Create 8-bit style videos, lofi aesthetics, vaporwave effects. Export as MP4, WebM, or GIF. Floyd-Steinberg, Bayer, Atkinson & more. Fully client-side."
-              : "Dither images online with Floyd-Steinberg, Bayer, Atkinson, Sierra, and more. Create retro pixel art, adjust palettes, export as PNG, JPEG, SVG. Fully client-side image dithering tool."
-          }
+          content={videoMode ? t('tool.seo.videoDescription') : t('tool.seo.imageDescription')}
         />
         <link rel="canonical" href={videoMode ? "https://ditheringstudio.com/Dithering/Video" : "https://ditheringstudio.com/Dithering/Image"} />
         <script type="application/ld+json">
@@ -451,22 +450,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         </script>
       </Helmet>
       <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? "focus-mode" : ""}`}>
-        <header ref={headerRef} className={`flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3 ${focusMode ? "hidden" : ""}`}>
-          <div className="flex items-center gap-4">
-            <h1 className="font-mono text-xs tracking-wide text-gray-300">Dithering Studio</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={switchMode} className="clean-btn px-3 py-1 !text-[11px]" title={videoMode ? "Switch to Images" : "Switch to Video"}>
-              {videoMode ? "Image Mode" : "Video Mode"}
-            </button>
-            <Link to="/Algorithms" className="clean-btn px-3 py-1 !text-[11px]" title="Algorithm reference">
-              Explore
-            </Link>
-            <Link to="/" className="clean-btn px-3 py-1 !text-[11px]">
-              Home
-            </Link>
-          </div>
-        </header>
+        <div ref={headerRef as React.RefObject<HTMLDivElement>} className={focusMode ? "hidden" : ""}>
+          <Header page="tool" videoMode={videoMode} onModeSwitch={switchMode} />
+        </div>
         <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
           {!focusMode && (
             <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
@@ -482,26 +468,26 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                       <div className="settings-stack space-y-6">
                         {videoMode && videoItem && (
                           <div className="flex gap-2">
-                            <button onClick={() => setVideoItem(null)} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Choose another video">
+                            <button onClick={() => setVideoItem(null)} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherVideo')}>
                               <span className="text-[13px]">⬆</span>
-                              <span>Change Video</span>
+                              <span>{t('tool.changeVideo')}</span>
                             </button>
-                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Reset all settings">
+                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettings')}>
                               <span className="text-[13px]">↺</span>
-                              <span>Reset</span>
+                              <span>{t('tool.reset')}</span>
                             </button>
                           </div>
                         )}
                         {!videoMode && images.length > 1 && <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />}
                         {!videoMode && images.length <= 1 && activeImageId && (
                           <div className="flex gap-2">
-                            <button onClick={clearAllImages} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Choose another image (replaces current)">
+                            <button onClick={clearAllImages} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherImage')}>
                               <span className="text-[13px]">⬆</span>
-                              <span>Change Image</span>
+                              <span>{t('tool.changeImage')}</span>
                             </button>
-                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title="Reset all settings to defaults">
+                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettingsDefaults')}>
                               <span className="text-[13px]">↺</span>
-                              <span>Reset</span>
+                              <span>{t('tool.reset')}</span>
                             </button>
                           </div>
                         )}
@@ -517,8 +503,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             </button>
                             <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
                               <div className="flex flex-wrap items-center gap-2">
-                                <button type="button" onClick={() => setVideoPlaying((p) => !p)} className="clean-btn px-3 py-1 text-[11px]" title={videoPlaying ? "Pause playback" : "Resume playback"}>
-                                  {videoPlaying ? "Pause" : "Play"}
+                                <button type="button" onClick={() => setVideoPlaying((p) => !p)} className="clean-btn px-3 py-1 text-[11px]" title={videoPlaying ? t('tool.pause') : t('tool.play')}>
+                                  {videoPlaying ? t('tool.pause') : t('tool.play')}
                                 </button>
                                 <button
                                   type="button"
@@ -529,17 +515,17 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                                     }
                                   }}
                                   className="clean-btn px-3 py-1 text-[11px]"
-                                  title="Restart video"
+                                  title={t('tool.videoPanel.restart')}
                                 >
                                   ⟲ Start
                                 </button>
                                 <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                                  <span>FPS</span>
+                                  <span>{t('tool.fps')}</span>
                                   <input type="range" min={2} max={30} value={videoFps} onChange={(e) => setVideoFps(Number(e.target.value))} className="clean-range !w-28" />
                                   <span className="w-6 text-right tabular-nums">{videoFps}</span>
                                 </div>
                               </div>
-                              {!videoReady && <p className="text-[10px] text-gray-500">Loading video metadata…</p>}
+                              {!videoReady && <p className="text-[10px] text-gray-500">{t('tool.videoPanel.loadingMetadata')}</p>}
                             </div>
                           </div>
                         )}
@@ -565,16 +551,16 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                 <div ref={footerRef} className="border-t border-neutral-800 p-4">
                   {mediaActive ? (
                     <div className="flex gap-2">
-                      <button type="button" onClick={copyShareUrl} className="clean-btn basis-1/3 justify-center text-[11px]" title="Copy a shareable link to these settings">
-                        {shareCopied ? "Copied" : "Share"}
+                      <button type="button" onClick={copyShareUrl} className="clean-btn basis-1/3 justify-center text-[11px]" title={t('tool.shareSettingsTitle')}>
+                        {shareCopied ? t('tool.copied') : t('tool.share')}
                       </button>
                       <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary basis-2/3 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
-                        Download
+                        {t('tool.download')}
                       </button>
                     </div>
                   ) : (
                     <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">
-                      Explore Algorithms
+                      {t('tool.exploreAlgorithms')}
                     </Link>
                   )}
                 </div>
@@ -588,33 +574,32 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                 {videoMode && !videoItem && <VideoUploader onVideoSelected={(v) => setVideoItem({ url: v.url, name: v.name })} />}
                 {!videoMode && (
                   <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>
-                    Switch to Video Mode
+                    {t('tool.switchToVideoMode')}
                   </button>
                 )}
                 {videoMode && (
                   <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>
-                    Switch to Image Mode
+                    {t('tool.switchToImageMode')}
                   </button>
                 )}
-                <p className="text-center text-[10px] text-gray-500">Select media to begin.</p>
+                <p className="text-center text-[10px] text-gray-500">{t('tool.selectMedia')}</p>
               </div>
             )}
             {mediaActive && !videoMode && image && (
               <div className="flex h-full w-full items-center justify-center overflow-auto">
                 <div className="canvas-frame flex items-center justify-center p-2" style={{ background: "transparent", border: "none" }}>
                   <div className="relative">
-                    <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered image preview" />
+                    <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredImagePreview')} />
                     {showGrid && (
                       <>
                         <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
                         <button
-                          type="button"
                           onClick={() => {
                             const order = [4, 6, 8, 12, 16];
                             setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
                           }}
                           className="grid-size-badge"
-                          title="Cycle grid size (Shift+G)"
+                          title={t('tool.cycleGridSize')}
                         >
                           {gridSize}px
                         </button>
@@ -627,7 +612,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
             {mediaActive && videoMode && videoItem && (
               <div className="flex h-full w-full flex-col items-center justify-center gap-2 overflow-auto p-2">
                 <div className="canvas-frame flex items-center justify-center" style={{ background: "transparent", border: "none" }}>
-                  <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label="Dithered video frame" />
+                  <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
                 </div>
               </div>
             )}

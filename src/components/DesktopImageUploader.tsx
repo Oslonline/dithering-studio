@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaImage } from "react-icons/fa";
 
 interface DesktopImageUploaderProps { onImagesAdded: (items: { url: string; name?: string; file?: File }[]) => void; }
 
 const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdded }) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
@@ -72,11 +74,11 @@ const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdd
         role="button"
         tabIndex={0}
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClick()}
-        aria-label="Upload image"
+        aria-label={t('tool.ariaUploadImage')}
       >
         <FaImage className="text-4xl text-blue-500" aria-hidden="true" />
-  <p className="font-mono text-xs tracking-wide text-gray-200">{dragActive ? 'Drop to load' : 'Click or drag images'}</p>
-  <p className="text-[10px] text-gray-500">PNG · JPEG · WebP · BMP · GIF & multiple selection</p>
+  <p className="font-mono text-xs tracking-wide text-gray-200">{dragActive ? t('tool.upload.dropToLoad') : t('tool.upload.clickOrDragImages')}</p>
+  <p className="text-[10px] text-gray-500">{t('tool.upload.imageFormats')}</p>
         <input
           ref={inputRef}
           id="file-upload-desktop"

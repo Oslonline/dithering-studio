@@ -4,7 +4,7 @@
   <p><strong>Fast, private, client‑side dithering for images and video — with classic + experimental algorithms, palettes, presets, and an interactive explorer.</strong></p>
 </div>
 
-## Live demo
+## Live app
 
 Use it in your browser: https://ditheringstudio.com/
 
@@ -12,7 +12,7 @@ No uploads, no account. Everything runs locally in the tab.
 
 ## Highlights
 
-- 20+ algorithms: error diffusion, ordered matrices, stochastic, adaptive, ASCII.
+- 25+ algorithms: error diffusion, ordered matrices, stochastic, adaptive, ASCII.
 - Image and video modes. Export frames (PNG/JPEG/WEBP/SVG) or full videos (WebM/MP4\*).
 - Built‑in palettes (Game Boy, PICO‑8, DB16/32, CGA/EGA, etc.) with live swatch toggling.
 - Presets you can save, rename, import/export as tokens, and re‑apply.
@@ -24,8 +24,8 @@ No uploads, no account. Everything runs locally in the tab.
 ## Quick start (local)
 
 ```powershell
-git clone https://github.com/Oslonline/steinberg-image.git
-cd steinberg-image
+git clone https://github.com/Oslonline/dithering-studio.git
+cd dithering-studio
 npm install
 npm run dev
 ```

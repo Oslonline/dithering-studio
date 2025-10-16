@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaFilm } from 'react-icons/fa';
 
 interface DesktopVideoUploaderProps { onVideoSelected: (item: { url: string; name?: string; file?: File }) => void; }
 
 const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideoSelected }) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
@@ -39,11 +41,11 @@ const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideoSele
         role="button"
         tabIndex={0}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
-        aria-label="Upload video"
+        aria-label={t('tool.ariaUploadVideo')}
       >
         <FaFilm className="text-4xl text-blue-500" aria-hidden="true" />
-        <p className="font-mono text-xs tracking-wide text-gray-200">{dragActive ? 'Drop to load' : 'Click or drag a video'}</p>
-        <p className="text-[10px] text-gray-500">MP4 · WebM · MOV (≤30s recommended)</p>
+        <p className="font-mono text-xs tracking-wide text-gray-200">{dragActive ? t('tool.upload.dropToLoad') : t('tool.upload.clickOrDragVideo')}</p>
+        <p className="text-[10px] text-gray-500">{t('tool.upload.videoFormats')}</p>
         <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={handleFileInput} />
         {dragActive && <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-2 ring-blue-600/40" />}
       </div>

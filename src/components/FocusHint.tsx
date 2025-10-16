@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   focusMode: boolean;
@@ -6,6 +7,7 @@ interface Props {
 }
 
 const FocusHint: React.FC<Props> = ({ focusMode, mediaActive }) => {
+  const { t } = useTranslation();
   const [showDevice, setShowDevice] = useState(true);
   const [style, setStyle] = useState<{ left: number; top: number }>({ left: 16, top: 72 });
 
@@ -43,7 +45,7 @@ const FocusHint: React.FC<Props> = ({ focusMode, mediaActive }) => {
 
   if (!showDevice) return null;
 
-  const text = mediaActive ? "F Focus | G Grid | Shift+G Size" : "F Focus";
+  const text = mediaActive ? t('tool.keyboardHintFull') : t('tool.keyboardHintFocus');
   return (
     <div className="pointer-events-none fixed z-20 rounded bg-neutral-900/70 px-3 py-1 font-mono text-[10px] tracking-wide text-gray-300 shadow transition-all duration-150" style={{ left: style.left, top: style.top }} aria-label={text}>
       {text}
