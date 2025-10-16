@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG } from "../utils/export";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/ImageUploader";
 import VideoUploader from "../components/VideoUploader";
@@ -27,7 +27,12 @@ import PresetPanel from "../components/PresetPanel";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
-const DitheringTool: React.FC = () => {
+interface DitheringToolProps {
+  initialMode?: "image" | "video";
+}
+
+const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) => {
+  const navigate = useNavigate();
   const {
     images,
     setImages,
@@ -78,6 +83,18 @@ const DitheringTool: React.FC = () => {
   } = useSettings();
   const image = activeImageId ? images.find((i: UploadedImage) => i.id === activeImageId)?.url || null : null;
   const [localWebpChecked, setLocalWebpChecked] = useState(false);
+  
+  useEffect(() => {
+    if (initialMode === "video" && !videoMode) {
+      setVideoMode(true);
+      setImages([]);
+      setActiveImageId(null);
+    } else if (initialMode === "image" && videoMode) {
+      setVideoMode(false);
+      setVideoItem(null);
+    }
+  }, [initialMode, videoMode, setVideoMode, setImages, setActiveImageId, setVideoItem]);
+  
   useEffect(() => {
     if (localWebpChecked) return;
     try {
@@ -113,7 +130,7 @@ const DitheringTool: React.FC = () => {
     // For custom/original we preserve whatever Panel manages.
   }, [effectivePaletteId, paletteId]);
 
-  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius });
+  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode });
 
   const selectedAlgo = algorithms.find((a) => a.id === pattern);
   const isBinary = pattern === 15 || pattern === 10;
@@ -197,21 +214,9 @@ const DitheringTool: React.FC = () => {
 
   const switchMode = () => {
     if (videoMode) {
-      // switch to image mode
-      setVideoMode(false);
-      setVideoItem(null);
-      setVideoPlaying(true);
+      navigate("/Dithering/Image");
     } else {
-      // switch to video mode: clear images
-      setImages([]);
-      setActiveImageId(null);
-      try {
-        localStorage.removeItem("ds_images");
-        localStorage.removeItem("ds_activeImageId");
-      } catch {}
-      setVideoMode(true);
-      setVideoItem(null);
-      setVideoPlaying(true);
+      navigate("/Dithering/Video");
     }
   };
 
@@ -412,9 +417,16 @@ const DitheringTool: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Image & Video Dithering Tool | Multi Algorithm</title>
-        <meta name="description" content="Client-side image & video dithering: Floyd–Steinberg, Bayer, Sierra family, palettes & more." />
-        <link rel="canonical" href="https://ditheringstudio.com/Dithering" />
+        <title>{videoMode ? "Video Dithering Tool | Apply 8-Bit Effects to Videos Online" : "Image Dithering Tool | Multi-Algorithm Pixel Art Converter"}</title>
+        <meta
+          name="description"
+          content={
+            videoMode
+              ? "Apply retro dithering effects to videos online. Create 8-bit style videos, lofi aesthetics, vaporwave effects. Export as MP4, WebM, or GIF. Floyd-Steinberg, Bayer, Atkinson & more. Fully client-side."
+              : "Dither images online with Floyd-Steinberg, Bayer, Atkinson, Sierra, and more. Create retro pixel art, adjust palettes, export as PNG, JPEG, SVG. Fully client-side image dithering tool."
+          }
+        />
+        <link rel="canonical" href={videoMode ? "https://ditheringstudio.com/Dithering/Video" : "https://ditheringstudio.com/Dithering/Image"} />
         <script type="application/ld+json">
           {`
           {
@@ -430,14 +442,8 @@ const DitheringTool: React.FC = () => {
               {
                 "@type": "ListItem",
                 "position": 2,
-                "name": "Dithering Tool",
-                "item": "https://ditheringstudio.com/Dithering"
-              }
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "Algorithms details",
-                "item": "https://ditheringstudio.com/Algorithms"
+                "name": "${videoMode ? 'Video Dithering' : 'Image Dithering'}",
+                "item": "https://ditheringstudio.com/Dithering/${videoMode ? 'Video' : 'Image'}"
               }
             ]
           }

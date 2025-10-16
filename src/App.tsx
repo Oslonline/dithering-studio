@@ -11,7 +11,9 @@ const App: React.FC = () => (
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/Dithering" element={<DitheringTool />} />
+          <Route path="/Dithering" element={<DitheringTool initialMode="image" />} />
+          <Route path="/Dithering/Image" element={<DitheringTool initialMode="image" />} />
+          <Route path="/Dithering/Video" element={<DitheringTool initialMode="video" />} />
           <Route path="/Algorithms" element={<AlgorithmExplorer />} />
         </Routes>
       </Router>

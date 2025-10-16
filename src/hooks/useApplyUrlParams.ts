@@ -15,10 +15,11 @@ interface Params {
   setMidtones?: (n: number) => void;
   setHighlights?: (n: number) => void;
   setBlurRadius?: (n: number) => void;
+  setVideoMode?: (b: boolean) => void;
 }
 
 export function useApplyUrlParams(p: Params) {
-  const { setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius } = p;
+  const { setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode } = p;
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -65,6 +66,8 @@ export function useApplyUrlParams(p: Params) {
       }
       setPaletteId(pal);
     }
+    const mode = params.get('mode');
+    if (mode === 'video' && setVideoMode) setVideoMode(true);
   try {
       const clean = window.location.pathname + window.location.hash;
       window.history.replaceState({}, '', clean || '/');

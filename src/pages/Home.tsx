@@ -7,15 +7,15 @@ const Home: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Free Online Image Dithering Tool | Floyd Steinberg & Patterns</title>
-        <meta name="description" content="Dither your images online for free using the Floyd Steinberg algorithm and custom patterns. Fast, privacy-friendly, no upload or account required." />
-        <meta property="og:title" content="Free Online Image Dithering Tool" />
-        <meta property="og:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
+        <title>Free Online Image & Video Dithering Tool | Floyd Steinberg & More</title>
+        <meta name="description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art from images or apply 8-bit effects to videos. Fast, privacy-friendly, fully client-side – no uploads or account required." />
+        <meta property="og:title" content="Free Online Image & Video Dithering Tool" />
+        <meta property="og:description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art or apply 8-bit effects to videos." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ditheringstudio.com/" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Online Image Dithering Tool" />
-        <meta name="twitter:description" content="Dither your images online for free using the Floyd Steinberg algorithm, custom patterns and other popular algorithms." />
+        <meta name="twitter:title" content="Free Online Image & Video Dithering Tool" />
+        <meta name="twitter:description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art or apply 8-bit effects to videos." />
         <link rel="canonical" href="https://ditheringstudio.com/" />
       </Helmet>
 
@@ -23,21 +23,21 @@ const Home: React.FC = () => {
         <div className="flex flex-1 items-start justify-center">
           <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-24 pb-28">
             {/* HERO */}
-            <section data-hero className="flex min-h-[calc(100dvh-4rem)] w-full max-w-6xl flex-col items-center justify-center gap-7 py-6 sm:gap-8 sm:py-8 md:min-h-[calc(100dvh-5rem)]">
-              <header className="w-full max-w-3xl space-y-6 text-center">
-                <h1 className="font-anton text-[2.85rem] leading-tight tracking-tight sm:text-[3.2rem] md:text-[3.6rem] lg:text-[3.9rem]">Multi‑Algorithm Image Dithering</h1>
-                <p className="mx-auto max-w-xl text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px]">Drop an image → pick an algorithm → adjust settings → export instantly. 100% client‑side & free.</p>
+            <section data-hero className="flex min-h-[calc(100dvh-4rem)] w-full max-w-[90rem] flex-col items-center justify-center gap-7 py-6 sm:gap-8 sm:py-8 md:min-h-[calc(100dvh-5rem)]">
+              <header className="w-full max-w-4xl space-y-6 text-center">
+                <h1 className="font-anton text-[2.85rem] leading-tight tracking-tight sm:text-[3.2rem] md:text-[3.6rem] lg:text-[4.2rem] xl:text-[4.5rem]">Multi‑Algorithm Image & Video Dithering</h1>
+                <p className="mx-auto max-w-2xl text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px] lg:text-[14px]">Drop an image or video → pick an algorithm → adjust settings → export instantly. 100% client‑side & free.</p>
               </header>
-              <div className="relative max-h-[380px] w-full max-w-4xl overflow-hidden rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3 shadow-[0_0_0_1px_#181818,0_4px_18px_-6px_rgba(0,0,0,0.6)] backdrop-blur-sm sm:max-h-[400px] md:p-4">
+              <div className="relative max-h-[380px] w-full max-w-6xl overflow-hidden rounded-lg border border-neutral-800/60 bg-neutral-900/40 p-3 shadow-[0_0_0_1px_#181818,0_4px_18px_-6px_rgba(0,0,0,0.6)] backdrop-blur-sm sm:max-h-[420px] md:max-h-[480px] md:p-4 lg:max-h-[520px]">
                 <InfiniteImageScroll />
                 <p className="mt-3 text-center text-[10px] tracking-wide text-gray-500">Generated live • No account • No uploads leave your browser</p>
               </div>
-              <div className="flex flex-wrap justify-center gap-4 text-[11px] sm:text-xs md:text-[13px]">
-                <Link to="/Dithering" className="clean-btn clean-btn-primary">
-                  Open Tool
+              <div className="flex flex-col items-center gap-4 text-[11px] sm:text-xs md:text-[13px]">
+                <Link to="/Dithering/Image" className="clean-btn clean-btn-primary text-base px-8 py-3">
+                  Start Dithering
                 </Link>
-                <Link to="/Algorithms" className="clean-btn">
-                  Algorithm Reference
+                <Link to="/Algorithms" className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
+                  View algorithm reference
                 </Link>
               </div>
             </section>
@@ -51,10 +51,12 @@ const Home: React.FC = () => {
               </div>
               <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                 {[
-                  { t: "15+ algorithms", d: "Diffusion families, ordered matrices, stochastic & adaptive variants in one workspace." },
+                  { t: "25+ algorithms", d: "Diffusion families, ordered matrices, stochastic & adaptive variants in one workspace." },
+                  { t: "Image & video support", d: "Apply dithering to static images or videos. Create retro 8-bit effects, lofi aesthetics, vaporwave vibes." },
                   { t: "Color palette handling", d: "Apply built‑ins or custom sets (only where it adds value)." },
                   { t: "No account needed", d: "Zero signup. Zero tracking. Just load and work." },
-                  { t: "Instant export", d: "PNG • JPEG • WEBP • SVG — processed locally, ready immediately." },
+                  { t: "Instant export", d: "PNG • JPEG • WEBP • SVG for images, MP4 • WebM • GIF for videos — processed locally, ready immediately." },
+                  { t: "Fully client-side", d: "Your media never leaves your device. All processing happens in your browser for maximum privacy." },
                 ].map((f, i) => (
                   <div key={i} className="relative flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/40 p-5 transition-colors hover:border-neutral-700">
                     <span className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-gradient-to-b from-blue-500/60 via-blue-400/30 to-transparent opacity-80" />
@@ -70,11 +72,11 @@ const Home: React.FC = () => {
             <section className="w-full max-w-5xl space-y-10">
               <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">How It Works</h3>
               <ol className="mx-auto max-w-3xl list-inside list-decimal space-y-2 text-[11px] text-gray-400 sm:text-[12px] md:text-[13px]">
-                <li>Load an image (never leaves your machine).</li>
+                <li>Load an image or video (never leaves your machine).</li>
                 <li>Select an algorithm – ordered (Bayer, Blue Noise) or diffusion (Floyd–Steinberg family, Sierra, Stucki, etc.).</li>
                 <li>Adjust threshold / scale; optionally enable serpentine traversal for diffusion stability.</li>
                 <li>(If supported) Apply or craft a palette to constrain tones & produce stylized texture.</li>
-                <li>Download instantly in multiple formats — or export as SVG vector geometry.</li>
+                <li>Download instantly in multiple formats — PNG/JPEG/SVG for images, MP4/WebM/GIF for videos.</li>
               </ol>
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
@@ -147,20 +149,23 @@ const Home: React.FC = () => {
 
             {/* PRIVACY / PHILOSOPHY + OPEN SOURCE */}
             <section className="w-full max-w-5xl space-y-6">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">What is this?</h3>
+              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">Why Dithering Studio?</h3>
               <div className="mx-auto max-w-3xl space-y-4 text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px]">
                 <p>
-                  <span className="text-gray-200">Steinberg Image</span> started as a small experiment to compare classic error–diffusion kernels side by side and grew into a lightweight playground for exploring different dithering styles without friction.
+                  <span className="text-gray-200">Dithering Studio</span> is a complete online image and video dithering tool that brings retro pixel art effects to your browser. Whether you want to create 8-bit style videos, apply classic Floyd-Steinberg dithering to images, or experiment with vaporwave and lofi aesthetics, we've got you covered.
                 </p>
                 <p>
-                  It runs <span className="text-gray-200">fully client‑side</span> (no uploads, no tracking, no accounts) and is{" "}
+                  Everything runs <span className="text-gray-200">100% client‑side</span>—your images and videos never leave your device. No uploads, no tracking, no accounts required. Plus, it's{" "}
                   <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
                     open source (Apache 2.0)
-                  </a>{" "}
-                  so you can read, fork or adapt it.
+                  </a>
+                  , so you can inspect the code, fork it, or adapt it for your own projects.
                 </p>
                 <p>
-                  Inspired in spirit by tools like{" "}
+                  With <span className="text-gray-200">25+ dithering algorithms</span> including error diffusion (Floyd-Steinberg, Atkinson, Sierra family), ordered matrices (Bayer, Blue Noise), and experimental techniques, you can create everything from newspaper-style halftone effects to retro video game aesthetics. Export your work as PNG, JPEG, SVG for images—or MP4, WebM, GIF for videos.
+                </p>
+                <p>
+                  Inspired by tools like{" "}
                   <a href="https://ditherit.com/" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
                     Dither It
                   </a>{" "}
@@ -168,17 +173,17 @@ const Home: React.FC = () => {
                   <a href="https://studioaaa.com/product/dither-boy/" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
                     Dither Boy
                   </a>
-                  , but meant to combine their strengths (multi‑algorithm exploration, fast iteration, palette + threshold tweaking) in one minimal, distraction‑free place.
+                  , but built to handle both images and videos with real-time preview, custom palettes, and instant exports—all without leaving your browser.
                 </p>
-                <p>If it’s useful to you, a GitHub star helps visibility and future tweaks.</p>
+                <p>If this tool saves you time or sparks creativity, a GitHub star helps us reach more artists and developers!</p>
               </div>
             </section>
           </div>
         </div>
         <footer className="mt-auto flex flex-col gap-10 border-t border-neutral-900 pt-10 pb-12">
           <div className="flex flex-col items-center gap-5">
-            <Link to="/Dithering" className="clean-btn clean-btn-primary">
-              Open Dithering Tool
+            <Link to="/Dithering/Image" className="clean-btn clean-btn-primary">
+              Start Dithering
             </Link>
             <p className="text-[10px] tracking-wide text-gray-600">Fast • Local • Open</p>
           </div>
