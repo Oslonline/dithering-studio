@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { getAlgorithmDetail } from "../utils/algorithmInfo";
+import { getAlgorithmDetail } from "../../utils/algorithmInfo";
 
 interface Props { id: number; onClose: () => void; }
 

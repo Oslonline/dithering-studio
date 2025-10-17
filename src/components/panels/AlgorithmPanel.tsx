@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { algorithms, getAlgorithmsByCategory } from '../utils/algorithms';
-import { orderRampDarkToLight, DEFAULT_ASCII_RAMP } from '../utils/algorithms/asciiMosaic';
+import { algorithms, getAlgorithmsByCategory } from '../../utils/algorithms';
+import { orderRampDarkToLight, DEFAULT_ASCII_RAMP } from '../../utils/algorithms/asciiMosaic';
 
 interface AlgorithmPanelProps {
   pattern: number;

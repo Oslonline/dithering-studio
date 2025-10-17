@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { predefinedPalettes } from "../utils/palettes";
+import { predefinedPalettes } from "../../utils/palettes";
 
 interface PalettePanelProps {
   paletteId: string | null;

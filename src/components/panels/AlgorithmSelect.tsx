@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { algorithms, getAlgorithmsByCategory } from '../utils/algorithms';
+import { algorithms, getAlgorithmsByCategory } from '../../utils/algorithms';
 
 export interface AlgorithmSelectProps {
   pattern: number;

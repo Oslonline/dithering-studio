@@ -1,5 +1,5 @@
 import React from "react";
-import InfiniteImageScroll from "../components/InfiniteImageScroll";
+import InfiniteImageScroll from "../components/ui/InfiniteImageScroll";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";

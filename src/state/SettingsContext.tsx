@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import type { UploadedImage } from '../components/ImagesPanel';
+import type { UploadedImage } from '../components/panels/ImagesPanel';
 
 export interface SettingsContextValue {
   images: UploadedImage[];

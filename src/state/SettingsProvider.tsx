@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { SettingsContext } from './SettingsContext';
-import type { UploadedImage } from '../components/ImagesPanel';
+import type { UploadedImage } from '../components/panels/ImagesPanel';
 import { loadSettings, persistSettings } from './settingsPersistence';
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

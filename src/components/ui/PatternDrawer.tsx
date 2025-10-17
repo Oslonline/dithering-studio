@@ -1,4 +1,4 @@
-import { blueNoiseThreshold } from "../utils/algorithms/blueNoise";
+import { blueNoiseThreshold } from "../../utils/algorithms/blueNoise";
 
 export const patternOptions = [
   { value: 1, label: "Floyd-Steinberg (classic)" },

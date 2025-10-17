@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { DitherPreset, loadPresets, savePresets, createPreset, serializePreset, deserializePreset, DitherParams } from "../utils/presets";
+import { DitherPreset, loadPresets, savePresets, createPreset, serializePreset, deserializePreset, DitherParams } from "../../utils/presets";
 
 interface PresetPanelProps {
   current: { params: DitherParams; workingResolution: number; paletteId?: string | null; activePaletteColors?: [number, number, number][] | null };

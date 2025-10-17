@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { perf, PerfFrame } from '../utils/perf';
+import { perf, PerfFrame } from '../../utils/perf';
 
 const fmt = (n: number | undefined) => (n == null ? '-' : n.toFixed(1));
 

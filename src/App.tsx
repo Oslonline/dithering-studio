@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import DitheringTool from "./pages/DitheringTool";
 import AlgorithmExplorer from "./pages/AlgorithmExplorer";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./components/providers/ErrorBoundary";
 import { SettingsProvider } from "./state/SettingsProvider";
 
 const App: React.FC = () => (

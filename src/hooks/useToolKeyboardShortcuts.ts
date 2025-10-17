@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { UploadedImage } from '../components/ImagesPanel';
+import { UploadedImage } from '../components/panels/ImagesPanel';
 
 interface Params {
   images: UploadedImage[];

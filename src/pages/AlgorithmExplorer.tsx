@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { getTranslatedAlgorithmDetails } from "../utils/algorithmInfoTranslated";
 import { findAlgorithm } from "../utils/algorithms";
-import Header from "../components/Header";
+import Header from "../components/ui/Header";
 let importedSample: string | undefined;
 try {
   // @ts-ignore - optional asset

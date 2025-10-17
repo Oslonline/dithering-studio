@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { algorithms, getAlgorithmsByCategory } from "../utils/algorithms";
-import { DEFAULT_ASCII_RAMP } from "../utils/algorithms/asciiMosaic";
+import { algorithms, getAlgorithmsByCategory } from "../../utils/algorithms";
+import { DEFAULT_ASCII_RAMP } from "../../utils/algorithms/asciiMosaic";
 
 export interface AlgorithmControlsProps {
   pattern: number;
