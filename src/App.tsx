@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import DitheringTool from "./pages/DitheringTool";
 import AlgorithmExplorer from "./pages/AlgorithmExplorer";
 import ErrorBoundary from "./components/providers/ErrorBoundary";
+import { FeatureWarnings } from "./components/FeatureWarnings";
 import { SettingsProvider } from "./state/SettingsProvider";
 import { useWorkerPoolCleanup } from "./hooks/useDitheringWorker";
 
@@ -13,6 +14,7 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <SettingsProvider>
+        <FeatureWarnings />
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Home />} />
