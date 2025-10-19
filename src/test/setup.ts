@@ -7,22 +7,56 @@ afterEach(() => {
   cleanup();
 });
 
+// Polyfill ImageData for jsdom
+if (typeof global.ImageData === 'undefined') {
+  class ImageDataPolyfill {
+    data: Uint8ClampedArray;
+    width: number;
+    height: number;
+
+    constructor(dataOrWidth: Uint8ClampedArray | number, widthOrHeight: number, height?: number) {
+      if (dataOrWidth instanceof Uint8ClampedArray) {
+        // ImageData(data, width, height?)
+        this.data = dataOrWidth;
+        this.width = widthOrHeight;
+        this.height = height ?? dataOrWidth.length / (4 * widthOrHeight);
+      } else {
+        // ImageData(width, height)
+        this.width = dataOrWidth;
+        this.height = widthOrHeight;
+        this.data = new Uint8ClampedArray(dataOrWidth * widthOrHeight * 4);
+      }
+    }
+  }
+  
+  global.ImageData = ImageDataPolyfill as any;
+}
+
 // Mock canvas and image APIs
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
   fillStyle: '',
+  strokeStyle: '',
+  lineWidth: 1,
+  lineCap: 'butt',
+  lineJoin: 'miter',
+  miterLimit: 10,
+  font: '10px sans-serif',
+  textAlign: 'start',
+  textBaseline: 'alphabetic',
+  globalAlpha: 1,
+  globalCompositeOperation: 'source-over',
   fillRect: vi.fn(),
+  strokeRect: vi.fn(),
   clearRect: vi.fn(),
-  getImageData: vi.fn(() => ({
-    data: new Uint8ClampedArray(4),
-    width: 1,
-    height: 1
-  })),
+  fillText: vi.fn(),
+  strokeText: vi.fn(),
+  getImageData: vi.fn((x: number, y: number, width: number, height: number) => {
+    return new ImageData(width, height);
+  }),
   putImageData: vi.fn(),
-  createImageData: vi.fn(() => ({
-    data: new Uint8ClampedArray(4),
-    width: 1,
-    height: 1
-  })),
+  createImageData: vi.fn((width: number, height: number) => {
+    return new ImageData(width, height);
+  }),
   setTransform: vi.fn(),
   drawImage: vi.fn(),
   save: vi.fn(),

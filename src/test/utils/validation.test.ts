@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { validateImage, validateVideo, validateResolution, validateThreshold, validatePalette } from '../utils/validation';
-import { createMockFile, createMockVideoFile } from '../test/fixtures';
+import { validateImage, validateVideo, validateResolution, validateThreshold, validatePalette } from '../../utils/validation';
+import { createMockFile, createMockVideoFile } from '../fixtures';
 
 describe('validation utilities', () => {
   describe('validateImage', () => {
@@ -150,3 +150,6 @@ describe('validation utilities', () => {
     });
   });
 });
+
+
+

@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { runBlueNoise } from './orderedAndOther';
-import type { AlgorithmRunContext } from './types';
+import { runBlueNoise } from '../../../utils/algorithms/orderedAndOther';
+import type { AlgorithmRunContext } from '../../../utils/algorithms/types';
 import {
   createTestImageData,
   createGradientImageData,
   testPalettes,
-} from '../../test/fixtures';
+} from '../../fixtures';
 import {
   expectOnlyPaletteColors,
   expectImageModified,
-} from '../../test/algorithmTestUtils';
+} from '../../algorithmTestUtils';
 
 /**
  * Helper to create algorithm run context from ImageData
@@ -106,13 +106,13 @@ describe('Blue Noise Dithering', () => {
       expect(getPixel(32, 32)).toBe(getPixel(96, 32));
     });
 
-    it('should produce different results than Bayer', () => {
+    it('should produce different results than Bayer', async () => {
       const input = createTestImageData(64, 64, [128, 128, 128, 255]);
       
       const blueNoiseResult = runBlueNoise(createContext(input, { palette }));
       
       // Import Bayer for comparison
-      const { runBayer8 } = require('./bayer');
+      const { runBayer8 } = await import('../../../utils/algorithms/bayer');
       const bayerResult = runBayer8(createContext(input, { palette }));
       
       // Blue noise and Bayer should produce different patterns
@@ -185,3 +185,7 @@ describe('Blue Noise Dithering', () => {
     });
   });
 });
+
+
+
+

@@ -4,7 +4,7 @@
 
 import { expect } from 'vitest';
 import { createTestImageData, testPalettes } from './fixtures';
-import type { DitheringAlgorithm } from '../types/dither';
+import type { AlgorithmRunner } from '../utils/algorithms/types';
 
 /**
  * Performance measurement result
@@ -20,7 +20,7 @@ export interface PerformanceResult {
  * Measures algorithm performance
  */
 export function measureAlgorithmPerformance(
-  algorithm: DitheringAlgorithm,
+  algorithm: AlgorithmRunner,
   imageData: ImageData,
   palette: [number, number, number][],
   iterations: number = 3
@@ -29,7 +29,19 @@ export function measureAlgorithmPerformance(
   
   for (let i = 0; i < iterations; i++) {
     const start = performance.now();
-    algorithm(imageData, palette);
+    algorithm({
+      srcData: imageData.data,
+      width: imageData.width,
+      height: imageData.height,
+      params: {
+        pattern: 0,
+        threshold: 128,
+        invert: false,
+        serpentine: false,
+        isErrorDiffusion: false,
+        palette
+      }
+    });
     const end = performance.now();
     times.push(end - start);
   }
@@ -133,27 +145,42 @@ export function calculateHistogram(imageData: ImageData): number[] {
  * Verifies deterministic behavior (same input = same output)
  */
 export function expectDeterministicOutput(
-  algorithm: DitheringAlgorithm,
+  algorithm: AlgorithmRunner,
   imageData: ImageData,
   palette: [number, number, number][]
 ): void {
-  const result1 = algorithm(
-    new ImageData(
-      new Uint8ClampedArray(imageData.data),
-      imageData.width,
-      imageData.height
-    ),
-    palette
-  );
+  const ctx1 = {
+    srcData: new Uint8ClampedArray(imageData.data),
+    width: imageData.width,
+    height: imageData.height,
+    params: {
+      pattern: 0,
+      threshold: 128,
+      invert: false,
+      serpentine: false,
+      isErrorDiffusion: false,
+      palette
+    }
+  };
   
-  const result2 = algorithm(
-    new ImageData(
-      new Uint8ClampedArray(imageData.data),
-      imageData.width,
-      imageData.height
-    ),
-    palette
-  );
+  const ctx2 = {
+    srcData: new Uint8ClampedArray(imageData.data),
+    width: imageData.width,
+    height: imageData.height,
+    params: {
+      pattern: 0,
+      threshold: 128,
+      invert: false,
+      serpentine: false,
+      isErrorDiffusion: false,
+      palette
+    }
+  };
+  
+  const result1Data = algorithm(ctx1);
+  const result2Data = algorithm(ctx2);
+  const result1 = result1Data instanceof ImageData ? result1Data : new ImageData(new Uint8ClampedArray(result1Data), imageData.width, imageData.height);
+  const result2 = result2Data instanceof ImageData ? result2Data : new ImageData(new Uint8ClampedArray(result2Data), imageData.width, imageData.height);
   
   expect(compareImageData(result1, result2)).toBe(true);
 }
@@ -180,26 +207,38 @@ export function imageDataToArray(imageData: ImageData): number[] {
  * Test that algorithm handles edge cases
  */
 export function testAlgorithmEdgeCases(
-  algorithm: DitheringAlgorithm,
+  algorithm: AlgorithmRunner,
   algorithmName: string
 ): void {
+  const palette = testPalettes.blackAndWhite as [number, number, number][];
+  const baseParams = {
+    pattern: 0,
+    threshold: 128,
+    invert: false,
+    serpentine: false,
+    isErrorDiffusion: false,
+    palette
+  };
+  
   // Test with 1x1 image
   const tiny = createTestImageData(1, 1, [128, 128, 128, 255]);
-  expect(() => algorithm(tiny, testPalettes.blackAndWhite as any)).not.toThrow();
+  expect(() => algorithm({ srcData: tiny.data, width: tiny.width, height: tiny.height, params: baseParams })).not.toThrow();
   
   // Test with minimal palette (2 colors)
   const small = createTestImageData(4, 4, [128, 128, 128, 255]);
-  expect(() => algorithm(small, testPalettes.blackAndWhite as any)).not.toThrow();
+  expect(() => algorithm({ srcData: small.data, width: small.width, height: small.height, params: baseParams })).not.toThrow();
   
   // Test with all-black image
   const black = createTestImageData(8, 8, [0, 0, 0, 255]);
-  const blackResult = algorithm(black, testPalettes.blackAndWhite as any);
-  expectOnlyPaletteColors(blackResult, testPalettes.blackAndWhite as any);
+  const blackResultData = algorithm({ srcData: black.data, width: black.width, height: black.height, params: baseParams });
+  const blackResult = blackResultData instanceof ImageData ? blackResultData : new ImageData(new Uint8ClampedArray(blackResultData), black.width, black.height);
+  expectOnlyPaletteColors(blackResult, palette);
   
   // Test with all-white image
   const white = createTestImageData(8, 8, [255, 255, 255, 255]);
-  const whiteResult = algorithm(white, testPalettes.blackAndWhite as any);
-  expectOnlyPaletteColors(whiteResult, testPalettes.blackAndWhite as any);
+  const whiteResultData = algorithm({ srcData: white.data, width: white.width, height: white.height, params: baseParams });
+  const whiteResult = whiteResultData instanceof ImageData ? whiteResultData : new ImageData(new Uint8ClampedArray(whiteResultData), white.width, white.height);
+  expectOnlyPaletteColors(whiteResult, palette);
 }
 
 /**
@@ -208,7 +247,7 @@ export function testAlgorithmEdgeCases(
 export interface BenchmarkSuite {
   algorithms: Array<{
     name: string;
-    fn: DitheringAlgorithm;
+    fn: AlgorithmRunner;
   }>;
   imageSizes: Array<{ width: number; height: number; label: string }>;
   palettes: Array<{

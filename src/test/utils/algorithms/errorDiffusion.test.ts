@@ -14,17 +14,17 @@ import {
   runAdaptiveOstromoukhov,
   runAdaptiveFS3,
   runAdaptiveFS7,
-} from './errorDiffusion';
-import type { AlgorithmRunContext } from './types';
+} from '../../../utils/algorithms/errorDiffusion';
+import type { AlgorithmRunContext } from '../../../utils/algorithms/types';
 import {
   createTestImageData,
   createGradientImageData,
   testPalettes,
-} from '../../test/fixtures';
+} from '../../fixtures';
 import {
   expectOnlyPaletteColors,
   expectImageModified,
-} from '../../test/algorithmTestUtils';
+} from '../../algorithmTestUtils';
 
 /**
  * Helper to create algorithm run context from ImageData
@@ -324,3 +324,7 @@ describe('Error Diffusion Algorithms', () => {
     });
   });
 });
+
+
+
+

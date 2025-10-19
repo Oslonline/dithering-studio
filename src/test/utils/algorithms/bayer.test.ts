@@ -5,16 +5,16 @@ import {
   runBayer8,
   runBayer16,
   runBayer32,
-} from './bayer';
-import type { AlgorithmRunContext } from './types';
+} from '../../../utils/algorithms/bayer';
+import type { AlgorithmRunContext } from '../../../utils/algorithms/types';
 import {
   createTestImageData,
   createGradientImageData,
   testPalettes,
-} from '../../test/fixtures';
+} from '../../fixtures';
 import {
   expectOnlyPaletteColors,
-} from '../../test/algorithmTestUtils';
+} from '../../algorithmTestUtils';
 
 /**
  * Helper to create algorithm run context from ImageData
@@ -294,3 +294,7 @@ describe('Bayer Dithering Algorithms', () => {
     });
   });
 });
+
+
+
+
