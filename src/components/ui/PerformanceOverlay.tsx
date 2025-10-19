@@ -17,7 +17,7 @@ const PerformanceOverlay: React.FC<Props> = ({ hasImage, originalBytes, processe
   const entries = Object.entries(phases).sort((a,b)=>b[1]-a[1]);
   const kb = (b?: number | null) => (b == null ? '-' : (b / 1024).toFixed(b < 200*1024 ? 1 : 0) + ' KB');
   return (
-    <div className="fixed bottom-2 right-2 z-50 flex flex-col items-end gap-1 font-mono tracking-wide text-[10px]">
+    <div className="hidden md:flex fixed bottom-2 right-2 z-50 flex-col items-end gap-1 font-mono tracking-wide text-[10px]">
       {hasImage && (
         <button onClick={()=>setOpen(o=>!o)} className="clean-btn px-2 py-1 !text-[10px] border border-neutral-700 bg-neutral-900/80 backdrop-blur-sm">{t('tool.performance.perf')} {open?'▼':'▲'} {fmt(total)}ms</button>
       )}
@@ -37,8 +37,10 @@ const PerformanceOverlay: React.FC<Props> = ({ hasImage, originalBytes, processe
           </div>
         </div>
       )}
-      <div className="pointer-events-none select-none text-gray-500 opacity-70 text-right">
-        <div>{t('tool.performance.localProcessing')}</div>
+      {/* Info hints */}
+      <div className="pointer-events-none select-none text-gray-600 text-right text-[9px]">
+        <div>Drag to pan • Scroll to zoom</div>
+        <div>All processing local • No uploads</div>
       </div>
     </div>
   );

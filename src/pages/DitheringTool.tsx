@@ -19,7 +19,6 @@ import ImageComparison from "../components/ui/ImageComparison";
 import CanvasViewport from "../components/canvas/CanvasViewport";
 import ExportDialog from "../components/dialogs/ExportDialog";
 import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDialog";
-import FocusHint from "../components/ui/FocusHint";
 import Header from "../components/ui/Header";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
 import useVideoRecording from "../hooks/useVideoRecording";
@@ -708,7 +707,6 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           lastFormat={lastDownloadFormat}
           isVideo={videoMode}
         />
-        <FocusHint focusMode={focusMode} mediaActive={mediaActive} />
         <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />
         <ProcessingOverlay 
           isProcessing={busy || false} 
