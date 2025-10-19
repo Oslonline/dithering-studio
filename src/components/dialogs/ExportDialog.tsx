@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getAllFormatSizes, formatBytes } from '../../utils/fileSizeEstimator';
+import { triggerHaptic } from '../../utils/haptic';
 
 interface ExportDialogProps {
   open: boolean;
@@ -54,6 +56,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
   const { t } = useTranslation();
   const downloadRef = useRef<HTMLDivElement | null>(null);
 
+  // Calculate file size estimates
+  const fileSizes = useMemo(() => {
+    const canvas = processedCanvasRef.current || canvasRef.current;
+    return getAllFormatSizes(canvas);
+  }, [processedCanvasRef, canvasRef, open]);
+
   // Outside click & ESC close
   useEffect(() => {
     if (!open) return;
@@ -81,8 +89,8 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
+      <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl animate-scale-in">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-mono text-xs tracking-wide text-gray-300">{videoMode ? t('tool.exportDialog.titleVideo') : t('tool.exportDialog.titleImage')}</h2>
           <button onClick={onClose} className="clean-btn px-2 py-0 text-[11px]">✕</button>
@@ -93,13 +101,58 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
             {videoMode && <span className="text-[10px] text-gray-500">{t('tool.exportDialog.currentFrame')}</span>}
           </div>
           <div className="grid grid-cols-4 gap-2">
-            <button onClick={() => downloadImageAs('png')} className="clean-btn w-full text-[11px]">PNG</button>
-            <button onClick={() => downloadImageAs('jpeg')} className="clean-btn w-full text-[11px]">JPEG</button>
-            <button onClick={() => downloadImageAs('webp')} disabled={!webpSupported} className={`clean-btn w-full text-[11px] ${!webpSupported ? 'cursor-not-allowed opacity-40' : ''}`}>WEBP</button>
+            <button 
+              onClick={() => {
+                triggerHaptic('success');
+                downloadImageAs('png');
+              }} 
+              className="clean-btn w-full text-[11px] flex flex-col items-center gap-0.5"
+            >
+              <span>PNG</span>
+              {fileSizes.png && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.png)}</span>}
+            </button>
+            <button 
+              onClick={() => {
+                triggerHaptic('success');
+                downloadImageAs('jpeg');
+              }} 
+              className="clean-btn w-full text-[11px] flex flex-col items-center gap-0.5"
+            >
+              <span>JPEG</span>
+              {fileSizes.jpeg && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.jpeg)}</span>}
+            </button>
+            <button 
+              onClick={() => {
+                triggerHaptic('success');
+                downloadImageAs('webp');
+              }} 
+              disabled={!webpSupported} 
+              className={`clean-btn w-full text-[11px] flex flex-col items-center gap-0.5 ${!webpSupported ? 'cursor-not-allowed opacity-40' : ''}`}
+            >
+              <span>WEBP</span>
+              {webpSupported && fileSizes.webp && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.webp)}</span>}
+            </button>
             {!videoMode && (
-              <button onClick={downloadAsSVG} className="clean-btn w-full text-[11px]">SVG</button>
+              <button 
+                onClick={() => {
+                  triggerHaptic('success');
+                  downloadAsSVG();
+                }} 
+                className="clean-btn w-full text-[11px] flex flex-col items-center gap-0.5"
+              >
+                <span>SVG</span>
+                {fileSizes.svg && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.svg)}</span>}
+              </button>
             )}
-            <button onClick={copyFrameToClipboard} className="clean-btn w-full text-[11px]">{t('tool.exportDialog.clipboard')}</button>
+            <button 
+              onClick={() => {
+                triggerHaptic('light');
+                copyFrameToClipboard();
+              }} 
+              className="clean-btn w-full text-[11px]"
+            >
+              {t('tool.exportDialog.clipboard')}
+            </button>
           </div>
         </div>
         {videoMode && (

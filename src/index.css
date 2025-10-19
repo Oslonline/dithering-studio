@@ -267,3 +267,202 @@ html, body {
 @media (min-resolution: 2dppx) {
   .grid-overlay { background-size: 6px 6px; }
 }
+
+/* Animation keyframes for smooth UI transitions */
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Utility classes for applying animations */
+.animate-slide-in-up {
+  animation: slide-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-in-down {
+  animation: slide-in-down 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Transition utilities with custom easing curves */
+.transition-micro {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-smooth {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dual-shadow focus ring for keyboard navigation accessibility */
+.focus-enhanced:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), 0 0 0 6px rgba(37, 99, 235, 0.1);
+  transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Scale-down button active state for tactile feedback */
+.clean-btn:active:not(:disabled),
+.preset-icon-btn:active:not(:disabled) {
+  transform: scale(0.97) translateY(1px);
+  transition: transform 0.1s ease;
+}
+
+/* Panel expansion animations */
+.panel-expand {
+  animation: slide-in-down 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top;
+}
+
+.panel-collapse {
+  animation: slide-in-up 0.2s cubic-bezier(0.4, 0, 1, 1) reverse;
+  transform-origin: top;
+}
+
+/* Webkit slider thumb with scale hover and grab cursor */
+.clean-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  border: 2px solid #0d0d0d;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.clean-range::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.4), 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.clean-range:active::-webkit-slider-thumb {
+  transform: scale(0.95);
+  background: var(--c-accent-hover);
+  cursor: grabbing;
+}
+
+.clean-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  border: 2px solid #0d0d0d;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.clean-range::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.4), 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.clean-range:active::-moz-range-thumb {
+  transform: scale(0.95);
+  background: var(--c-accent-hover);
+  cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Accessibility: disable animations for users with motion sensitivity */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shimmer effect for loading states */
+.processing-pulse {
+  position: relative;
+  overflow: hidden;
+}
+
+.processing-pulse::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(37, 99, 235, 0.15),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  to {
+    left: 100%;
+  }
+}

@@ -14,6 +14,9 @@ import UploadIntro from "../components/uploaders/UploadIntro";
 import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
 import PerformanceOverlay from "../components/ui/PerformanceOverlay";
+import ProcessingOverlay from "../components/ui/ProcessingOverlay";
+import ImageComparison from "../components/ui/ImageComparison";
+import CanvasViewport from "../components/canvas/CanvasViewport";
 import ExportDialog from "../components/dialogs/ExportDialog";
 import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDialog";
 import FocusHint from "../components/ui/FocusHint";
@@ -25,6 +28,7 @@ import useApplyUrlParams from "../hooks/useApplyUrlParams";
 import { perf } from "../utils/perf";
 import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
+import { triggerHaptic } from "../utils/haptic";
 import PresetPanel from "../components/panels/PresetPanel";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
@@ -86,6 +90,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   } = useSettings();
   const image = activeImageId ? images.find((i: UploadedImage) => i.id === activeImageId)?.url || null : null;
   const [localWebpChecked, setLocalWebpChecked] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [canvasDimensions, setCanvasDimensions] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
   
   useEffect(() => {
     if (initialMode === "video" && !videoMode) {
@@ -195,6 +201,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     blurRadius,
   });
   const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = videoMode ? videoHook : imageHook;
+  const busy = !videoMode ? (imageHook as any).busy : false;
   const videoDuration = videoMode ? (videoHook as any).duration : 0;
   const videoCurrentTime = videoMode ? (videoHook as any).currentTime : 0;
   const videoReady = videoMode ? (videoHook as any).ready : false;
@@ -227,6 +234,15 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   useEffect(() => {
     perf.reset();
   }, [activeImageId]);
+
+  // Update canvas dimensions for ImageComparison sizing
+  useEffect(() => {
+    if (canvasRef.current && hasApplied) {
+      const width = canvasRef.current.style.width || 'auto';
+      const height = canvasRef.current.style.height || 'auto';
+      setCanvasDimensions({ width, height });
+    }
+  }, [hasApplied, canvasUpdatedFlag]);
 
   useToolKeyboardShortcuts({ images, activeImageId, setActiveImageId, setFocusMode: (fn: any) => setFocusMode(fn), setShowGrid: (fn: any) => setShowGrid(fn), setGridSize, mediaActive });
 
@@ -554,7 +570,16 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                       <button type="button" onClick={copyShareUrl} className="clean-btn basis-1/3 justify-center text-[11px]" title={t('tool.shareSettingsTitle')}>
                         {shareCopied ? t('tool.copied') : t('tool.share')}
                       </button>
-                      <button onClick={() => hasApplied && setShowDownload(true)} disabled={!hasApplied} className={`clean-btn clean-btn-primary basis-2/3 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}>
+                      <button 
+                        onClick={() => {
+                          if (hasApplied) {
+                            triggerHaptic('medium');
+                            setShowDownload(true);
+                          }
+                        }} 
+                        disabled={!hasApplied} 
+                        className={`clean-btn clean-btn-primary basis-2/3 justify-center text-[11px] ${!hasApplied ? "cursor-not-allowed opacity-50" : ""}`}
+                      >
                         {t('tool.download')}
                       </button>
                     </div>
@@ -586,35 +611,68 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
               </div>
             )}
             {mediaActive && !videoMode && image && (
-              <div className="flex h-full w-full items-center justify-center overflow-auto">
-                <div className="canvas-frame flex items-center justify-center p-2" style={{ background: "transparent", border: "none" }}>
-                  <div className="relative">
-                    <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredImagePreview')} />
-                    {showGrid && (
-                      <>
-                        <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
-                        <button
-                          onClick={() => {
-                            const order = [4, 6, 8, 12, 16];
-                            setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
-                          }}
-                          className="grid-size-badge"
-                          title={t('tool.cycleGridSize')}
-                        >
-                          {gridSize}px
-                        </button>
-                      </>
-                    )}
-                  </div>
+              <CanvasViewport>
+                <div className="relative inline-block">
+                  {/* Canvas always renders - this is the source of truth for the processed (dithered) image */}
+                  <canvas 
+                    ref={canvasRef} 
+                    className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} 
+                    aria-label={t('tool.ariaDitheredImagePreview')} 
+                  />
+                  
+                  {/* Comparison overlay - reveals original image on the left side via slider */}
+                  {/* The right side is transparent, showing the canvas (processed image) underneath */}
+                  {showComparison && (
+                    <div className="absolute inset-0 pointer-events-auto">
+                      <ImageComparison
+                        beforeImage={image}
+                        beforeLabel="Original"
+                        afterLabel="Dithered"
+                        width={canvasDimensions.width}
+                        height={canvasDimensions.height}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Grid overlay */}
+                  {showGrid && !showComparison && (
+                    <>
+                      <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
+                      <button
+                        onClick={() => {
+                          const order = [4, 6, 8, 12, 16];
+                          setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
+                        }}
+                        className="grid-size-badge"
+                        title={t('tool.cycleGridSize')}
+                      >
+                        {gridSize}px
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Compare toggle button */}
+                  {hasApplied && (
+                    <button
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setShowComparison(!showComparison);
+                      }}
+                      className="absolute top-2 right-2 clean-btn text-[10px] px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800/90 z-10"
+                      title={showComparison ? "Show dithered only" : "Compare before/after"}
+                    >
+                      {showComparison ? "Hide Comparison" : "Compare"}
+                    </button>
+                  )}
                 </div>
-              </div>
+              </CanvasViewport>
             )}
             {mediaActive && videoMode && videoItem && (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-2 overflow-auto p-2">
-                <div className="canvas-frame flex items-center justify-center" style={{ background: "transparent", border: "none" }}>
+              <CanvasViewport>
+                <div className="relative inline-block">
                   <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
                 </div>
-              </div>
+              </CanvasViewport>
             )}
           </main>
         </div>
@@ -652,6 +710,10 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         />
         <FocusHint focusMode={focusMode} mediaActive={mediaActive} />
         <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />
+        <ProcessingOverlay 
+          isProcessing={busy || false} 
+          operation={videoMode ? "Processing video frame" : "Dithering image"} 
+        />
       </div>
     </>
   );

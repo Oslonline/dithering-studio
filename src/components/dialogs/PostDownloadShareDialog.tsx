@@ -101,8 +101,8 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <div ref={dialogRef} className="relative w-full max-w-sm overflow-hidden rounded-lg border border-neutral-800/70 bg-gradient-to-b from-[#161616] to-[#0b0b0b] p-5 shadow-[0_0_0_1px_#222,inset_0_0_30px_-10px_rgba(255,255,255,0.07)]">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" />
+      <div ref={dialogRef} className="relative w-full max-w-sm overflow-hidden rounded-lg border border-neutral-800/70 bg-gradient-to-b from-[#161616] to-[#0b0b0b] p-5 shadow-[0_0_0_1px_#222,inset_0_0_30px_-10px_rgba(255,255,255,0.07)] animate-scale-in">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-mono text-[11px] tracking-wider text-gray-300">{t('tool.shareDialog.title')}</h2>
           <button onClick={onClose} className="clean-btn px-2 py-0 text-[11px]">
