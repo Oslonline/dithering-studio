@@ -1,7 +1,10 @@
 import { AlgorithmRunContext } from './types';
 import { quantizeToPalette } from './paletteUtil';
 
-// Generic kernel runner (supports palette + serpentine)
+/**
+ * Generic error diffusion kernel runner
+ * Time: O(n × k), Space: O(n)
+ */
 function createKernelRunner(matrix: number[][], divisor: number, serpentineDefault = false) {
   return function runKernel({ srcData, width, height, params }: AlgorithmRunContext) {
     const out = new Uint8ClampedArray(srcData);
