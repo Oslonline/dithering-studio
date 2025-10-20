@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { createFocusTrap } from "../../utils/a11y";
 
 interface PostDownloadShareDialogProps {
   open: boolean;
@@ -56,6 +57,16 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
     };
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onKey);
+    
+    if (dialogRef.current) {
+      const cleanup = createFocusTrap(dialogRef.current);
+      return () => {
+        document.removeEventListener("mousedown", onDoc);
+        document.removeEventListener("keydown", onKey);
+        cleanup();
+      };
+    }
+    
     return () => {
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onKey);
@@ -101,17 +112,27 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" />
-      <div ref={dialogRef} className="relative w-full max-w-sm overflow-hidden rounded-lg border border-neutral-800/70 bg-gradient-to-b from-[#161616] to-[#0b0b0b] p-5 shadow-[0_0_0_1px_#222,inset_0_0_30px_-10px_rgba(255,255,255,0.07)] animate-scale-in">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" aria-hidden="true" />
+      <div 
+        ref={dialogRef} 
+        className="relative w-full max-w-sm overflow-hidden rounded-lg border border-neutral-800/70 bg-gradient-to-b from-[#161616] to-[#0b0b0b] p-5 shadow-[0_0_0_1px_#222,inset_0_0_30px_-10px_rgba(255,255,255,0.07)] animate-scale-in"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-dialog-title"
+      >
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-mono text-[11px] tracking-wider text-gray-300">{t('tool.shareDialog.title')}</h2>
-          <button onClick={onClose} className="clean-btn px-2 py-0 text-[11px]">
+          <h2 id="share-dialog-title" className="font-mono text-[11px] tracking-wider text-gray-300">{t('tool.shareDialog.title')}</h2>
+          <button 
+            onClick={onClose} 
+            className="clean-btn px-2 py-0 text-[11px]"
+            aria-label={t('tool.shareDialog.close')}
+          >
             ✕
           </button>
         </div>
         {preview && (
           <div className="mb-4 rounded-md border border-neutral-800/80 bg-neutral-900/60 p-2">
-            <img src={preview} alt="Downloaded preview" className="mx-auto max-h-48 w-auto object-contain" />
+            <img src={preview} alt={isVideo ? t('tool.shareDialog.videoPreview') : t('tool.shareDialog.imagePreview')} className="mx-auto max-h-48 w-auto object-contain" />
           </div>
         )}
         <div className="mb-5 space-y-2 text-[11px] leading-snug text-gray-400">
@@ -124,7 +145,12 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
             </p>
           )}
         </div>
-        <button onClick={share} disabled={sharing} className={`clean-btn clean-btn-primary mb-3 w-full justify-center text-[11px] ${sharing ? "cursor-not-allowed opacity-60" : ""}`}>
+        <button 
+          onClick={share} 
+          disabled={sharing} 
+          className={`clean-btn clean-btn-primary mb-3 w-full justify-center text-[11px] ${sharing ? "cursor-not-allowed opacity-60" : ""}`}
+          aria-label={t('tool.shareDialog.shareButton')}
+        >
           {sharing ? t('tool.shareDialog.preparing') : t('tool.shareDialog.shareOnX')}
         </button>
         {notice && <p className="mb-2 text-center text-[10px] text-amber-400">{notice}</p>}

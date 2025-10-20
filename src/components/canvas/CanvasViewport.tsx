@@ -138,7 +138,6 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {

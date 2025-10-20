@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import LiveRegion from './LiveRegion';
 
 interface ProcessingOverlayProps {
   isProcessing: boolean;
@@ -21,12 +22,17 @@ const ProcessingOverlay: React.FC<ProcessingOverlayProps> = ({
   className = '',
 }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [announcementMessage, setAnnouncementMessage] = useState('');
 
   useEffect(() => {
     if (!isProcessing) {
       setElapsedTime(0);
+      setAnnouncementMessage('');
       return;
     }
+
+    // Announce start of processing
+    setAnnouncementMessage(`${operation} started`);
 
     const startTime = Date.now();
     const interval = setInterval(() => {
@@ -34,7 +40,18 @@ const ProcessingOverlay: React.FC<ProcessingOverlayProps> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isProcessing]);
+  }, [isProcessing, operation]);
+
+  // Announce progress milestones
+  useEffect(() => {
+    if (!isProcessing || progress === undefined) return;
+
+    if (progress === 25 || progress === 50 || progress === 75) {
+      setAnnouncementMessage(`${operation} ${progress}% complete`);
+    } else if (progress === 100) {
+      setAnnouncementMessage(`${operation} complete`);
+    }
+  }, [progress, isProcessing, operation]);
 
   if (!isProcessing) return null;
 
@@ -91,6 +108,8 @@ const ProcessingOverlay: React.FC<ProcessingOverlayProps> = ({
           </div>
         )}
       </div>
+
+      <LiveRegion message={announcementMessage} priority="polite" />
     </div>
   );
 };

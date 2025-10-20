@@ -27,7 +27,8 @@ const Header: React.FC<HeaderProps> = ({ page, videoMode, onModeSwitch }) => {
                 type="button"
                 onClick={onModeSwitch}
                 className={`px-3 py-1.5 text-[10px] font-medium tracking-wide rounded transition-all ${!videoMode ? "bg-blue-600/90 text-white" : "text-gray-400 hover:text-gray-200"}`}
-                title={t("tool.switchToImages")}
+                aria-label={t("tool.switchToImages")}
+                aria-pressed={!videoMode}
               >
                 {t("tool.imageMode")}
               </button>
@@ -35,7 +36,8 @@ const Header: React.FC<HeaderProps> = ({ page, videoMode, onModeSwitch }) => {
                 type="button"
                 onClick={onModeSwitch}
                 className={`px-3 py-1.5 text-[10px] font-medium tracking-wide rounded transition-all ${videoMode ? "bg-blue-600/90 text-white" : "text-gray-400 hover:text-gray-200"}`}
-                title={t("tool.switchToVideo")}
+                aria-label={t("tool.switchToVideo")}
+                aria-pressed={videoMode}
               >
                 {t("tool.videoMode")}
               </button>

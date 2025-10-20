@@ -24,6 +24,8 @@ import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
 import useVideoRecording from "../hooks/useVideoRecording";
 import useSettingsHeight from "../hooks/useSettingsHeight";
 import useApplyUrlParams from "../hooks/useApplyUrlParams";
+import { useKeyboardShortcutsModal } from "../hooks/useKeyboardShortcutsModal";
+import KeyboardShortcutsModal from "../components/dialogs/KeyboardShortcutsModal";
 import { perf } from "../utils/perf";
 import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
@@ -139,6 +141,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   }, [effectivePaletteId, paletteId]);
 
   useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode });
+
+  const { isOpen: isShortcutsOpen, close: closeShortcuts } = useKeyboardShortcutsModal();
 
   const selectedAlgo = algorithms.find((a) => a.id === pattern);
   const isBinary = pattern === 15 || pattern === 10;
@@ -468,7 +472,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         <div ref={headerRef as React.RefObject<HTMLDivElement>} className={focusMode ? "hidden" : ""}>
           <Header page="tool" videoMode={videoMode} onModeSwitch={switchMode} />
         </div>
-        <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
+        <div id="main-content" className="flex flex-1 flex-col overflow-hidden md:flex-row">
           {!focusMode && (
             <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
               <div className="flex flex-1 flex-col overflow-hidden">
@@ -712,6 +716,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           isProcessing={busy || false} 
           operation={videoMode ? "Processing video frame" : "Dithering image"} 
         />
+        <KeyboardShortcutsModal isOpen={isShortcutsOpen} onClose={closeShortcuts} />
       </div>
     </>
   );

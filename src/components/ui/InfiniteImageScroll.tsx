@@ -36,10 +36,10 @@ const InfiniteImageScroll: React.FC = () => {
     <div className="w-full overflow-hidden" ref={containerRef}>
       <div className="flex space-x-3 sm:space-x-4">
         {images.map((src, index) => (
-          <img key={index} src={src} alt={`hero-${index + 1}`} className="h-40 w-auto flex-shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52" loading="lazy" />
+          <img key={index} src={src} alt="" role="presentation" className="h-40 w-auto flex-shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52" loading="lazy" />
         ))}
         {images.map((src, index) => (
-          <img key={`repeat-${index}`} src={src} alt={`repeat-hero-${index + 1}`} className="h-40 w-auto flex-shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52" loading="lazy" />
+          <img key={`repeat-${index}`} src={src} alt="" role="presentation" className="h-40 w-auto flex-shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52" loading="lazy" />
         ))}
       </div>
     </div>

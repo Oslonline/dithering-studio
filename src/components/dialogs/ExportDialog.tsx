@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAllFormatSizes, formatBytes } from '../../utils/fileSizeEstimator';
 import { triggerHaptic } from '../../utils/haptic';
+import { createFocusTrap } from '../../utils/a11y';
 
 interface ExportDialogProps {
   open: boolean;
@@ -75,6 +76,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
     return () => { document.removeEventListener('mousedown', onDocClick); document.removeEventListener('keydown', onKey); };
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (!open || !downloadRef.current) return;
+    const cleanup = createFocusTrap(downloadRef.current);
+    return cleanup;
+  }, [open]);
+
   if (!open || !((image && !videoMode) || (videoMode && videoItem))) return null;
 
   const copyFrameToClipboard = () => {
@@ -89,11 +96,31 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
-      <div ref={downloadRef} className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl animate-scale-in">
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" 
+        aria-hidden="true"
+      />
+      <div 
+        ref={downloadRef} 
+        className="relative w-full max-w-md rounded border border-neutral-800 bg-[#111] p-5 shadow-2xl animate-scale-in"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-dialog-title"
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-mono text-xs tracking-wide text-gray-300">{videoMode ? t('tool.exportDialog.titleVideo') : t('tool.exportDialog.titleImage')}</h2>
-          <button onClick={onClose} className="clean-btn px-2 py-0 text-[11px]">✕</button>
+          <h2 
+            id="export-dialog-title"
+            className="font-mono text-xs tracking-wide text-gray-300"
+          >
+            {videoMode ? t('tool.exportDialog.titleVideo') : t('tool.exportDialog.titleImage')}
+          </h2>
+          <button 
+            onClick={onClose} 
+            className="clean-btn px-2 py-0 text-[11px]"
+            aria-label="Close export dialog"
+          >
+            ✕
+          </button>
         </div>
         <div className="mb-3">
           <div className="mb-2 flex items-center justify-between">
@@ -107,9 +134,10 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
                 downloadImageAs('png');
               }} 
               className="clean-btn w-full text-[11px] flex flex-col items-center gap-0.5"
+              aria-label={`Export as PNG${fileSizes.png ? `, estimated size ${formatBytes(fileSizes.png)}` : ''}`}
             >
               <span>PNG</span>
-              {fileSizes.png && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.png)}</span>}
+              {fileSizes.png && <span className="text-[9px] text-gray-500" aria-hidden="true">{formatBytes(fileSizes.png)}</span>}
             </button>
             <button 
               onClick={() => {
@@ -117,9 +145,10 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
                 downloadImageAs('jpeg');
               }} 
               className="clean-btn w-full text-[11px] flex flex-col items-center gap-0.5"
+              aria-label={`Export as JPEG${fileSizes.jpeg ? `, estimated size ${formatBytes(fileSizes.jpeg)}` : ''}`}
             >
               <span>JPEG</span>
-              {fileSizes.jpeg && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.jpeg)}</span>}
+              {fileSizes.jpeg && <span className="text-[9px] text-gray-500" aria-hidden="true">{formatBytes(fileSizes.jpeg)}</span>}
             </button>
             <button 
               onClick={() => {
@@ -128,9 +157,10 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
               }} 
               disabled={!webpSupported} 
               className={`clean-btn w-full text-[11px] flex flex-col items-center gap-0.5 ${!webpSupported ? 'cursor-not-allowed opacity-40' : ''}`}
+              aria-label={webpSupported ? `Export as WebP${fileSizes.webp ? `, estimated size ${formatBytes(fileSizes.webp)}` : ''}` : 'WebP format not supported in this browser'}
             >
               <span>WEBP</span>
-              {webpSupported && fileSizes.webp && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.webp)}</span>}
+              {webpSupported && fileSizes.webp && <span className="text-[9px] text-gray-500" aria-hidden="true">{formatBytes(fileSizes.webp)}</span>}
             </button>
             {!videoMode && (
               <button 
@@ -139,9 +169,10 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
                   downloadAsSVG();
                 }} 
                 className="clean-btn w-full text-[11px] flex flex-col items-center gap-0.5"
+                aria-label={`Export as SVG${fileSizes.svg ? `, estimated size ${formatBytes(fileSizes.svg)}` : ''}`}
               >
                 <span>SVG</span>
-                {fileSizes.svg && <span className="text-[9px] text-gray-500">{formatBytes(fileSizes.svg)}</span>}
+                {fileSizes.svg && <span className="text-[9px] text-gray-500" aria-hidden="true">{formatBytes(fileSizes.svg)}</span>}
               </button>
             )}
             <button 
@@ -150,6 +181,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
                 copyFrameToClipboard();
               }} 
               className="clean-btn w-full text-[11px]"
+              aria-label="Copy current frame to clipboard"
             >
               {t('tool.exportDialog.clipboard')}
             </button>
@@ -163,7 +195,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
               <div className="flex items-center gap-2 text-[10px] text-gray-500">
                 <label className="flex items-center gap-1">
                   <span className="text-gray-400">{t('tool.exportDialog.format')}</span>
-                  <select value={videoExportFormat} onChange={e => { const val = e.target.value === 'mp4' ? 'mp4':'webm'; setVideoExportFormat(val); setRecordedBlobUrl(r=>{ if(r) URL.revokeObjectURL(r); return null; }); }} className="clean-input !h-7 !px-2 !py-0 text-[10px]">
+                  <select 
+                    value={videoExportFormat} 
+                    onChange={e => { const val = e.target.value === 'mp4' ? 'mp4':'webm'; setVideoExportFormat(val); setRecordedBlobUrl(r=>{ if(r) URL.revokeObjectURL(r); return null; }); }} 
+                    className="clean-input !h-7 !px-2 !py-0 text-[10px]"
+                    aria-label="Video export format"
+                  >
                     <option value="mp4">MP4</option>
                     <option value="webm">WebM</option>
                   </select>
@@ -171,14 +208,30 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={startVideoExport} disabled={recordingVideo} className={`clean-btn px-3 py-1 text-[11px] ${recordingVideo ? 'cursor-not-allowed opacity-50' : ''}`}>{t('tool.exportDialog.record')}</button>
-              {recordingVideo && <button onClick={cancelVideoExport} className="clean-btn px-3 py-1 text-[11px]">{t('tool.exportDialog.stop')}</button>}
+              <button 
+                onClick={startVideoExport} 
+                disabled={recordingVideo} 
+                className={`clean-btn px-3 py-1 text-[11px] ${recordingVideo ? 'cursor-not-allowed opacity-50' : ''}`}
+                aria-label={t('tool.exportDialog.startRecording')}
+              >
+                {t('tool.exportDialog.record')}
+              </button>
+              {recordingVideo && (
+                <button 
+                  onClick={cancelVideoExport} 
+                  className="clean-btn px-3 py-1 text-[11px]"
+                  aria-label={t('tool.exportDialog.stopRecording')}
+                >
+                  {t('tool.exportDialog.stop')}
+                </button>
+              )}
               {recordedBlobUrl && (
                 <a
                   href={recordedBlobUrl}
                   download={`dithered-video.${recordingMimeType.includes('mp4') ? 'mp4' : 'webm'}`}
                   className="clean-btn px-3 py-1 text-[11px]"
                   onClick={() => onVideoDownload?.(recordingMimeType.includes('mp4') ? 'mp4' : 'webm')}
+                  aria-label={t('tool.exportDialog.downloadVideo')}
                 >
                   {t('tool.exportDialog.download')}
                 </a>

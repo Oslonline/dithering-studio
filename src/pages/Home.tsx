@@ -22,7 +22,7 @@ const Home: React.FC = () => {
         <link rel="canonical" href="https://ditheringstudio.com/" />
       </Helmet>
 
-      <div className="relative flex min-h-screen flex-col bg-neutral-950 px-6 py-6 text-neutral-50 md:px-10 md:py-6 lg:px-16 xl:px-24 2xl:px-32">
+      <div id="main-content" className="relative flex min-h-screen flex-col bg-neutral-950 px-6 py-6 text-neutral-50 md:px-10 md:py-6 lg:px-16 xl:px-24 2xl:px-32">
         <div className="flex flex-1 items-start justify-center">
           <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-24 pb-28">
             {/* HERO */}
@@ -49,7 +49,7 @@ const Home: React.FC = () => {
             {/* FEATURE GRID */}
             <section className="w-full max-w-5xl space-y-10">
               <div className="space-y-2 text-center">
-                <h3 className="font-anton text-xl tracking-tight sm:text-2xl">{t('features.title')}</h3>
+                <h2 className="font-anton text-xl tracking-tight sm:text-2xl">{t('features.title')}</h2>
                 <p className="mx-auto max-w-md text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">{t('features.subtitle')}</p>
               </div>
               <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
@@ -63,7 +63,7 @@ const Home: React.FC = () => {
                 ].map((f, i) => (
                   <div key={i} className="relative flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/40 p-5 transition-colors hover:border-neutral-700">
                     <span className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-gradient-to-b from-blue-500/60 via-blue-400/30 to-transparent opacity-80" />
-                    <h4 className="text-[12px] font-medium tracking-wide text-gray-200">{f.title}</h4>
+                    <h3 className="text-[12px] font-medium tracking-wide text-gray-200">{f.title}</h3>
                     <p className="text-[11px] leading-relaxed text-gray-500">{f.desc}</p>
                   </div>
                 ))}
@@ -73,7 +73,7 @@ const Home: React.FC = () => {
 
             {/* HOW IT WORKS */}
             <section className="w-full max-w-5xl space-y-10">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('howItWorks.title')}</h3>
+              <h2 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('howItWorks.title')}</h2>
               <ol className="mx-auto max-w-3xl list-inside list-decimal space-y-2 text-[11px] text-gray-400 sm:text-[12px] md:text-[13px]">
                 <li>{t('howItWorks.step1')}</li>
                 <li>{t('howItWorks.step2')}</li>
@@ -86,7 +86,7 @@ const Home: React.FC = () => {
 
             {/* ALGORITHM COVERAGE (deep-link enabled) */}
             <section className="w-full max-w-6xl space-y-12">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('algorithmExplorer.title')}</h3>
+              <h2 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('algorithmExplorer.title')}</h2>
               <p className="mx-auto max-w-xl text-center text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">{t('algorithmExplorer.subtitle')}</p>
               <div className="space-y-12">
                 {[
@@ -152,7 +152,7 @@ const Home: React.FC = () => {
 
             {/* PRIVACY / PHILOSOPHY + OPEN SOURCE */}
             <section className="w-full max-w-5xl space-y-6">
-              <h3 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('about.title')}</h3>
+              <h2 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('about.title')}</h2>
               <div className="mx-auto max-w-3xl space-y-4 text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px]">
                 <p>
                   <span className="text-gray-200">{t('about.brandName')}</span> {t('about.intro')}

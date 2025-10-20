@@ -122,6 +122,28 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
         style={{ left: `${sliderPosition}%` }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
+        role="slider"
+        aria-label="Image comparison slider"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(sliderPosition)}
+        aria-valuetext={`${Math.round(sliderPosition)}% original image visible`}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            setSliderPosition(Math.max(0, sliderPosition - 5));
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            setSliderPosition(Math.min(100, sliderPosition + 5));
+          } else if (e.key === 'Home') {
+            e.preventDefault();
+            setSliderPosition(0);
+          } else if (e.key === 'End') {
+            e.preventDefault();
+            setSliderPosition(100);
+          }
+        }}
       >
         {/* Slider handle */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">

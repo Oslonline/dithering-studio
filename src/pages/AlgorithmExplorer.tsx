@@ -173,7 +173,7 @@ const AlgorithmExplorer: React.FC = () => {
       </Helmet>
       <div className="flex h-screen w-full flex-col overflow-hidden">
       <Header page="explorer" />
-      <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
+      <div id="main-content" className="flex flex-1 flex-col overflow-hidden md:flex-row">
         <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:h-full md:w-80 md:border-r md:border-b-0">
           <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">
             {orderedDetails.map((a) => {
@@ -302,11 +302,11 @@ const AlgorithmExplorer: React.FC = () => {
                   return [
                     <div key="base" className="rounded-md border border-neutral-800 bg-neutral-950 p-2">
                       <p className="mb-1 text-center text-[10px] text-gray-400">{t('explorer.baseSample')}</p>
-                      {basePreview && <img src={basePreview} alt="base sample" className="mx-auto block max-w-full" />}
+                      {basePreview && <img src={basePreview} alt={t('explorer.baseSample')} className="mx-auto block max-w-full" />}
                     </div>,
                     <div key="dith" className="rounded-md border border-neutral-800 bg-neutral-950 p-2">
                       <p className="mb-1 text-center text-[10px] text-gray-400">{active.name}</p>
-                      <img src={ex.dithered} alt="dithered example" className="mx-auto block max-w-full" />
+                      <img src={ex.dithered} alt={`${active.name} ${t('explorer.ditherExample')}`} className="mx-auto block max-w-full" />
                     </div>,
                   ];
                 })()}

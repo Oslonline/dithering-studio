@@ -8,7 +8,6 @@ export interface PersistedSettingsV1 {
   pattern: number;
   threshold: number;
   workingResolution: number;
-  // New preprocessing controls
   contrast: number;         // -100 .. 100 (0 = neutral)
   midtones: number;         // gamma 0.5 .. 2.0 (1 = neutral)
   highlights: number;       // 0 .. 100 (0 = off)

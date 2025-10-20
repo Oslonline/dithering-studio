@@ -14,6 +14,10 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <SettingsProvider>
+        {/* Skip to main content link for keyboard users */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <FeatureWarnings />
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>

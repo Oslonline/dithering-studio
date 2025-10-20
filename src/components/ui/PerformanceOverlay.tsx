@@ -19,7 +19,14 @@ const PerformanceOverlay: React.FC<Props> = ({ hasImage, originalBytes, processe
   return (
     <div className="hidden md:flex fixed bottom-2 right-2 z-50 flex-col items-end gap-1 font-mono tracking-wide text-[10px]">
       {hasImage && (
-        <button onClick={()=>setOpen(o=>!o)} className="clean-btn px-2 py-1 !text-[10px] border border-neutral-700 bg-neutral-900/80 backdrop-blur-sm">{t('tool.performance.perf')} {open?'▼':'▲'} {fmt(total)}ms</button>
+        <button 
+          onClick={()=>setOpen(o=>!o)} 
+          className="clean-btn px-2 py-1 !text-[10px] border border-neutral-700 bg-neutral-900/80 backdrop-blur-sm"
+          aria-label={open ? t('tool.performance.hideStats') : t('tool.performance.showStats')}
+          aria-expanded={open}
+        >
+          {t('tool.performance.perf')} {open?'▼':'▲'} {fmt(total)}ms
+        </button>
       )}
       {open && hasImage && (
         <div className="w-56 rounded border border-neutral-800 bg-[#111]/95 p-2 shadow-xl backdrop-blur-sm">

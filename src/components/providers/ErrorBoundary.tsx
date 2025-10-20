@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import LiveRegion from '../ui/LiveRegion';
 
 interface State {
   hasError: boolean;
@@ -92,20 +93,24 @@ function ErrorFallback({
           <button 
             className="clean-btn text-[11px] px-3 py-1" 
             onClick={onReset}
+            aria-label={t('common.tryAgain')}
           >
-            Try Again
+            {t('common.tryAgain')}
           </button>
           <button 
             className="clean-btn text-[11px] px-3 py-1" 
             onClick={onReload}
+            aria-label={t('common.reload')}
           >
             {t('common.reload')}
           </button>
           <button 
             className="clean-btn text-[11px] px-3 py-1 ml-auto" 
             onClick={() => setShowDetails(!showDetails)}
+            aria-label={showDetails ? t('common.hideDetails') : t('common.showDetails')}
+            aria-expanded={showDetails}
           >
-            {showDetails ? 'Hide' : 'Show'} Details
+            {showDetails ? t('common.hide') : t('common.show')} {t('common.details')}
           </button>
         </div>
       </div>
@@ -135,6 +140,11 @@ function ErrorFallback({
           </div>
         </details>
       )}
+      
+      <LiveRegion 
+        message={error ? `Error: ${error.message}` : ''} 
+        priority="assertive" 
+      />
     </div>
   );
 }
