@@ -4,6 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en';
 import fr from './locales/fr';
 import es from './locales/es';
+import zh from './locales/zh';
 
 i18n
   .use(LanguageDetector)
@@ -13,9 +14,10 @@ i18n
       en: { translation: en },
       fr: { translation: fr },
       es: { translation: es },
+      zh: { translation: zh },
     },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'es'],
+    supportedLngs: ['en', 'fr', 'es', 'zh'],
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
