@@ -348,6 +348,9 @@ export default {
       original: 'Original',
       processed: 'Traité',
       localProcessing: 'Traitement local • Aucun téléversement',
+      dragToZoom: 'Glisser pour déplacer • Molette pour zoomer',
+      showStats: 'Afficher les statistiques de performance',
+      hideStats: 'Masquer les statistiques de performance',
     },
 
     // Image Comparison

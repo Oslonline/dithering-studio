@@ -46,8 +46,8 @@ const PerformanceOverlay: React.FC<Props> = ({ hasImage, originalBytes, processe
       )}
       {/* Info hints */}
       <div className="pointer-events-none select-none text-gray-600 text-right text-[9px]">
-        <div>Drag to pan • Scroll to zoom</div>
-        <div>All processing local • No uploads</div>
+        <div>{t('tool.performance.dragToZoom')}</div>
+        <div>{t('tool.performance.localProcessing')}</div>
       </div>
     </div>
   );

@@ -358,6 +358,9 @@ export default {
       original: 'Original',
       processed: 'Processed',
       localProcessing: 'All processing local • No uploads',
+      dragToZoom: 'Drag to pan • Scroll to zoom',
+      showStats: 'Show performance stats',
+      hideStats: 'Hide performance stats',
     },
 
     // Image Comparison

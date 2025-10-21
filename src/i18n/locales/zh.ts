@@ -358,6 +358,9 @@ export default {
       original: '原始',
       processed: '已处理',
       localProcessing: '所有处理本地 • 无上传',
+      dragToZoom: '拖动以平移 • 滚动以缩放',
+      showStats: '显示性能统计',
+      hideStats: '隐藏性能统计',
     },
 
     // Image Comparison
