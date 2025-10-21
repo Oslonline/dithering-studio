@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback, ReactNode } from 'react';
 import { FiZoomIn, FiZoomOut, FiMaximize2 } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 
 interface CanvasViewportProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ interface Transform {
  * Supports mouse drag to pan, scroll wheel to zoom, and keyboard shortcuts
  */
 const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '' }) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
@@ -179,8 +181,8 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
           <button
             onClick={zoomOut}
             className="clean-btn p-2 bg-neutral-900/90 hover:bg-neutral-800/90"
-            title="Zoom out (Ctrl+-)"
-            aria-label="Zoom out"
+            title={t('tool.canvasViewport.zoomOutShortcut')}
+            aria-label={t('tool.canvasViewport.zoomOut')}
           >
             <FiZoomOut size={14} />
           </button>
@@ -192,8 +194,8 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
           <button
             onClick={zoomIn}
             className="clean-btn p-2 bg-neutral-900/90 hover:bg-neutral-800/90"
-            title="Zoom in (Ctrl++)"
-            aria-label="Zoom in"
+            title={t('tool.canvasViewport.zoomInShortcut')}
+            aria-label={t('tool.canvasViewport.zoomIn')}
           >
             <FiZoomIn size={14} />
           </button>
@@ -201,8 +203,8 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
           <button
             onClick={fitToScreen}
             className="clean-btn p-2 bg-neutral-900/90 hover:bg-neutral-800/90"
-            title="Fit to screen (Ctrl+0)"
-            aria-label="Fit to screen"
+            title={t('tool.canvasViewport.fitToScreenShortcut')}
+            aria-label={t('tool.canvasViewport.fitToScreen')}
           >
             <FiMaximize2 size={14} />
           </button>
@@ -210,7 +212,7 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
         
         {/* Keyboard shortcuts hint - only show on desktop */}
         <div className="hidden md:block pointer-events-none select-none rounded bg-neutral-900/70 px-3 py-1 font-mono text-[10px] tracking-wide text-gray-300">
-          F = focus • G = grid • Shift+G = resize
+          {t('tool.canvasViewport.keyboardHint')}
         </div>
       </div>
 

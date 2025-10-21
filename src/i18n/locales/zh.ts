@@ -166,6 +166,12 @@ export default {
     showGrid: '显示网格',
     gridSize: '网格大小',
     cycleGridSize: '循环网格大小（Shift+G）',
+
+    // Comparison
+    compare: '比较',
+    hideComparison: '隐藏比较',
+    compareBeforeAfter: '比较前后',
+    showDitheredOnly: '仅显示抖动效果',
     
     // Keyboard Shortcuts
     keyboardHintFocus: 'F 聚焦',
@@ -218,6 +224,27 @@ export default {
       errorDiffusion: '误差扩散',
       ordered: '有序',
       other: '其他/实验性',
+    },
+
+    // Custom Kernel Panel
+    customKernelPanel: {
+      title: '自定义内核',
+      rows: '行数',
+      cols: '列数',
+      divisor: '除数（权重总和）',
+      kernelMatrix: '内核矩阵',
+      tipCurrentPixel: '提示：当前像素位于顶行中心',
+    },
+
+    // Canvas Viewport Controls
+    canvasViewport: {
+      zoomOut: '缩小',
+      zoomIn: '放大',
+      fitToScreen: '适应屏幕',
+      zoomOutShortcut: '缩小 (Ctrl+-)',
+      zoomInShortcut: '放大 (Ctrl++)',
+      fitToScreenShortcut: '适应屏幕 (Ctrl+0)',
+      keyboardHint: 'F = 聚焦 • G = 网格 • Shift+G = 调整大小',
     },
     
     // Palette Panel
@@ -331,6 +358,14 @@ export default {
       original: '原始',
       processed: '已处理',
       localProcessing: '所有处理本地 • 无上传',
+    },
+
+    // Image Comparison
+    imageComparison: {
+      original: '原始',
+      dithered: '抖动处理',
+      dragToCompare: '← 拖动以比较 →',
+      percentVisible: '原始图像可见 {{percent}}%',
     },
     
     // Images Panel
@@ -452,6 +487,16 @@ export default {
     next: '下一个',
     previous: '上一个',
     reload: '重新加载',
+    // Accessibility labels
+    ariaClose: '关闭',
+    ariaCloseDialog: '关闭对话框',
+    ariaCloseExportDialog: '关闭导出对话框',
+    ariaCloseShortcutsDialog: '关闭快捷键对话框',
+    ariaCopyToClipboard: '将当前帧复制到剪贴板',
+    ariaVideoFormat: '视频导出格式',
+    ariaImageComparison: '图像对比滑块',
+    ariaProcessing: '处理中',
+    ariaDismiss: '关闭',
   },
 
   // Algorithm Data (technical details for each algorithm)

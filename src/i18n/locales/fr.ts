@@ -159,6 +159,12 @@ export default {
     showGrid: 'Afficher la Grille',
     gridSize: 'Taille de la Grille',
     cycleGridSize: 'Changer la taille de grille (Shift+G)',
+
+    // Comparison
+    compare: 'Comparer',
+    hideComparison: 'Masquer la Comparaison',
+    compareBeforeAfter: 'Comparer avant/après',
+    showDitheredOnly: 'Afficher uniquement le tramage',
     
     // Keyboard Shortcuts
     keyboardHintFocus: 'F Focus',
@@ -208,6 +214,27 @@ export default {
       errorDiffusion: 'Diffusion d\'Erreur',
       ordered: 'Ordonné',
       other: 'Autre / Expérimental',
+    },
+
+    // Custom Kernel Panel
+    customKernelPanel: {
+      title: 'Noyau Personnalisé',
+      rows: 'Lignes',
+      cols: 'Colonnes',
+      divisor: 'Diviseur (somme des poids)',
+      kernelMatrix: 'Matrice du Noyau',
+      tipCurrentPixel: 'Astuce : Le pixel actuel est en haut au centre',
+    },
+
+    // Canvas Viewport Controls
+    canvasViewport: {
+      zoomOut: 'Dézoomer',
+      zoomIn: 'Zoomer',
+      fitToScreen: 'Ajuster à l\'écran',
+      zoomOutShortcut: 'Dézoomer (Ctrl+-)',
+      zoomInShortcut: 'Zoomer (Ctrl++)',
+      fitToScreenShortcut: 'Ajuster à l\'écran (Ctrl+0)',
+      keyboardHint: 'F = focus • G = grille • Shift+G = redimensionner',
     },
     
     // Palette Panel
@@ -321,6 +348,14 @@ export default {
       original: 'Original',
       processed: 'Traité',
       localProcessing: 'Traitement local • Aucun téléversement',
+    },
+
+    // Image Comparison
+    imageComparison: {
+      original: 'Original',
+      dithered: 'Tramé',
+      dragToCompare: '← Glissez pour comparer →',
+      percentVisible: '{{percent}}% de l\'image originale visible',
     },
     
     // Images Panel
@@ -442,6 +477,16 @@ export default {
     next: 'Suivant',
     previous: 'Précédent',
     reload: 'Recharger',
+    // Accessibility labels
+    ariaClose: 'Fermer',
+    ariaCloseDialog: 'Fermer la boîte de dialogue',
+    ariaCloseExportDialog: 'Fermer la boîte d\'export',
+    ariaCloseShortcutsDialog: 'Fermer la liste des raccourcis',
+    ariaCopyToClipboard: 'Copier l\'image actuelle dans le presse-papier',
+    ariaVideoFormat: 'Format d\'export vidéo',
+    ariaImageComparison: 'Curseur de comparaison d\'images',
+    ariaProcessing: 'Traitement en cours',
+    ariaDismiss: 'Rejeter',
   },
 
   // Algorithm Data (technical details for each algorithm)

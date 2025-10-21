@@ -159,6 +159,12 @@ export default {
     showGrid: 'Mostrar Cuadrícula',
     gridSize: 'Tamaño de Cuadrícula',
     cycleGridSize: 'Cambiar tamaño de cuadrícula (Shift+G)',
+
+    // Comparison
+    compare: 'Comparar',
+    hideComparison: 'Ocultar Comparación',
+    compareBeforeAfter: 'Comparar antes/después',
+    showDitheredOnly: 'Mostrar solo tramado',
     
     // Keyboard Shortcuts
     keyboardHintFocus: 'F Enfoque',
@@ -208,6 +214,27 @@ export default {
       errorDiffusion: 'Difusión de Error',
       ordered: 'Ordenado',
       other: 'Otro / Experimental',
+    },
+
+    // Custom Kernel Panel
+    customKernelPanel: {
+      title: 'Kernel Personalizado',
+      rows: 'Filas',
+      cols: 'Columnas',
+      divisor: 'Divisor (suma de pesos)',
+      kernelMatrix: 'Matriz del Kernel',
+      tipCurrentPixel: 'Consejo: El píxel actual está en la fila superior, centro',
+    },
+
+    // Canvas Viewport Controls
+    canvasViewport: {
+      zoomOut: 'Alejar',
+      zoomIn: 'Acercar',
+      fitToScreen: 'Ajustar a pantalla',
+      zoomOutShortcut: 'Alejar (Ctrl+-)',
+      zoomInShortcut: 'Acercar (Ctrl++)',
+      fitToScreenShortcut: 'Ajustar a pantalla (Ctrl+0)',
+      keyboardHint: 'F = enfocar • G = cuadrícula • Shift+G = redimensionar',
     },
     
     // Palette Panel
@@ -321,6 +348,14 @@ export default {
       original: 'Original',
       processed: 'Procesado',
       localProcessing: 'Procesamiento local • Sin cargas',
+    },
+
+    // Image Comparison
+    imageComparison: {
+      original: 'Original',
+      dithered: 'Tramado',
+      dragToCompare: '← Arrastra para comparar →',
+      percentVisible: '{{percent}}% de la imagen original visible',
     },
     
     // Images Panel
@@ -442,6 +477,16 @@ export default {
     next: 'Siguiente',
     previous: 'Anterior',
     reload: 'Recargar',
+    // Accessibility labels
+    ariaClose: 'Cerrar',
+    ariaCloseDialog: 'Cerrar diálogo',
+    ariaCloseExportDialog: 'Cerrar diálogo de exportación',
+    ariaCloseShortcutsDialog: 'Cerrar diálogo de atajos',
+    ariaCopyToClipboard: 'Copiar cuadro actual al portapapeles',
+    ariaVideoFormat: 'Formato de exportación de video',
+    ariaImageComparison: 'Control deslizante de comparación de imágenes',
+    ariaProcessing: 'Procesando',
+    ariaDismiss: 'Descartar',
   },
 
   // Algorithm Data (technical details for each algorithm)

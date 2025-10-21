@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ImageComparisonProps {
   beforeImage: string;
@@ -15,15 +16,20 @@ interface ImageComparisonProps {
  */
 const ImageComparison: React.FC<ImageComparisonProps> = ({
   beforeImage,
-  beforeLabel = 'Original',
-  afterLabel = 'Dithered',
+  beforeLabel,
+  afterLabel,
   width,
   height,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Use translations as defaults if not provided
+  const beforeLabelText = beforeLabel || t('tool.imageComparison.original');
+  const afterLabelText = afterLabel || t('tool.imageComparison.dithered');
 
   const handleMove = (clientX: number) => {
     if (!containerRef.current) return;
@@ -98,7 +104,7 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
       >
         <img
           src={beforeImage}
-          alt={beforeLabel}
+          alt={beforeLabelText}
           className="w-full h-full block pixelated object-contain"
           draggable={false}
           style={{
@@ -107,13 +113,13 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
           }}
         />
         <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white border border-white/20 pointer-events-none">
-          {beforeLabel}
+          {beforeLabelText}
         </div>
       </div>
 
       {/* Dithered label (always visible on the right side) */}
       <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white border border-white/20 pointer-events-none">
-        {afterLabel}
+        {afterLabelText}
       </div>
 
       {/* Slider */}
@@ -123,11 +129,11 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         role="slider"
-        aria-label="Image comparison slider"
+        aria-label={t('common.ariaImageComparison')}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(sliderPosition)}
-        aria-valuetext={`${Math.round(sliderPosition)}% original image visible`}
+        aria-valuetext={t('tool.imageComparison.percentVisible', { percent: Math.round(sliderPosition) })}
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'ArrowLeft') {
@@ -171,7 +177,7 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
       {/* Instructions on first interaction */}
       {!isDragging && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white/80 border border-white/20 animate-pulse-subtle pointer-events-none">
-          ← Drag to compare →
+          {t('tool.imageComparison.dragToCompare')}
         </div>
       )}
     </div>

@@ -166,6 +166,12 @@ export default {
     showGrid: 'Show Grid',
     gridSize: 'Grid Size',
     cycleGridSize: 'Cycle grid size (Shift+G)',
+
+    // Comparison
+    compare: 'Compare',
+    hideComparison: 'Hide Comparison',
+    compareBeforeAfter: 'Compare before/after',
+    showDitheredOnly: 'Show dithered only',
     
     // Keyboard Shortcuts
     keyboardHintFocus: 'F Focus',
@@ -218,6 +224,27 @@ export default {
       errorDiffusion: 'Error Diffusion',
       ordered: 'Ordered',
       other: 'Other / Experimental',
+    },
+
+    // Custom Kernel Panel
+    customKernelPanel: {
+      title: 'Custom Kernel',
+      rows: 'Rows',
+      cols: 'Cols',
+      divisor: 'Divisor (sum of weights)',
+      kernelMatrix: 'Kernel Matrix',
+      tipCurrentPixel: 'Tip: Current pixel is at top row, center',
+    },
+
+    // Canvas Viewport Controls
+    canvasViewport: {
+      zoomOut: 'Zoom out',
+      zoomIn: 'Zoom in',
+      fitToScreen: 'Fit to screen',
+      zoomOutShortcut: 'Zoom out (Ctrl+-)',
+      zoomInShortcut: 'Zoom in (Ctrl++)',
+      fitToScreenShortcut: 'Fit to screen (Ctrl+0)',
+      keyboardHint: 'F = focus • G = grid • Shift+G = resize',
     },
     
     // Palette Panel
@@ -331,6 +358,14 @@ export default {
       original: 'Original',
       processed: 'Processed',
       localProcessing: 'All processing local • No uploads',
+    },
+
+    // Image Comparison
+    imageComparison: {
+      original: 'Original',
+      dithered: 'Dithered',
+      dragToCompare: '← Drag to compare →',
+      percentVisible: '{{percent}}% original image visible',
     },
     
     // Images Panel
@@ -452,6 +487,16 @@ export default {
     next: 'Next',
     previous: 'Previous',
     reload: 'Reload',
+    // Accessibility labels
+    ariaClose: 'Close',
+    ariaCloseDialog: 'Close dialog',
+    ariaCloseExportDialog: 'Close export dialog',
+    ariaCloseShortcutsDialog: 'Close shortcuts dialog',
+    ariaCopyToClipboard: 'Copy current frame to clipboard',
+    ariaVideoFormat: 'Video export format',
+    ariaImageComparison: 'Image comparison slider',
+    ariaProcessing: 'Processing',
+    ariaDismiss: 'Dismiss',
   },
 
   // Algorithm Data (technical details for each algorithm)

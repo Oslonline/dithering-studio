@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../state/SettingsContext';
 
 interface CustomKernelEditorProps {
@@ -7,6 +8,7 @@ interface CustomKernelEditorProps {
 }
 
 const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, defaultOpen = true }) => {
+  const { t } = useTranslation();
   const { customKernel, setCustomKernel, customKernelDivisor, setCustomKernelDivisor } = useSettings();
   const [open, setOpen] = useState(defaultOpen);
   const [rows, setRows] = useState(3);
@@ -45,13 +47,13 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
     return (
       <div className="space-y-3 border-t border-neutral-700 pt-3 mt-3">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[11px] tracking-wide text-gray-300">Custom Kernel</span>
+          <span className="font-mono text-[11px] tracking-wide text-gray-300">{t('tool.customKernelPanel.title')}</span>
           <span className="text-[10px] text-gray-500">{rows}×{cols}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-gray-400">Rows</label>
+            <label className="text-[10px] text-gray-400">{t('tool.customKernelPanel.rows')}</label>
             <input 
               type="number" 
               min={1} 
@@ -62,7 +64,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
             />
           </div>
           <div>
-            <label className="text-[10px] text-gray-400">Cols</label>
+            <label className="text-[10px] text-gray-400">{t('tool.customKernelPanel.cols')}</label>
             <input 
               type="number" 
               min={1} 
@@ -75,7 +77,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] text-gray-400">Divisor (sum of weights)</label>
+          <label className="text-[10px] text-gray-400">{t('tool.customKernelPanel.divisor')}</label>
           <input 
             type="number" 
             min={1} 
@@ -86,7 +88,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
         </div>
 
         <div className="space-y-2">
-          <span className="text-[10px] text-gray-400">Kernel Matrix</span>
+          <span className="text-[10px] text-gray-400">{t('tool.customKernelPanel.kernelMatrix')}</span>
           <div className="rounded border border-neutral-700 bg-neutral-900/50 p-2 overflow-x-auto">
             <div className="space-y-1">
               {matrix.map((row, i) => (
@@ -104,7 +106,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
               ))}
             </div>
           </div>
-          <p className="text-[9px] text-gray-500">Tip: Current pixel is at top row, center</p>
+          <p className="text-[9px] text-gray-500">{t('tool.customKernelPanel.tipCurrentPixel')}</p>
         </div>
       </div>
     );
@@ -119,7 +121,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
         aria-expanded={open}
       >
         <span className="flex items-center gap-2">
-          <span>{open ? '▾' : '▸'}</span> Custom Kernel
+          <span>{open ? '▾' : '▸'}</span> {t('tool.customKernelPanel.title')}
         </span>
         <span className="text-[10px] text-gray-500">{rows}×{cols}</span>
       </button>
@@ -127,7 +129,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
         <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[10px] text-gray-400">Rows</label>
+              <label className="text-[10px] text-gray-400">{t('tool.customKernelPanel.rows')}</label>
               <input 
                 type="number" 
                 min={1} 
@@ -138,7 +140,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
               />
             </div>
             <div>
-              <label className="text-[10px] text-gray-400">Cols</label>
+              <label className="text-[10px] text-gray-400">{t('tool.customKernelPanel.cols')}</label>
               <input 
                 type="number" 
                 min={1} 
@@ -151,7 +153,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] text-gray-400">Divisor (sum of weights)</label>
+            <label className="text-[10px] text-gray-400">{t('tool.customKernelPanel.divisor')}</label>
             <input 
               type="number" 
               min={1} 
@@ -162,7 +164,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
           </div>
 
           <div className="space-y-2">
-            <span className="text-[10px] text-gray-400">Kernel Matrix</span>
+            <span className="text-[10px] text-gray-400">{t('tool.customKernelPanel.kernelMatrix')}</span>
             <div className="rounded border border-neutral-700 bg-neutral-900/50 p-2 overflow-x-auto">
               <div className="space-y-1">
                 {matrix.map((row, i) => (
@@ -180,7 +182,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
                 ))}
               </div>
             </div>
-            <p className="text-[9px] text-gray-500">Tip: Current pixel is at top row, center</p>
+            <p className="text-[9px] text-gray-500">{t('tool.customKernelPanel.tipCurrentPixel')}</p>
           </div>
         </div>
       )}

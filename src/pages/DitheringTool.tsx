@@ -642,8 +642,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                     <div className="absolute inset-0 pointer-events-auto">
                       <ImageComparison
                         beforeImage={image}
-                        beforeLabel="Original"
-                        afterLabel="Dithered"
+                        beforeLabel={t('tool.imageComparison.original')}
+                        afterLabel={t('tool.imageComparison.dithered')}
                         width={canvasDimensions.width}
                         height={canvasDimensions.height}
                       />
@@ -675,9 +675,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                         setShowComparison(!showComparison);
                       }}
                       className="absolute top-2 right-2 clean-btn text-[10px] px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800/90 z-10"
-                      title={showComparison ? "Show dithered only" : "Compare before/after"}
+                      title={showComparison ? t('tool.showDitheredOnly') : t('tool.compareBeforeAfter')}
                     >
-                      {showComparison ? "Hide Comparison" : "Compare"}
+                      {showComparison ? t('tool.hideComparison') : t('tool.compare')}
                     </button>
                   )}
                 </div>
