@@ -31,6 +31,8 @@ import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
 import { triggerHaptic } from "../utils/haptic";
 import PresetPanel from "../components/panels/PresetPanel";
+import { getRandomAlgorithm } from "../components/panels/AlgorithmSelect";
+import CustomKernelEditor from "../components/panels/CustomKernelEditor";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
@@ -78,6 +80,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setGridSize,
     focusMode,
     setFocusMode,
+    customKernel,
+    customKernelDivisor,
     videoMode,
     setVideoMode,
     videoItem,
@@ -183,6 +187,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     midtones,
     highlights,
     blurRadius,
+    customKernel,
+    customKernelDivisor,
   });
   const videoHook = useVideoDithering({
     video: videoItem?.url || null,
@@ -495,6 +501,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                               <span className="text-[13px]">↺</span>
                               <span>{t('tool.reset')}</span>
                             </button>
+                            <button onClick={() => setPattern(getRandomAlgorithm(pattern))} className="clean-btn px-3 py-2 text-[16px]" title="Random algorithm" aria-label="Select random algorithm">
+                              🎲
+                            </button>
                           </div>
                         )}
                         {!videoMode && images.length > 1 && <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />}
@@ -507,6 +516,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettingsDefaults')}>
                               <span className="text-[13px]">↺</span>
                               <span>{t('tool.reset')}</span>
+                            </button>
+                            <button onClick={() => setPattern(getRandomAlgorithm(pattern))} className="clean-btn px-3 py-2 text-[16px]" title="Random algorithm" aria-label="Select random algorithm">
+                              🎲
                             </button>
                           </div>
                         )}
@@ -549,6 +561,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                           </div>
                         )}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
+                        {pattern === 26 && <CustomKernelEditor inline={false} />}
                         <TonePanel contrast={contrast} setContrast={setContrast} midtones={midtones} setMidtones={setMidtones} highlights={highlights} setHighlights={setHighlights} blurRadius={blurRadius} setBlurRadius={setBlurRadius} workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} maxResolution={dynamicMaxResolution} />
                         {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}
                         <PresetPanel

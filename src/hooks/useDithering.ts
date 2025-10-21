@@ -7,7 +7,7 @@ import { useDitheringWorker } from "./useDitheringWorker";
 import { processImageProgressively, getDefaultTileConfig } from "../utils/progressiveRendering";
 import type { Tile } from "../utils/progressiveRendering";
 
-interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; }
+interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; customKernel?: number[][] | null; customKernelDivisor?: number; }
 
 /**
  * Smart debounce hook with immediate first update + throttled trailing
@@ -69,7 +69,7 @@ function useDebouncedValue<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0 }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0, customKernel, customKernelDivisor }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -244,13 +244,13 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
         } catch (error) {
           console.error('[Dithering] Worker processing failed, falling back to main thread:', error);
           if (algorithm) {
-            const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
+            const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
             if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
           }
         }
       } else {
         if (algorithm) {
-          const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
+          const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
           if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
         } else {
           out = new ImageData(width, height); out.data.set(srcData);

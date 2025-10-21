@@ -253,6 +253,18 @@ export const runSierra24A = createKernelRunner([[0,0,4,5,4],[2,4,5,4,2],[0,2,3,2
 export const runAdaptiveFS3 = makeAdaptiveFS(1);
 export const runAdaptiveFS7 = makeAdaptiveFS(3);
 
+export function runCustomKernel(ctx: AlgorithmRunContext) {
+  const customMatrix = (ctx.params as any).customKernel;
+  const customDivisor = (ctx.params as any).customKernelDivisor;
+  
+  if (!customMatrix || !customDivisor || !Array.isArray(customMatrix)) {
+    return runFloydSteinberg(ctx);
+  }
+  
+  const runner = createKernelRunner(customMatrix, customDivisor, true);
+  return runner(ctx);
+}
+
 export default {
   runFloydSteinberg,
   runAtkinson,
@@ -268,4 +280,5 @@ export default {
   runAdaptiveOstromoukhov,
   runAdaptiveFS3,
   runAdaptiveFS7,
+  runCustomKernel,
 };

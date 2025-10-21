@@ -16,6 +16,12 @@ export interface AlgorithmSelectProps {
   defaultOpen?: boolean;
 }
 
+export const getRandomAlgorithm = (currentPattern?: number): number => {
+  const availableAlgorithms = algorithms.filter(a => a.id !== currentPattern);
+  const randomIndex = Math.floor(Math.random() * availableAlgorithms.length);
+  return availableAlgorithms[randomIndex].id;
+};
+
 const AlgorithmSelect: React.FC<AlgorithmSelectProps> = ({
   pattern,
   setPattern,

@@ -23,6 +23,8 @@ export interface SettingsContextValue {
   showGrid: boolean; setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   gridSize: number; setGridSize: React.Dispatch<React.SetStateAction<number>>;
   focusMode: boolean; setFocusMode: React.Dispatch<React.SetStateAction<boolean>>;
+  customKernel: number[][] | null; setCustomKernel: React.Dispatch<React.SetStateAction<number[][] | null>>;
+  customKernelDivisor: number; setCustomKernelDivisor: React.Dispatch<React.SetStateAction<number>>;
   videoMode: boolean; setVideoMode: React.Dispatch<React.SetStateAction<boolean>>;
   videoItem: { url: string; name?: string } | null; setVideoItem: React.Dispatch<React.SetStateAction<{ url: string; name?: string } | null>>;
   videoPlaying: boolean; setVideoPlaying: React.Dispatch<React.SetStateAction<boolean>>;

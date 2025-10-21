@@ -24,6 +24,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [showGrid, setShowGrid] = useState<boolean>(() => initial.showGrid);
   const [gridSize, setGridSize] = useState<number>(() => initial.gridSize);
   const [focusMode, setFocusMode] = useState(false);
+  const [customKernel, setCustomKernel] = useState<number[][] | null>(null);
+  const [customKernelDivisor, setCustomKernelDivisor] = useState<number>(16);
   const [videoMode, setVideoMode] = useState(false);
   const [videoItem, setVideoItem] = useState<{ url: string; name?: string } | null>(null);
   const [videoPlaying, setVideoPlaying] = useState(true);
@@ -72,12 +74,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showGrid, setShowGrid,
     gridSize, setGridSize,
     focusMode, setFocusMode,
+    customKernel, setCustomKernel,
+    customKernelDivisor, setCustomKernelDivisor,
     videoMode, setVideoMode,
     videoItem, setVideoItem,
     videoPlaying, setVideoPlaying,
     videoFps, setVideoFps,
     showDownload, setShowDownload,
-  }), [images, activeImageId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
+  }), [images, activeImageId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };
