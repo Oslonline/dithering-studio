@@ -99,6 +99,7 @@ export default {
     changeVideo: 'Изменить видео',
     changeImage: 'Изменить изображение',
     reset: 'Сбросить',
+    randomizeSettings: 'Рандомизировать алгоритм и настройки',
     shareSettingsTitle: 'Скопировать ссылку с этими настройками',
     exploreAlgorithms: 'Исследовать алгоритмы',
     chooseAnotherVideo: 'Выбрать другое видео',

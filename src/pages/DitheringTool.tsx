@@ -31,8 +31,8 @@ import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
 import { triggerHaptic } from "../utils/haptic";
 import PresetPanel from "../components/panels/PresetPanel";
-import { getRandomAlgorithm } from "../components/panels/AlgorithmSelect";
 import CustomKernelEditor from "../components/panels/CustomKernelEditor";
+import RandomizeButton from "../components/ui/RandomizeButton";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
@@ -501,9 +501,22 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                               <span className="text-[13px]">↺</span>
                               <span>{t('tool.reset')}</span>
                             </button>
-                            <button onClick={() => setPattern(getRandomAlgorithm(pattern))} className="clean-btn px-3 py-2 text-[16px]" title="Random algorithm" aria-label="Select random algorithm">
-                              🎲
-                            </button>
+                            <RandomizeButton
+                              currentPattern={pattern}
+                              setPattern={setPattern}
+                              setThreshold={setThreshold}
+                              setWorkingResolution={setWorkingResolution}
+                              setContrast={setContrast}
+                              setMidtones={setMidtones}
+                              setHighlights={setHighlights}
+                              setBlurRadius={setBlurRadius}
+                              setPaletteId={setPaletteId}
+                              setActivePaletteColors={setActivePaletteColors}
+                              setInvert={setInvert}
+                              setSerpentine={setSerpentine}
+                              title={t('tool.randomizeSettings')}
+                              ariaLabel={t('tool.randomizeSettings')}
+                            />
                           </div>
                         )}
                         {!videoMode && images.length > 1 && <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />}
@@ -517,9 +530,22 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                               <span className="text-[13px]">↺</span>
                               <span>{t('tool.reset')}</span>
                             </button>
-                            <button onClick={() => setPattern(getRandomAlgorithm(pattern))} className="clean-btn px-3 py-2 text-[16px]" title="Random algorithm" aria-label="Select random algorithm">
-                              🎲
-                            </button>
+                            <RandomizeButton
+                              currentPattern={pattern}
+                              setPattern={setPattern}
+                              setThreshold={setThreshold}
+                              setWorkingResolution={setWorkingResolution}
+                              setContrast={setContrast}
+                              setMidtones={setMidtones}
+                              setHighlights={setHighlights}
+                              setBlurRadius={setBlurRadius}
+                              setPaletteId={setPaletteId}
+                              setActivePaletteColors={setActivePaletteColors}
+                              setInvert={setInvert}
+                              setSerpentine={setSerpentine}
+                              title={t('tool.randomizeSettings')}
+                              ariaLabel={t('tool.randomizeSettings')}
+                            />
                           </div>
                         )}
                         {videoMode && videoItem && (

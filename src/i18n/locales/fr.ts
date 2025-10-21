@@ -99,6 +99,7 @@ export default {
     changeVideo: 'Changer de Vidéo',
     changeImage: 'Changer d\'Image',
     reset: 'Réinitialiser',
+    randomizeSettings: 'Randomiser l\'algorithme et les paramètres',
     shareSettingsTitle: 'Copier un lien partageable vers ces paramètres',
     exploreAlgorithms: 'Explorer les Algorithmes',
     chooseAnotherVideo: 'Choisir une autre vidéo',

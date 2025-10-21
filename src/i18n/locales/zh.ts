@@ -99,6 +99,7 @@ export default {
     changeVideo: '更换视频',
     changeImage: '更换图片',
     reset: '重置',
+    randomizeSettings: '随机化算法和设置',
     shareSettingsTitle: '复制可共享的设置链接',
     exploreAlgorithms: '探索算法',
     chooseAnotherVideo: '选择另一个视频',
