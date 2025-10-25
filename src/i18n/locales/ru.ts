@@ -123,12 +123,13 @@ export default {
     
     upload: {
       tapToChoose: 'Нажмите для выбора изображений',
+      tapToChooseVideos: 'Нажмите для выбора видео',
       dropToLoad: 'Перетащите для загрузки',
       clickOrDragImages: 'Кликните или перетащите изображения',
-      clickOrDragVideo: 'Кликните или перетащите видео',
+      clickOrDragVideos: 'Кликните или перетащите видео',
       selectVideo: 'Выберите видео',
       imageFormats: 'Множественный выбор PNG · JPEG · WebP · GIF · BMP',
-      videoFormats: 'MP4 · WebM · MOV (рекомендуется ≤30с)',
+      videoFormats: 'Множественный выбор MP4 · WebM · MOV',
       videoFormatsShort: 'MP4/WebM (≤30с)',
     },
     
@@ -384,6 +385,20 @@ export default {
       addMore: 'Добавить ещё',
       clearAll: 'Очистить всё',
       images: '{{count}} изображений',
+    },
+    
+    // Videos Panel
+    videosPanel: {
+      title: 'Видео',
+      add: 'Добавить',
+      clear: 'Очистить',
+      clearAllHint: 'Удалить все видео',
+      noVideos: 'Пока нет видео. Используйте Добавить для импорта нескольких файлов.',
+      video: 'Видео',
+      remove: 'Удалить',
+      addMore: 'Добавить ещё',
+      clearAll: 'Очистить всё',
+      videos: '{{count}} видео',
     },
     
     // Share Dialog

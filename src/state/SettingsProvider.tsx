@@ -1,12 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { SettingsContext } from './SettingsContext';
 import type { UploadedImage } from '../components/panels/ImagesPanel';
+import type { UploadedVideo } from '../components/panels/VideosPanel';
 import { loadSettings, persistSettings } from './settingsPersistence';
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initial = loadSettings();
   const [images, setImages] = useState<UploadedImage[]>(() => initial.images as UploadedImage[]);
   const [activeImageId, setActiveImageId] = useState<string | null>(() => initial.activeImageId);
+  const [videos, setVideos] = useState<UploadedVideo[]>([]);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [pattern, setPattern] = useState<number>(() => initial.pattern);
   const [threshold, setThreshold] = useState<number>(() => initial.threshold);
   const [workingResolution, setWorkingResolution] = useState<number>(() => initial.workingResolution);
@@ -57,6 +60,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const value = useMemo(() => ({
     images, setImages,
     activeImageId, setActiveImageId,
+    videos, setVideos,
+    activeVideoId, setActiveVideoId,
     pattern, setPattern,
     threshold, setThreshold,
     workingResolution, setWorkingResolution,
@@ -81,7 +86,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     videoPlaying, setVideoPlaying,
     videoFps, setVideoFps,
     showDownload, setShowDownload,
-  }), [images, activeImageId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
+  }), [images, activeImageId, videos, activeVideoId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

@@ -123,12 +123,13 @@ export default {
     
     upload: {
       tapToChoose: '点击选择图片',
+      tapToChooseVideos: '点击选择视频',
       dropToLoad: '放置以加载',
       clickOrDragImages: '点击或拖动图片',
-      clickOrDragVideo: '点击或拖动视频',
+      clickOrDragVideos: '点击或拖动视频',
       selectVideo: '选择视频',
       imageFormats: '多选 PNG · JPEG · WebP · GIF · BMP',
-      videoFormats: 'MP4 · WebM · MOV（建议 ≤30 秒）',
+      videoFormats: '多选 MP4 · WebM · MOV',
       videoFormatsShort: 'MP4/WebM（≤30 秒）',
     },
     
@@ -384,6 +385,20 @@ export default {
       addMore: '添加更多',
       clearAll: '全部清除',
       images: '{{count}} 张图片',
+    },
+    
+    // Videos Panel
+    videosPanel: {
+      title: '视频',
+      add: '添加',
+      clear: '清除',
+      clearAllHint: '移除所有视频',
+      noVideos: '还没有视频。使用添加导入多个文件。',
+      video: '视频',
+      remove: '移除',
+      addMore: '添加更多',
+      clearAll: '全部清除',
+      videos: '{{count}} 个视频',
     },
     
     // Share Dialog

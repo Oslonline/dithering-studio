@@ -7,6 +7,7 @@ import { Helmet } from "react-helmet-async";
 import ImageUploader from "../components/uploaders/ImageUploader";
 import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
+import VideosPanel, { UploadedVideo } from "../components/panels/VideosPanel";
 import AlgorithmPanel from "../components/panels/AlgorithmPanel";
 import PalettePanel from "../components/panels/PalettePanel";
 import TonePanel from "../components/panels/TonePanel";
@@ -48,6 +49,10 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setImages,
     activeImageId,
     setActiveImageId,
+    videos,
+    setVideos,
+    activeVideoId,
+    setActiveVideoId,
     pattern,
     setPattern,
     threshold,
@@ -94,10 +99,11 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setShowDownload,
   } = useSettings();
   const image = activeImageId ? images.find((i: UploadedImage) => i.id === activeImageId)?.url || null : null;
+  const currentVideo = activeVideoId ? videos.find((v: UploadedVideo) => v.id === activeVideoId) || null : null;
   const [localWebpChecked, setLocalWebpChecked] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
-  
+
   useEffect(() => {
     if (initialMode === "video" && !videoMode) {
       setVideoMode(true);
@@ -105,9 +111,11 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
       setActiveImageId(null);
     } else if (initialMode === "image" && videoMode) {
       setVideoMode(false);
+      setVideos([]);
+      setActiveVideoId(null);
       setVideoItem(null);
     }
-  }, [initialMode, videoMode, setVideoMode, setImages, setActiveImageId, setVideoItem]);
+  }, [initialMode, videoMode, setVideoMode, setImages, setActiveImageId, setVideos, setActiveVideoId, setVideoItem]);
   
   useEffect(() => {
     if (localWebpChecked) return;
@@ -125,7 +133,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
-  const settingsHeight = useSettingsHeight(headerRef, footerRef, [image, videoMode, videoItem], focusMode);
+  const settingsHeight = useSettingsHeight(headerRef, footerRef, [image, videoMode, currentVideo], focusMode);
 
   const effectivePaletteId = paletteId;
   const effectivePalette = (effectivePaletteId ? predefinedPalettes.find((p) => p.id === effectivePaletteId)?.colors : null) || null;
@@ -191,7 +199,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     customKernelDivisor,
   });
   const videoHook = useVideoDithering({
-    video: videoItem?.url || null,
+    video: currentVideo?.url || null,
     pattern,
     threshold,
     workingResolution,
@@ -227,9 +235,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setWorkingResolution(dynamicMaxResolution);
   }
 
-  const { recordingVideo, recordingProgress, recordingError, startVideoExport, cancelVideoExport, recordedBlobUrl, videoExportFormat, setVideoExportFormat, videoFormatNote, recordingMimeRef, setRecordedBlobUrl } = useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, setVideoPlaying });
+  const { recordingVideo, recordingProgress, recordingError, startVideoExport, cancelVideoExport, recordedBlobUrl, videoExportFormat, setVideoExportFormat, videoFormatNote, recordingMimeRef, setRecordedBlobUrl } = useVideoRecording({ videoItem: currentVideo ? { url: currentVideo.url, name: currentVideo.name } : null, canvasRef, videoHook, videoFps, setVideoPlaying });
 
-  const mediaActive = (!videoMode && !!image) || (videoMode && !!videoItem);
+  const mediaActive = (!videoMode && !!image) || (videoMode && !!currentVideo);
 
   const switchMode = () => {
     if (videoMode) {
@@ -239,10 +247,10 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     }
   };
 
-  // Reset perf data when active image changes (fresh stats per image)
+  // Reset perf data when active image or video changes (fresh stats per media)
   useEffect(() => {
     perf.reset();
-  }, [activeImageId]);
+  }, [activeImageId, activeVideoId]);
 
   // Update canvas dimensions for ImageComparison sizing
   useEffect(() => {
@@ -308,6 +316,44 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setImages([]);
     setActiveImageId(null);
   };
+
+  const addVideos = (items: { url: string; name?: string; file?: File }[]) => {
+    setVideos((prev: UploadedVideo[]) => {
+      const next = [...prev];
+      items.forEach((it, idx) => {
+        const id = `vid-${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${idx}`;
+        let meta: Partial<UploadedVideo> = {};
+        if (it.file) {
+          meta.size = it.file.size;
+        }
+        // try to get video dimensions and duration
+        const vidEl = document.createElement('video');
+        vidEl.onloadedmetadata = () => {
+          setVideos((cur: UploadedVideo[]) => cur.map((cv: UploadedVideo) => (cv.id === id ? { ...cv, width: vidEl.videoWidth, height: vidEl.videoHeight, duration: vidEl.duration } : cv)));
+        };
+        vidEl.src = it.url;
+        next.push({ id, url: it.url, name: it.name, ...meta });
+        if (!activeVideoId) setActiveVideoId(id);
+      });
+      return next;
+    });
+  };
+
+  const removeVideo = (id: string) => {
+    setVideos((prev: UploadedVideo[]) => {
+      const next = prev.filter((v: UploadedVideo) => v.id !== id);
+      if (activeVideoId === id) {
+        setActiveVideoId(next[0]?.id || null);
+      }
+      return next;
+    });
+  };
+
+  const clearAllVideos = () => {
+    setVideos([]);
+    setActiveVideoId(null);
+  };
+
   const resetSettings = () => {
     // Reset dither settings to defaults
     setPattern(1);
@@ -491,9 +537,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                   {mediaActive && (
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
-                        {videoMode && videoItem && (
+                        {videoMode && videos.length > 0 && (
                           <div className="flex gap-2">
-                            <button onClick={() => setVideoItem(null)} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherVideo')}>
+                            <button onClick={clearAllVideos} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherVideo')}>
                               <span className="text-[13px]">⬆</span>
                               <span>{t('tool.changeVideo')}</span>
                             </button>
@@ -519,8 +565,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             />
                           </div>
                         )}
-                        {!videoMode && images.length > 1 && <ImagesPanel images={images} activeId={activeImageId} setActiveId={setActiveImageId} removeImage={removeImage} addImages={readAndAddFiles} clearAll={clearAllImages} />}
-                        {!videoMode && images.length <= 1 && activeImageId && (
+                        {!videoMode && images.length > 0 && (
                           <div className="flex gap-2">
                             <button onClick={clearAllImages} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherImage')}>
                               <span className="text-[13px]">⬆</span>
@@ -586,6 +631,31 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             </div>
                           </div>
                         )}
+                        {!videoMode && images.length > 1 && (
+                          <ImagesPanel
+                            images={images}
+                            activeId={activeImageId}
+                            setActiveId={setActiveImageId}
+                            removeImage={removeImage}
+                            addImages={readAndAddFiles}
+                            clearAll={clearAllImages}
+                          />
+                        )}
+                        {videoMode && videos.length > 1 && (
+                          <VideosPanel
+                            videos={videos}
+                            activeId={activeVideoId}
+                            setActiveId={setActiveVideoId}
+                            removeVideo={removeVideo}
+                            addVideos={(files) => {
+                              const items = Array.from(files)
+                                .filter(f => f.type.startsWith('video/'))
+                                .map(f => ({ url: URL.createObjectURL(f), name: f.name, file: f }));
+                              addVideos(items);
+                            }}
+                            clearAll={clearAllVideos}
+                          />
+                        )}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
                         {pattern === 26 && <CustomKernelEditor inline={false} />}
                         <TonePanel contrast={contrast} setContrast={setContrast} midtones={midtones} setMidtones={setMidtones} highlights={highlights} setHighlights={setHighlights} blurRadius={blurRadius} setBlurRadius={setBlurRadius} workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} maxResolution={dynamicMaxResolution} />
@@ -638,7 +708,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
             {!mediaActive && (
               <div className="w-full max-w-lg space-y-4">
                 {!videoMode && <ImageUploader onImagesAdded={(items) => addImages(items)} />}
-                {videoMode && !videoItem && <VideoUploader onVideoSelected={(v) => setVideoItem({ url: v.url, name: v.name })} />}
+                {videoMode && videos.length === 0 && <VideoUploader onVideosSelected={(items) => addVideos(items)} />}
                 {!videoMode && (
                   <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>
                     {t('tool.switchToVideoMode')}
@@ -709,7 +779,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                 </div>
               </CanvasViewport>
             )}
-            {mediaActive && videoMode && videoItem && (
+            {mediaActive && videoMode && currentVideo && (
               <CanvasViewport>
                 <div className="relative inline-block">
                   <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
@@ -723,7 +793,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           onClose={() => setShowDownload(false)}
           videoMode={videoMode}
           image={image}
-          videoItem={videoItem}
+          videoItem={currentVideo ? { url: currentVideo.url, name: currentVideo.name } : null}
           webpSupported={webpSupported}
           processedCanvasRef={processedCanvasRef}
           canvasRef={canvasRef}
@@ -750,7 +820,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           lastFormat={lastDownloadFormat}
           isVideo={videoMode}
         />
-        <PerformanceOverlay hasImage={!!image || !!videoItem} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : null} processedBytes={processedSizeBytes} />
+        <PerformanceOverlay hasImage={!!image || !!currentVideo} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : currentVideo?.size || null} processedBytes={processedSizeBytes} />
         <ProcessingOverlay 
           isProcessing={busy || false} 
           operation={videoMode ? "Processing video frame" : "Dithering image"} 

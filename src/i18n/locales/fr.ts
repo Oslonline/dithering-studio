@@ -122,12 +122,13 @@ export default {
     
     upload: {
       tapToChoose: 'Appuyez pour choisir des images',
+      tapToChooseVideos: 'Appuyez pour choisir des vidéos',
       dropToLoad: 'Déposez pour charger',
       clickOrDragImages: 'Cliquez ou glissez des images',
-      clickOrDragVideo: 'Cliquez ou glissez une vidéo',
-      selectVideo: 'Sélectionnez une vidéo',
+      clickOrDragVideos: 'Cliquez ou glissez des vidéos',
+      selectVideo: 'Sélectionnez des vidéos',
       imageFormats: 'Multi-sélection PNG · JPEG · WebP · GIF · BMP',
-      videoFormats: 'MP4 · WebM · MOV (≤30s recommandé)',
+      videoFormats: 'Multi-sélection MP4 · WebM · MOV',
       videoFormatsShort: 'MP4/WebM (≤30s)',
     },
     
@@ -374,6 +375,20 @@ export default {
       addMore: 'Ajouter Plus',
       clearAll: 'Tout Effacer',
       images: '{{count}} images',
+    },
+    
+    // Videos Panel
+    videosPanel: {
+      title: 'Vidéos',
+      add: 'Ajouter',
+      clear: 'Effacer',
+      clearAllHint: 'Supprimer toutes les vidéos',
+      noVideos: 'Aucune vidéo pour le moment. Utilisez Ajouter pour importer plusieurs fichiers.',
+      video: 'Vidéo',
+      remove: 'Retirer',
+      addMore: 'Ajouter Plus',
+      clearAll: 'Tout Effacer',
+      videos: '{{count}} vidéos',
     },
     
     // Share Dialog

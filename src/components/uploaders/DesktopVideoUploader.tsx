@@ -4,9 +4,9 @@ import { FaFilm, FaExclamationTriangle } from 'react-icons/fa';
 import { validateVideo } from '../../utils/validation';
 import { useErrorTracking } from '../../hooks/useErrorTracking';
 
-interface DesktopVideoUploaderProps { onVideoSelected: (item: { url: string; name?: string; file?: File }) => void; }
+interface DesktopVideoUploaderProps { onVideosSelected: (items: { url: string; name?: string; file?: File }[]) => void; }
 
-const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideoSelected }) => {
+const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideosSelected }) => {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -14,11 +14,12 @@ const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideoSele
   const [isValidating, setIsValidating] = useState(false);
   const { trackValidationError, trackError } = useErrorTracking();
 
-  const process = async (file: File) => {
-    if (!file.type.startsWith('video/')) {
-      const error = 'Not a video file';
+  const processFiles = async (files: File[]) => {
+    const videoFiles = files.filter(f => f.type.startsWith('video/'));
+    
+    if (videoFiles.length === 0) {
+      const error = 'No video files found';
       setValidationError(error);
-      trackValidationError('video-upload', file, error);
       setTimeout(() => setValidationError(null), 5000);
       return;
     }
@@ -26,42 +27,53 @@ const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideoSele
     setIsValidating(true);
     setValidationError(null);
 
-    try {
-      const result = await validateVideo(file);
-      
-      if (!result.valid) {
-        setValidationError(result.error || 'Video validation failed');
-        trackValidationError('video-upload', file, result.error || 'Unknown error');
-        setTimeout(() => setValidationError(null), 5000);
-        setIsValidating(false);
-        return;
-      }
+    const validatedVideos: { url: string; name?: string; file?: File }[] = [];
+    const errors: string[] = [];
 
-      if (result.warning) {
-        console.warn('Video validation warning:', result.warning);
-      }
+    for (const file of videoFiles) {
+      try {
+        const result = await validateVideo(file);
+        
+        if (!result.valid) {
+          errors.push(`${file.name}: ${result.error || 'Validation failed'}`);
+          trackValidationError('video-upload', file, result.error || 'Unknown error');
+          continue;
+        }
 
-      const url = URL.createObjectURL(file);
-      onVideoSelected({ url, name: file.name, file });
-      setIsValidating(false);
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Validation failed';
-      setValidationError(errorMsg);
-      trackError(`Video validation error: ${errorMsg}`, { file: file.name });
-      setTimeout(() => setValidationError(null), 5000);
-      setIsValidating(false);
+        if (result.warning) {
+          console.warn(`Video validation warning for ${file.name}:`, result.warning);
+        }
+
+        const url = URL.createObjectURL(file);
+        validatedVideos.push({ url, name: file.name, file });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Validation failed';
+        errors.push(`${file.name}: ${errorMsg}`);
+        trackError(`Video validation error: ${errorMsg}`, { file: file.name });
+      }
     }
+
+    if (errors.length > 0) {
+      setValidationError(errors.join('; '));
+      setTimeout(() => setValidationError(null), 5000);
+    }
+
+    if (validatedVideos.length > 0) {
+      onVideosSelected(validatedVideos);
+    }
+
+    setIsValidating(false);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) process(file);
+    const files = e.target.files;
+    if (files && files.length > 0) processFiles(Array.from(files));
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault(); e.stopPropagation(); setDragActive(false);
-    const file = Array.from(e.dataTransfer.files).find(f => f.type.startsWith('video/'));
-    if (file) process(file);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) processFiles(files);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); setDragActive(true); };
@@ -83,11 +95,11 @@ const DesktopVideoUploader: React.FC<DesktopVideoUploaderProps> = ({ onVideoSele
       >
         <FaFilm className="text-4xl text-blue-500" aria-hidden="true" />
         <p className="font-mono text-xs tracking-wide text-gray-200">
-          {isValidating ? 'Validating video...' : (dragActive ? t('tool.upload.dropToLoad') : t('tool.upload.clickOrDragVideo'))}
+          {isValidating ? 'Validating videos...' : (dragActive ? t('tool.upload.dropToLoad') : t('tool.upload.clickOrDragVideos'))}
         </p>
         <p className="text-[10px] text-gray-500">{t('tool.upload.videoFormats')}</p>
         <p className="text-[9px] text-gray-600 mt-1">Max 100MB, up to 5 minutes</p>
-        <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={handleFileInput} />
+        <input ref={inputRef} type="file" accept="video/*" multiple className="hidden" onChange={handleFileInput} />
         {dragActive && <div className="pointer-events-none absolute inset-0 rounded-[inherit] ring-2 ring-blue-600/40" />}
       </div>
 

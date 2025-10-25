@@ -1,11 +1,16 @@
 import React, { createContext, useContext } from 'react';
 import type { UploadedImage } from '../components/panels/ImagesPanel';
+import type { UploadedVideo } from '../components/panels/VideosPanel';
 
 export interface SettingsContextValue {
   images: UploadedImage[];
   setImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>;
   activeImageId: string | null;
   setActiveImageId: React.Dispatch<React.SetStateAction<string | null>>;
+  videos: UploadedVideo[];
+  setVideos: React.Dispatch<React.SetStateAction<UploadedVideo[]>>;
+  activeVideoId: string | null;
+  setActiveVideoId: React.Dispatch<React.SetStateAction<string | null>>;
   pattern: number; setPattern: React.Dispatch<React.SetStateAction<number>>;
   threshold: number; setThreshold: React.Dispatch<React.SetStateAction<number>>;
   workingResolution: number; setWorkingResolution: React.Dispatch<React.SetStateAction<number>>;
