@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-interface ImageComparisonProps {
-  beforeImage: string;
+interface MediaComparisonProps {
+  beforeImage?: string;
+  beforeVideo?: HTMLVideoElement;
   beforeLabel?: string;
   afterLabel?: string;
   width?: string;
@@ -10,12 +11,9 @@ interface ImageComparisonProps {
   className?: string;
 }
 
-/**
- * Interactive slider overlay to reveal original image over processed canvas
- * The "after" (processed) image is the canvas underneath - this just shows the "before" (original)
- */
-const ImageComparison: React.FC<ImageComparisonProps> = ({
+const MediaComparison: React.FC<MediaComparisonProps> = ({
   beforeImage,
+  beforeVideo,
   beforeLabel,
   afterLabel,
   width,
@@ -26,6 +24,7 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   // Use translations as defaults if not provided
   const beforeLabelText = beforeLabel || t('tool.imageComparison.original');
@@ -80,6 +79,47 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
     }
   }, [isDragging]);
 
+  useEffect(() => {
+    if (beforeVideo && videoContainerRef.current) {
+      const container = videoContainerRef.current;
+      
+      const canvas = document.createElement('canvas');
+      canvas.className = 'w-full h-full block pixelated';
+      canvas.style.width = width || 'auto';
+      canvas.style.height = height || 'auto';
+      canvas.style.objectFit = 'contain';
+      
+      canvas.width = beforeVideo.videoWidth || 640;
+      canvas.height = beforeVideo.videoHeight || 480;
+      
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (!ctx) return;
+      
+      container.innerHTML = '';
+      container.appendChild(canvas);
+      
+      let animationFrameId: number;
+      
+      const renderFrame = () => {
+        if (beforeVideo && ctx) {
+          try {
+            ctx.drawImage(beforeVideo, 0, 0, canvas.width, canvas.height);
+          } catch (e) {
+            // Video might not be ready yet
+          }
+        }
+        animationFrameId = requestAnimationFrame(renderFrame);
+      };
+      
+      renderFrame();
+      
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+        container.innerHTML = '';
+      };
+    }
+  }, [beforeVideo, width, height]);
+
   const handleContainerMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent CanvasViewport from starting pan on any click inside
   };
@@ -96,22 +136,34 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
         pointerEvents: 'auto'
       }}
     >
-      {/* Before image (clipped by slider) - shows original image */}
+      {/* Before image/video (clipped by slider) - shows original media */}
       {/* The processed image is the canvas underneath, which shows through where this doesn't cover */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
       >
-        <img
-          src={beforeImage}
-          alt={beforeLabelText}
-          className="w-full h-full block pixelated object-contain"
-          draggable={false}
-          style={{
-            width: width || 'auto',
-            height: height || 'auto'
-          }}
-        />
+        {beforeImage && (
+          <img
+            src={beforeImage}
+            alt={beforeLabelText}
+            className="w-full h-full block pixelated object-contain"
+            draggable={false}
+            style={{
+              width: width || 'auto',
+              height: height || 'auto'
+            }}
+          />
+        )}
+        {beforeVideo && (
+          <div
+            ref={videoContainerRef}
+            className="w-full h-full"
+            style={{
+              width: width || 'auto',
+              height: height || 'auto'
+            }}
+          />
+        )}
         <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white border border-white/20 pointer-events-none">
           {beforeLabelText}
         </div>
@@ -184,4 +236,4 @@ const ImageComparison: React.FC<ImageComparisonProps> = ({
   );
 };
 
-export default ImageComparison;
+export default MediaComparison;

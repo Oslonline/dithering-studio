@@ -79,7 +79,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
     return () => {
       v.pause();
     };
-  }, [video, playing, loop]);
+  }, [video, loop]);
 
   useEffect(() => {
     const v = videoElRef.current;
@@ -93,6 +93,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
 
   useEffect(() => {
     let active = true;
+    let frameCount = 0;
     const canvas = canvasRef.current;
     const procCanvas = processedCanvasRef.current;
     if (!canvas || !procCanvas) return;
@@ -102,18 +103,15 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
 
     const frameInterval = 1000 / fps;
 
-    const run = (t: number) => {
-      if (!active) return;
-      requestAnimationFrame(run);
+    const processFrame = () => {
       const v = videoElRef.current;
-      if (!v || !ready || !playing || v.readyState < 2) return;
-      if (t - lastFrameTimeRef.current < frameInterval) return;
-      lastFrameTimeRef.current = t;
+      if (!v || !ready || v.readyState < 2) return false;
+      
       tokenRef.current++;
       const token = tokenRef.current;
       const vw = v.videoWidth;
       const vh = v.videoHeight;
-      if (!vw || !vh) return;
+      if (!vw || !vh) return false;
       const maxDim = Math.max(vw, vh);
       const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
       const width = Math.max(1, Math.round(vw * scale));
@@ -158,7 +156,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
         out = src; // fallback
       }
       perf.phaseEnd('dither');
-      if (token !== tokenRef.current || !active) return;
+      if (token !== tokenRef.current || !active) return false;
       perf.phaseStart('present');
       ctx.putImageData(out, 0, 0);
       perf.phaseEnd('present');
@@ -173,7 +171,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
           const viewportW = window.innerWidth;
           const viewportH = window.innerHeight;
           const maxW = Math.min(viewportW - sidebarWidth - 40, 1280);
-          const maxH = viewportH - 140; // allow for header/footer similar to image mode
+          const maxH = viewportH - 140;
           let dispW = Math.min(maxW, maxH * (ow / oh));
           if (dispW < 120) dispW = 120;
           const dispH = dispW * (oh / ow);
@@ -186,8 +184,9 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       setCanvasUpdatedFlag(true);
       setTimeout(() => { if (token === tokenRef.current) setCanvasUpdatedFlag(false); }, 100);
       setCurrentTime(v.currentTime);
-      // Lightweight size estimate every ~1s
-      if (t % 1000 < frameInterval) {
+      
+      frameCount++;
+      if (frameCount % 30 === 0 || !playing) {
         try {
           const dataUrl = canvas.toDataURL('image/png');
           const comma = dataUrl.indexOf(',');
@@ -198,8 +197,26 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
           }
         } catch { }
       }
+      
       perf.endFrame();
+      return true;
     };
+
+    const run = (t: number) => {
+      if (!active) return;
+      requestAnimationFrame(run);
+      const v = videoElRef.current;
+      if (!v || !ready || v.readyState < 2) return;
+      
+      if (playing) {
+        if (t - lastFrameTimeRef.current < frameInterval) return;
+        lastFrameTimeRef.current = t;
+        processFrame();
+      }
+    };
+
+    processFrame();
+    
     requestAnimationFrame(run);
     return () => { active = false; };
   }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps, playing, ready, extras.contrast, extras.midtones, extras.highlights, extras.blurRadius]);

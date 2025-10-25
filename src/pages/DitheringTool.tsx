@@ -16,7 +16,8 @@ import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
 import PerformanceOverlay from "../components/ui/PerformanceOverlay";
 import ProcessingOverlay from "../components/ui/ProcessingOverlay";
-import ImageComparison from "../components/ui/ImageComparison";
+import MediaComparison from "../components/ui/MediaComparison";
+import VideoControls from "../components/ui/VideoControls";
 import CanvasViewport from "../components/canvas/CanvasViewport";
 import ExportDialog from "../components/dialogs/ExportDialog";
 import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDialog";
@@ -89,8 +90,6 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     customKernelDivisor,
     videoMode,
     setVideoMode,
-    videoItem,
-    setVideoItem,
     videoPlaying,
     setVideoPlaying,
     videoFps,
@@ -113,9 +112,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
       setVideoMode(false);
       setVideos([]);
       setActiveVideoId(null);
-      setVideoItem(null);
     }
-  }, [initialMode, videoMode, setVideoMode, setImages, setActiveImageId, setVideos, setActiveVideoId, setVideoItem]);
+  }, [initialMode, videoMode, setVideoMode, setImages, setActiveImageId, setVideos, setActiveVideoId]);
   
   useEffect(() => {
     if (localWebpChecked) return;
@@ -252,7 +250,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     perf.reset();
   }, [activeImageId, activeVideoId]);
 
-  // Update canvas dimensions for ImageComparison sizing
+  // Update canvas dimensions for MediaComparison sizing
   useEffect(() => {
     if (canvasRef.current && hasApplied) {
       const width = canvasRef.current.style.width || 'auto';
@@ -593,43 +591,17 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             />
                           </div>
                         )}
-                        {videoMode && videoItem && (
-                          <div className="min-panel p-0">
-                            <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300">
-                              <span className="flex items-center gap-2">
-                                <span>▾</span> Video
-                              </span>
-                              <span className="text-[10px] text-gray-500">
-                                {videoCurrentTime.toFixed(1)} / {videoDuration.toFixed(1)}s
-                              </span>
-                            </button>
-                            <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <button type="button" onClick={() => setVideoPlaying((p) => !p)} className="clean-btn px-3 py-1 text-[11px]" title={videoPlaying ? t('tool.pause') : t('tool.play')}>
-                                  {videoPlaying ? t('tool.pause') : t('tool.play')}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const v = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
-                                    if (v) {
-                                      v.currentTime = 0;
-                                    }
-                                  }}
-                                  className="clean-btn px-3 py-1 text-[11px]"
-                                  title={t('tool.videoPanel.restart')}
-                                >
-                                  ⟲ Start
-                                </button>
-                                <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                                  <span>{t('tool.fps')}</span>
-                                  <input type="range" min={2} max={30} value={videoFps} onChange={(e) => setVideoFps(Number(e.target.value))} className="clean-range !w-28" />
-                                  <span className="w-6 text-right tabular-nums">{videoFps}</span>
-                                </div>
-                              </div>
-                              {!videoReady && <p className="text-[10px] text-gray-500">{t('tool.videoPanel.loadingMetadata')}</p>}
-                            </div>
-                          </div>
+                        {videoMode && currentVideo && (
+                          <VideoControls
+                            videoElRef={(videoHook as any).videoElRef}
+                            videoPlaying={videoPlaying}
+                            setVideoPlaying={setVideoPlaying}
+                            videoCurrentTime={videoCurrentTime}
+                            videoDuration={videoDuration}
+                            videoFps={videoFps}
+                            setVideoFps={setVideoFps}
+                            videoReady={videoReady}
+                          />
                         )}
                         {!videoMode && images.length > 1 && (
                           <ImagesPanel
@@ -736,7 +708,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                   {/* The right side is transparent, showing the canvas (processed image) underneath */}
                   {showComparison && (
                     <div className="absolute inset-0 pointer-events-auto">
-                      <ImageComparison
+                      <MediaComparison
                         beforeImage={image}
                         beforeLabel={t('tool.imageComparison.original')}
                         afterLabel={t('tool.imageComparison.dithered')}
@@ -783,6 +755,33 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
               <CanvasViewport>
                 <div className="relative inline-block">
                   <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
+                  
+                  {/* Comparison overlay for video - shows original video on left side */}
+                  {showComparison && (videoHook as any).videoElRef?.current && (
+                    <div className="absolute inset-0 pointer-events-auto">
+                      <MediaComparison
+                        beforeVideo={(videoHook as any).videoElRef.current}
+                        beforeLabel={t('tool.imageComparison.original')}
+                        afterLabel={t('tool.imageComparison.dithered')}
+                        width={canvasDimensions.width}
+                        height={canvasDimensions.height}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Compare toggle button */}
+                  {hasApplied && (
+                    <button
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setShowComparison(!showComparison);
+                      }}
+                      className="absolute top-2 right-2 clean-btn text-[10px] px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800/90 z-10"
+                      title={showComparison ? t('tool.showDitheredOnly') : t('tool.compareBeforeAfter')}
+                    >
+                      {showComparison ? t('tool.hideComparison') : t('tool.compare')}
+                    </button>
+                  )}
                 </div>
               </CanvasViewport>
             )}
