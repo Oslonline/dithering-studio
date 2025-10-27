@@ -7,6 +7,7 @@ import es from './locales/es/index';
 import zh from './locales/zh/index';
 import ru from './locales/ru/index';
 import hi from './locales/hi/index';
+import de from './locales/de/index';
 
 i18n
   .use(LanguageDetector)
@@ -19,9 +20,10 @@ i18n
       zh: { translation: zh },
       ru: { translation: ru },
       hi: { translation: hi },
+      de: { translation: de },
     },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'es', 'zh', 'ru', 'hi'],
+    supportedLngs: ['en', 'fr', 'es', 'zh', 'ru', 'hi', 'de'],
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
