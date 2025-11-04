@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { algorithms, getAlgorithmsByCategory } from '../../utils/algorithms';
 import { orderRampDarkToLight, DEFAULT_ASCII_RAMP } from '../../utils/algorithms/asciiMosaic';
+import CollapsiblePanel from '../ui/CollapsiblePanel';
 
 interface AlgorithmPanelProps {
   pattern: number;
@@ -19,21 +20,20 @@ interface AlgorithmPanelProps {
 
 const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({ pattern, setPattern, threshold, setThreshold, invert, setInvert, serpentine, setSerpentine, asciiRamp, setAsciiRamp }) => {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(true);
   const algoObj = algorithms.find(a=>a.id===pattern);
   const isAscii = pattern === 25 || algoObj?.name.toLowerCase().includes('ascii');
   const normalizedRamp = useMemo(()=>{
     if (!asciiRamp) return DEFAULT_ASCII_RAMP; return Array.from(new Set(asciiRamp.split('').filter(ch=>ch !== '\n' && ch!=='\r'))).join('').slice(0,128);
   },[asciiRamp]);
+  
   return (
-    <div className="min-panel p-0">
-      <button type="button" onClick={() => setOpen(o => !o)} className="flex w-full items-center justify-between px-4 py-3 text-left font-mono text-[11px] tracking-wide text-gray-300 hover:bg-neutral-800/40 focus-visible:shadow-[var(--focus-ring)]" aria-expanded={open}>
-        <span className="flex items-center gap-2"><span>{open ? '▾' : '▸'}</span> {t(isAscii ? 'tool.algorithmPanel.titleAscii' : 'tool.algorithmPanel.title')}</span>
-        <span className="text-[10px] text-gray-500">#{pattern}</span>
-      </button>
-      {open && (
-        <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
-          <div>
+    <CollapsiblePanel 
+      title={t(isAscii ? 'tool.algorithmPanel.titleAscii' : 'tool.algorithmPanel.title')}
+      subtitle={`#${pattern}`}
+      defaultOpen={true}
+    >
+      <div className="space-y-3">
+        <div>
             <label htmlFor="algo-select" className="sr-only">{t('tool.algorithmPanel.title')}</label>
             <select id="algo-select" className="clean-input" value={pattern} onChange={(e) => setPattern(Number(e.target.value))}>
               {(() => {
@@ -104,9 +104,8 @@ const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({ pattern, setPattern, th
             </div>
           )}
           <p className="text-[10px] leading-snug text-gray-500">{algorithms.find(a=>a.id===pattern)?.name}</p>
-        </div>
-      )}
-    </div>
+      </div>
+    </CollapsiblePanel>
   );
 };
 

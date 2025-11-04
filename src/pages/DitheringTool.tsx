@@ -35,6 +35,7 @@ import { triggerHaptic } from "../utils/haptic";
 import PresetPanel from "../components/panels/PresetPanel";
 import CustomKernelEditor from "../components/panels/CustomKernelEditor";
 import RandomizeButton from "../components/ui/RandomizeButton";
+import ResizableSidebar from "../components/ui/ResizableSidebar";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
@@ -524,7 +525,13 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         </div>
         <div id="main-content" className="flex flex-1 flex-col overflow-hidden md:flex-row">
           {!focusMode && (
-            <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:w-80 md:border-r md:border-b-0">
+            <ResizableSidebar
+              defaultWidth={320}
+              minWidth={280}
+              maxWidth={500}
+              side="left"
+              className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:border-r md:border-b-0"
+            >
               <div className="flex flex-1 flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto" style={settingsHeight ? { maxHeight: settingsHeight } : undefined}>
                   {!mediaActive && (
@@ -674,7 +681,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                   )}
                 </div>
               </div>
-            </aside>
+            </ResizableSidebar>
           )}
           <main className="flex flex-1 items-center justify-center overflow-auto">
             {!mediaActive && (
