@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import type { UploadedImage } from '../components/panels/ImagesPanel';
 import type { UploadedVideo } from '../components/panels/VideosPanel';
+import type { SerpentinePattern } from '../types/serpentinePatterns';
 
 export interface SettingsContextValue {
   images: UploadedImage[];
@@ -24,6 +25,8 @@ export interface SettingsContextValue {
   activePaletteColors: [number, number, number][] | null; setActivePaletteColors: React.Dispatch<React.SetStateAction<[number, number, number][] | null>>;
   invert: boolean; setInvert: React.Dispatch<React.SetStateAction<boolean>>;
   serpentine: boolean; setSerpentine: React.Dispatch<React.SetStateAction<boolean>>;
+  serpentinePattern: SerpentinePattern; setSerpentinePattern: React.Dispatch<React.SetStateAction<SerpentinePattern>>;
+  errorDiffusionStrength: number; setErrorDiffusionStrength: React.Dispatch<React.SetStateAction<number>>;
   asciiRamp: string; setAsciiRamp: React.Dispatch<React.SetStateAction<string>>;
   showGrid: boolean; setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   gridSize: number; setGridSize: React.Dispatch<React.SetStateAction<number>>;

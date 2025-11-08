@@ -1,8 +1,12 @@
+import type { SerpentinePattern } from '../../types/serpentinePatterns';
+
 export interface DitherParams {
   pattern: number;
   threshold: number;
   invert: boolean;
   serpentine: boolean;
+  serpentinePattern?: SerpentinePattern;
+  errorDiffusionStrength?: number;
   isErrorDiffusion: boolean;
   palette?: [number, number, number][];
   asciiRamp?: string;

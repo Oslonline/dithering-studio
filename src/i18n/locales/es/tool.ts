@@ -112,6 +112,13 @@ const tool = {
     ordered: 'Ordenado',
     other: 'Otro / Experimental',
   },
+  errorDiffusionPanel: {
+    title: 'Difusión de Error',
+    subtitle: 'Controles avanzados',
+    errorStrength: 'Fuerza de Error',
+    strengthHint: 'Controla cuánto error se difunde a los vecinos (0% = sin difusión, 100% = estándar, 150% = exagerado)',
+    scanPattern: 'Patrón de Escaneo',
+  },
   customKernelPanel: {
     title: 'Kernel Personalizado',
     rows: 'Filas',

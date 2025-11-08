@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { SettingsContext } from './SettingsContext';
 import type { UploadedImage } from '../components/panels/ImagesPanel';
 import type { UploadedVideo } from '../components/panels/VideosPanel';
+import type { SerpentinePattern } from '../types/serpentinePatterns';
 import { loadSettings, persistSettings } from './settingsPersistence';
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -23,6 +24,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => initial.customPalette);
   const [invert, setInvert] = useState<boolean>(() => initial.invert);
   const [serpentine, setSerpentine] = useState<boolean>(() => initial.serpentine);
+  const [serpentinePattern, setSerpentinePattern] = useState<SerpentinePattern>('standard');
+  const [errorDiffusionStrength, setErrorDiffusionStrength] = useState<number>(100);
   const [asciiRamp, setAsciiRamp] = useState<string>(() => initial.asciiRamp);
   const [showGrid, setShowGrid] = useState<boolean>(() => initial.showGrid);
   const [gridSize, setGridSize] = useState<number>(() => initial.gridSize);
@@ -75,6 +78,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     activePaletteColors, setActivePaletteColors,
     invert, setInvert,
     serpentine, setSerpentine,
+    serpentinePattern, setSerpentinePattern,
+    errorDiffusionStrength, setErrorDiffusionStrength,
     asciiRamp, setAsciiRamp,
     showGrid, setShowGrid,
     gridSize, setGridSize,
@@ -86,7 +91,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     videoPlaying, setVideoPlaying,
     videoFps, setVideoFps,
     showDownload, setShowDownload,
-  }), [images, activeImageId, videos, activeVideoId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
+  }), [images, activeImageId, videos, activeVideoId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, serpentinePattern, errorDiffusionStrength, asciiRamp, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

@@ -3,6 +3,7 @@ import { perf } from '../utils/perf';
 import { findPalette } from '../utils/palettes';
 import { findAlgorithm } from '../utils/algorithms';
 import { applyLuminancePreprocess } from '../utils/preprocess';
+import type { SerpentinePattern } from '../types/serpentinePatterns';
 
 interface Params {
   video: string | null;
@@ -11,6 +12,8 @@ interface Params {
   workingResolution: number;
   invert: boolean;
   serpentine: boolean;
+  serpentinePattern: SerpentinePattern;
+  errorDiffusionStrength: number;
   isErrorDiffusion: boolean;
   paletteId?: string | null;
   paletteColors?: [number, number, number][];
@@ -22,7 +25,7 @@ interface Params {
 
 type ExtraParams = { contrast?: number; midtones?: number; highlights?: number; blurRadius?: number };
 
-const useVideoDithering = ({ video, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps = 12, playing, loop = true, ...extras }: Params & ExtraParams) => {
+const useVideoDithering = ({ video, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps = 12, playing, loop = true, ...extras }: Params & ExtraParams) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
   const videoElRef = useRef<HTMLVideoElement | null>(null);
@@ -149,7 +152,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       const algo = findAlgorithm(pattern);
       let out: ImageData | null = null;
       if (algo) {
-        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
+        const res = algo.run({ srcData, width, height, params: { pattern, threshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp } as any });
         out = res instanceof ImageData ? res : new ImageData(width, height);
         if (!(res instanceof ImageData)) out.data.set(res as any);
       } else {

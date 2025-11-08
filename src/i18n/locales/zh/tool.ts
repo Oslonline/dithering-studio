@@ -112,6 +112,13 @@ const tool = {
     ordered: '有序',
     other: '其他/实验性',
   },
+  errorDiffusionPanel: {
+    title: '误差扩散',
+    subtitle: '高级控制',
+    errorStrength: '误差强度',
+    strengthHint: '控制误差扩散到邻居的程度（0% = 无扩散，100% = 标准，150% = 夸张）',
+    scanPattern: '扫描模式',
+  },
   customKernelPanel: {
     title: '自定义内核',
     rows: '行数',

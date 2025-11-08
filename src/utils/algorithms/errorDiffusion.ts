@@ -1,9 +1,6 @@
 import { AlgorithmRunContext } from './types';
+import { serpentinePatterns } from '../../types/serpentinePatterns';
 
-/**
- * Generic error diffusion kernel runner
- * Time: O(n × k), Space: O(n)
- */
 function createKernelRunner(matrix: number[][], divisor: number, serpentineDefault = false) {
   return function runKernel({ srcData, width, height, params }: AlgorithmRunContext) {
     const out = new Uint8ClampedArray(srcData);
@@ -11,10 +8,16 @@ function createKernelRunner(matrix: number[][], divisor: number, serpentineDefau
     const palLums = pal ? pal.map(c => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) : null;
     const paletteBias = ((params.threshold ?? 128) - 128) / 255 * 64;
     const useSerpentine = params.serpentine ?? serpentineDefault;
-    for (let y = 0; y < height; y++) {
-      const leftToRight = !useSerpentine || y % 2 === 0;
-      for (let xi = leftToRight ? 0 : width - 1; leftToRight ? xi < width : xi >= 0; leftToRight ? xi++ : xi--) {
-        const x = xi;
+    const errorStrength = params.errorDiffusionStrength ?? 100;
+    const strengthMultiplier = errorStrength / 100;
+    const pattern = params.serpentinePattern || 'standard';
+    
+    const scanPath = useSerpentine && pattern !== 'standard' 
+      ? serpentinePatterns[pattern].generator(width, height)
+      : null;
+    
+    if (scanPath) {
+      for (const { x, y } of scanPath) {
         const idx = (y * width + x) * 4;
         const oldLum = out[idx];
         let newLum: number; let r: number; let g: number; let b: number;
@@ -26,19 +29,54 @@ function createKernelRunner(matrix: number[][], divisor: number, serpentineDefau
         } else {
           newLum = oldLum < (params.threshold ?? 128) ? 0 : 255; r = g = b = newLum;
         }
-        const err = oldLum - newLum;
+        const err = (oldLum - newLum) * strengthMultiplier;
         out[idx] = r; out[idx + 1] = g; out[idx + 2] = b;
+        
         for (let j = 0; j < matrix.length; j++) {
           for (let i = 0; i < matrix[j].length; i++) {
             const w = matrix[j][i]; if (!w) continue;
             const dx = i - Math.floor(matrix[j].length / 2);
             const dy = j;
-            const nx = x + (leftToRight ? dx : -dx);
+            const nx = x + dx;
             const ny = y + dy;
             if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
               const nIdx = (ny * width + nx) * 4;
               const diff = (err * w) / divisor;
               out[nIdx] += diff; out[nIdx + 1] += diff; out[nIdx + 2] += diff;
+            }
+          }
+        }
+      }
+    } else {
+      for (let y = 0; y < height; y++) {
+        const leftToRight = !useSerpentine || y % 2 === 0;
+        for (let xi = leftToRight ? 0 : width - 1; leftToRight ? xi < width : xi >= 0; leftToRight ? xi++ : xi--) {
+          const x = xi;
+          const idx = (y * width + x) * 4;
+          const oldLum = out[idx];
+          let newLum: number; let r: number; let g: number; let b: number;
+          if (pal && palLums) {
+            const biased = Math.max(0, Math.min(255, oldLum + paletteBias));
+            let bestI = 0; let bestD = Infinity;
+            for (let i = 0; i < palLums.length; i++) { const d = Math.abs(palLums[i] - biased); if (d < bestD) { bestD = d; bestI = i; } }
+            const c = pal[bestI]; r = c[0]; g = c[1]; b = c[2]; newLum = palLums[bestI];
+          } else {
+            newLum = oldLum < (params.threshold ?? 128) ? 0 : 255; r = g = b = newLum;
+          }
+          const err = (oldLum - newLum) * strengthMultiplier;
+          out[idx] = r; out[idx + 1] = g; out[idx + 2] = b;
+          for (let j = 0; j < matrix.length; j++) {
+            for (let i = 0; i < matrix[j].length; i++) {
+              const w = matrix[j][i]; if (!w) continue;
+              const dx = i - Math.floor(matrix[j].length / 2);
+              const dy = j;
+              const nx = x + (leftToRight ? dx : -dx);
+              const ny = y + dy;
+              if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                const nIdx = (ny * width + nx) * 4;
+                const diff = (err * w) / divisor;
+                out[nIdx] += diff; out[nIdx + 1] += diff; out[nIdx + 2] += diff;
+              }
             }
           }
         }
@@ -52,15 +90,15 @@ function createKernelRunner(matrix: number[][], divisor: number, serpentineDefau
 }
 
 export function runFloydSteinberg({ srcData, width, height, params }: AlgorithmRunContext) {
-  const { threshold = 128, invert, serpentine, palette } = params as any;
+  const { threshold = 128, invert, serpentine, palette, errorDiffusionStrength = 100 } = params as any;
   const data = srcData;
   const out = new Uint8ClampedArray(data.length);
+  const strengthMultiplier = errorDiffusionStrength / 100;
 
-  // Pre-computed Floyd-Steinberg coefficients (avoid 16 divisions per pixel)
-  const FS_7_16 = 7 / 16;
-  const FS_3_16 = 3 / 16;
-  const FS_5_16 = 5 / 16;
-  const FS_1_16 = 1 / 16;
+  const FS_7_16 = (7 / 16) * strengthMultiplier;
+  const FS_3_16 = (3 / 16) * strengthMultiplier;
+  const FS_5_16 = (5 / 16) * strengthMultiplier;
+  const FS_1_16 = (1 / 16) * strengthMultiplier;
 
   if (palette && palette.length) {
     const work = new Float32Array(data.length);

@@ -10,15 +10,13 @@ export interface AlgorithmControlsProps {
   setThreshold: (v: number) => void;
   invert: boolean;
   setInvert: (v: boolean | ((p: boolean) => boolean)) => void;
-  serpentine: boolean;
-  setSerpentine: (v: boolean | ((p: boolean) => boolean)) => void;
   paletteId: string | null;
   asciiRamp?: string;
   setAsciiRamp?: (v: string) => void;
   groupByCategory?: boolean;
 }
 
-export const AlgorithmControls: React.FC<AlgorithmControlsProps> = ({ pattern, setPattern, threshold, setThreshold, invert, setInvert, serpentine, setSerpentine, paletteId, asciiRamp, setAsciiRamp, groupByCategory }) => {
+export const AlgorithmControls: React.FC<AlgorithmControlsProps> = ({ pattern, setPattern, threshold, setThreshold, invert, setInvert, paletteId, asciiRamp, setAsciiRamp, groupByCategory }) => {
   const { t } = useTranslation();
   const algo = algorithms.find((a) => a.id === pattern);
   const supportsThreshold = !!algo?.supportsThreshold;
@@ -69,12 +67,9 @@ export const AlgorithmControls: React.FC<AlgorithmControlsProps> = ({ pattern, s
           <input type="range" min={0} max={255} value={threshold} className="clean-range" onChange={(e) => setThreshold(Number(e.target.value))} aria-label={t('tool.algorithmPanel.threshold')} />
         </div>
       )}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2">
         <button type="button" onClick={() => !paletteId && setInvert((v: boolean) => !v)} disabled={!!paletteId} className={`clean-btn justify-center text-[10px] ${invert ? "border-blue-600 text-blue-400" : ""} ${paletteId ? "cursor-not-allowed opacity-40" : ""}`}>
           {t('tool.algorithmPanel.invert')}
-        </button>
-        <button type="button" onClick={() => setSerpentine((v: boolean) => !v)} className={`clean-btn justify-center text-[10px] ${serpentine ? "border-blue-600 text-blue-400" : ""}`}>
-          {t('tool.algorithmPanel.serpentine')}
         </button>
       </div>
       {isAscii && setAsciiRamp && (

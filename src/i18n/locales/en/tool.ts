@@ -112,6 +112,13 @@ const tool = {
     ordered: 'Ordered',
     other: 'Other / Experimental',
   },
+  errorDiffusionPanel: {
+    title: 'Error Diffusion',
+    subtitle: 'Advanced controls',
+    errorStrength: 'Error Strength',
+    strengthHint: 'Controls how much error is diffused to neighbors (0% = no diffusion, 100% = standard, 150% = exaggerated)',
+    scanPattern: 'Scan Pattern',
+  },
   customKernelPanel: {
     title: 'Custom Kernel',
     rows: 'Rows',

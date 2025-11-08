@@ -11,14 +11,12 @@ interface AlgorithmPanelProps {
   setThreshold: (t: number) => void;
   invert: boolean;
   setInvert: React.Dispatch<React.SetStateAction<boolean>>;
-  serpentine: boolean;
-  setSerpentine: React.Dispatch<React.SetStateAction<boolean>>;
   paletteId: string | null;
   asciiRamp?: string;
   setAsciiRamp?: (v: string) => void;
 }
 
-const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({ pattern, setPattern, threshold, setThreshold, invert, setInvert, serpentine, setSerpentine, asciiRamp, setAsciiRamp }) => {
+const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({ pattern, setPattern, threshold, setThreshold, invert, setInvert, asciiRamp, setAsciiRamp }) => {
   const { t } = useTranslation();
   const algoObj = algorithms.find(a=>a.id===pattern);
   const isAscii = pattern === 25 || algoObj?.name.toLowerCase().includes('ascii');
@@ -53,17 +51,12 @@ const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({ pattern, setPattern, th
               <input type="range" min={0} max={255} value={threshold} className="clean-range" onChange={(e) => setThreshold(Number(e.target.value))} aria-label={t('tool.algorithmPanel.luminanceThreshold')} />
             </div>
           )}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             <button
               type="button"
               onClick={() => setInvert(v => !v)}
               className={`clean-btn justify-center text-[10px] ${invert ? 'border-blue-600 text-blue-400' : ''}`}
             >{t('tool.algorithmPanel.invert')}</button>
-            <button
-              type="button"
-              onClick={() => setSerpentine(s => !s)}
-              className={`clean-btn justify-center text-[10px] ${serpentine ? 'border-blue-600 text-blue-400' : ''}`}
-            >{t('tool.algorithmPanel.serpentine')}</button>
           </div>
           {isAscii && setAsciiRamp && (
             <div className="space-y-2" data-section="ascii-ramp">

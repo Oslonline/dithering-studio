@@ -6,15 +6,10 @@ import { findAlgorithm } from "../utils/algorithms";
 import { useDitheringWorker } from "./useDitheringWorker";
 import { processImageProgressively, getDefaultTileConfig } from "../utils/progressiveRendering";
 import type { Tile } from "../utils/progressiveRendering";
+import type { SerpentinePattern } from "../types/serpentinePatterns";
 
-interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; customKernel?: number[][] | null; customKernelDivisor?: number; }
+interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; serpentinePattern: SerpentinePattern; errorDiffusionStrength: number; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; customKernel?: number[][] | null; customKernelDivisor?: number; }
 
-/**
- * Smart debounce hook with immediate first update + throttled trailing
- * - First change applies immediately for instant feedback
- * - Subsequent rapid changes are throttled to avoid overwhelming the CPU
- * - Final change always applies after delay settles
- */
 function useDebouncedValue<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   const rafRef = useRef<number | null>(null);
@@ -69,7 +64,7 @@ function useDebouncedValue<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0, customKernel, customKernelDivisor }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0, customKernel, customKernelDivisor }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -211,6 +206,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
                     threshold: debouncedThreshold,
                     invert: palette ? false : invert,
                     serpentine,
+                    serpentinePattern,
+                    errorDiffusionStrength,
                     palette: palette || undefined,
                     asciiRamp
                   }
@@ -236,6 +233,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
                 threshold: debouncedThreshold,
                 invert: palette ? false : invert,
                 serpentine,
+                serpentinePattern,
+                errorDiffusionStrength,
                 palette: palette || undefined,
                 asciiRamp
               }
@@ -244,13 +243,13 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
         } catch (error) {
           console.error('[Dithering] Worker processing failed, falling back to main thread:', error);
           if (algorithm) {
-            const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
+            const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
             if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
           }
         }
       } else {
         if (algorithm) {
-          const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
+          const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
           if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
         } else {
           out = new ImageData(width, height); out.data.set(srcData);
@@ -309,7 +308,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     return () => {
       cancelled = true;
     };
-  }, [pattern, debouncedThreshold, workingResolution, invert, serpentine, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp, debouncedContrast, debouncedMidtones, debouncedHighlights, debouncedBlurRadius, submitJob, useWorkers]);
+  }, [pattern, debouncedThreshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp, debouncedContrast, debouncedMidtones, debouncedHighlights, debouncedBlurRadius, submitJob, useWorkers]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;

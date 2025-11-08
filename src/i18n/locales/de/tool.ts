@@ -112,6 +112,13 @@ const tool = {
     ordered: 'Geordnet',
     other: 'Andere / Experimentell',
   },
+  errorDiffusionPanel: {
+    title: 'Fehlerdiffusion',
+    subtitle: 'Erweiterte Steuerung',
+    errorStrength: 'Fehlerstärke',
+    strengthHint: 'Steuert, wie viel Fehler auf Nachbarn diffundiert wird (0% = keine Diffusion, 100% = Standard, 150% = übertrieben)',
+    scanPattern: 'Scanmuster',
+  },
   customKernelPanel: {
     title: 'Benutzerdefinierter Kernel',
     rows: 'Zeilen',

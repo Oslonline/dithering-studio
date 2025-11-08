@@ -9,6 +9,7 @@ import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
 import VideosPanel, { UploadedVideo } from "../components/panels/VideosPanel";
 import AlgorithmPanel from "../components/panels/AlgorithmPanel";
+import ErrorDiffusionPanel from "../components/panels/ErrorDiffusionPanel";
 import PalettePanel from "../components/panels/PalettePanel";
 import TonePanel from "../components/panels/TonePanel";
 import UploadIntro from "../components/uploaders/UploadIntro";
@@ -79,6 +80,10 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setInvert,
     serpentine,
     setSerpentine,
+    serpentinePattern,
+    setSerpentinePattern,
+    errorDiffusionStrength,
+    setErrorDiffusionStrength,
     asciiRamp,
     setAsciiRamp,
     showGrid,
@@ -186,6 +191,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     workingResolution,
     invert,
     serpentine,
+    serpentinePattern,
+    errorDiffusionStrength,
     isErrorDiffusion: isErrorDiffusion(pattern),
     paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
@@ -204,6 +211,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     workingResolution,
     invert,
     serpentine,
+    serpentinePattern,
+    errorDiffusionStrength,
     isErrorDiffusion: isErrorDiffusion(pattern),
     paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
@@ -635,7 +644,17 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             clearAll={clearAllVideos}
                           />
                         )}
-                        <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} serpentine={serpentine} setSerpentine={setSerpentine} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
+                        <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
+                        <ErrorDiffusionPanel
+                          pattern={pattern}
+                          serpentine={serpentine}
+                          setSerpentine={setSerpentine}
+                          serpentinePattern={serpentinePattern}
+                          setSerpentinePattern={setSerpentinePattern}
+                          errorDiffusionStrength={errorDiffusionStrength}
+                          setErrorDiffusionStrength={setErrorDiffusionStrength}
+                          isErrorDiffusion={isErrorDiffusion(pattern)}
+                        />
                         {pattern === 26 && <CustomKernelEditor inline={false} />}
                         <TonePanel contrast={contrast} setContrast={setContrast} midtones={midtones} setMidtones={setMidtones} highlights={highlights} setHighlights={setHighlights} blurRadius={blurRadius} setBlurRadius={setBlurRadius} workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} maxResolution={dynamicMaxResolution} />
                         {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}

@@ -112,6 +112,13 @@ const tool = {
     ordered: 'Ordonné',
     other: 'Autre / Expérimental',
   },
+  errorDiffusionPanel: {
+    title: 'Diffusion d\'Erreur',
+    subtitle: 'Contrôles avancés',
+    errorStrength: 'Force d\'Erreur',
+    strengthHint: 'Contrôle la quantité d\'erreur diffusée aux voisins (0% = aucune diffusion, 100% = standard, 150% = exagéré)',
+    scanPattern: 'Motif de Balayage',
+  },
   customKernelPanel: {
     title: 'Noyau Personnalisé',
     rows: 'Lignes',

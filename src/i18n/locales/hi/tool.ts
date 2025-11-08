@@ -112,6 +112,13 @@ const tool = {
     ordered: 'ऑर्डर्ड',
     other: 'अन्य / प्रयोगात्मक',
   },
+  errorDiffusionPanel: {
+    title: 'एरर डिफ़्यूज़न',
+    subtitle: 'उन्नत नियंत्रण',
+    errorStrength: 'एरर स्ट्रेंथ',
+    strengthHint: 'नियंत्रित करता है कि पड़ोसियों में कितनी त्रुटि फैलती है (0% = कोई विसरण नहीं, 100% = मानक, 150% = अतिरंजित)',
+    scanPattern: 'स्कैन पैटर्न',
+  },
   customKernelPanel: {
     title: 'कस्टम कर्नेल',
     rows: 'पंक्तियां',
