@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: 'Características Principales',
     subtitle: 'Cuatro pilares — el resto se mantiene discreto.',
-    algorithms: '25+ algoritmos',
+    algorithms: '27+ algoritmos',
     algorithmsDesc: 'Familias de difusión, matrices ordenadas, variantes estocásticas y adaptativas en un solo espacio de trabajo.',
     imageVideo: 'Soporte para imágenes y vídeos',
     imageVideoDesc: 'Aplica difuminado a imágenes estáticas o vídeos. Crea efectos retro de 8 bits, estéticas lofi, vibraciones vaporwave.',
@@ -49,7 +49,7 @@ const homepage = {
     privacy1: 'Todo funciona 100% del lado del cliente—tus imágenes y vídeos nunca abandonan tu dispositivo. Sin cargas, sin seguimiento, sin cuentas requeridas. Además, es',
     openSource: 'de código abierto (Apache 2.0)',
     privacy2: ', por lo que puedes inspeccionar el código, bifurcarlo o adaptarlo para tus propios proyectos.',
-    features: 'Con más de 25 algoritmos de difuminado que incluyen difusión de error (Floyd-Steinberg, Atkinson, familia Sierra), matrices ordenadas (Bayer, Blue Noise) y técnicas experimentales, puedes crear desde efectos de semitonos estilo periódico hasta estéticas de videojuegos retro. Exporta tu trabajo como PNG, JPEG, SVG para imágenes—o MP4, WebM, GIF para vídeos.',
+    features: 'Con más de 30 algoritmos de difuminado que incluyen difusión de error (Floyd-Steinberg, Atkinson, familia Sierra), matrices ordenadas (Bayer, Blue Noise) y técnicas experimentales, puedes crear desde efectos de semitonos estilo periódico hasta estéticas de videojuegos retro. Exporta tu trabajo como PNG, JPEG, SVG para imágenes—o MP4, WebM, GIF para vídeos.',
     inspiration1: 'Inspirado en herramientas como',
     inspiration2: 'y',
     inspiration3: ', pero construido para manejar tanto imágenes como vídeos con vista previa en tiempo real, paletas personalizadas y exportaciones instantáneas—todo sin abandonar tu navegador.',
@@ -58,3 +58,4 @@ const homepage = {
 };
 
 export default homepage;
+

@@ -18,6 +18,7 @@ import {
 } from './errorDiffusion';
 import { runBlueNoise, runBinaryThreshold, runRandomThreshold, runDotDiffusionSimple, runHalftone } from './orderedAndOther';
 import { runBayer2, runBayer4, runBayer8, runBayer16, runBayer32 } from './bayer';
+import { runRiemersma } from './riemersma';
 import runAsciiMosaic from './asciiMosaic';
 
 // Raw registry (unsorted). Maintain new entries here; ordering handled by helpers.
@@ -37,6 +38,7 @@ const registry: AlgorithmMeta[] = [
   { id: 22, name: 'Adaptive FS 7×7', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, supportsSerpentine: true, orderKey: 'error:afs7:13', run: (ctx) => runAdaptiveFS7(ctx) },
   { id: 23, name: 'Sierra 2-4A', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, supportsSerpentine: true, orderKey: 'error:sierra-24a:14', run: runSierra24A },
   { id: 26, name: 'Custom Kernel', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, supportsSerpentine: true, orderKey: 'error:custom:15', run: (ctx) => runCustomKernel(ctx) },
+  { id: 27, name: 'Riemersma', category: 'Error Diffusion', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'error:riemersma:16', run: (ctx) => runRiemersma(ctx) },
 
   { id: 16, name: 'Bayer 2×2', category: 'Ordered', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'ordered:bayer:2', run: (ctx) => runBayer2(ctx) },
   { id: 2, name: 'Bayer 4×4', category: 'Ordered', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'ordered:bayer:4', run: (ctx) => runBayer4(ctx) },

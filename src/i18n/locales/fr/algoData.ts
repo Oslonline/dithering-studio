@@ -29,6 +29,8 @@ const algoData = {
       educational: 'Éducatif',
       burkes: 'Burkes',
       stucki: 'Stucki',
+      riemersma: 'Riemersma',
+      variant: 'Variante',
     },
     1: {
       overview: 'Diffusion classique conservant l\'erreur (7/16,3/16,5/16,1/16) équilibrant qualité et vitesse.',
@@ -265,6 +267,28 @@ const algoData = {
       artifacts: { 0: 'Blocage', 1: 'Perte de détails à petite échelle' },
       bestFor: { 0: 'Aperçus stylisés', 1: 'Postérisation' },
       neighborhood: 'Bloc (4×4)',
+    },
+    26: {
+      overview: 'Noyau de diffusion d\'erreur défini par l\'utilisateur avec matrice et diviseur configurables.',
+      characteristics: { 0: 'Entièrement personnalisable', 1: 'Expérimental' },
+      artifacts: { 0: 'Dépend de la conception du noyau' },
+      bestFor: { 0: 'Recherche', 1: 'Effets novateurs' },
+      neighborhood: 'Personnalisé',
+    },
+    27: {
+      overview: 'Tramage par courbe remplissant l\'espace utilisant un parcours de courbe de Hilbert avec tampon d\'erreur circulaire.',
+      characteristics: { 0: 'Balayage courbe de Hilbert', 1: 'Non directionnel', 2: 'Texture organique' },
+      artifacts: { 0: 'Motifs en forme de vers uniques', 1: 'Nécessite génération de courbe' },
+      bestFor: { 0: 'Effets artistiques', 1: 'Imagerie non linéaire' },
+      neighborhood: 'Tampon circulaire (16 pixels)',
+      tonalBias: 'Neutre',
+      noiseProfile: 'Organique, faible directionnalité',
+      memoryFootprint: 'Courbe + tampon circulaire',
+      notes: {
+        0: 'Produit des motifs non linéaires uniques contrairement aux algorithmes de balayage ligne par ligne',
+        1: 'Bon pour éviter le banding dans les dégradés',
+        2: 'Surcharge plus élevée en raison de la génération de courbe',
+      },
     },
   },
 };

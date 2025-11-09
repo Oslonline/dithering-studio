@@ -29,6 +29,8 @@ const algoData = {
       educational: 'Bildung',
       burkes: 'Burkes',
       stucki: 'Stucki',
+      riemersma: 'Riemersma',
+      variant: 'Variante',
     },
     1: {
       overview: 'Klassische fehlererhaltende Diffusion (7/16,3/16,5/16,1/16), die Qualität und Geschwindigkeit ausbalanciert.',
@@ -265,6 +267,28 @@ const algoData = {
       artifacts: { 0: 'Blockigkeit', 1: 'Detailverlust bei feinen Skalen' },
       bestFor: { 0: 'Stilisierte Vorschauen', 1: 'Posterisierung' },
       neighborhood: 'Block (4×4)',
+    },
+    26: {
+      overview: 'Benutzerdefinierter Fehlerdiffusions-Kernel mit konfigurierbarer Matrix und Divisor.',
+      characteristics: { 0: 'Vollständig anpassbar', 1: 'Experimentell' },
+      artifacts: { 0: 'Hängt vom Kernel-Design ab' },
+      bestFor: { 0: 'Forschung', 1: 'Neuartige Effekte' },
+      neighborhood: 'Benutzerdefiniert',
+    },
+    27: {
+      overview: 'Raumfüllende Kurven-Dithering mit Hilbert-Kurven-Traversierung und zirkulärem Fehlerpuffer.',
+      characteristics: { 0: 'Hilbert-Kurven-Scan', 1: 'Nicht-direktional', 2: 'Organische Textur' },
+      artifacts: { 0: 'Einzigartige wurmartige Muster', 1: 'Erfordert Kurvengenerierung' },
+      bestFor: { 0: 'Künstlerische Effekte', 1: 'Nicht-lineare Bilder' },
+      neighborhood: 'Zirkulärer Puffer (16 Pixel)',
+      tonalBias: 'Neutral',
+      noiseProfile: 'Organisch, geringe Direktionalität',
+      memoryFootprint: 'Kurve + zirkulärer Puffer',
+      notes: {
+        0: 'Erzeugt einzigartige nicht-lineare Muster im Gegensatz zu Zeilenabtast-Algorithmen',
+        1: 'Gut zur Vermeidung von Banding in Verläufen',
+        2: 'Höherer Overhead aufgrund der Kurvengenerierung',
+      },
     },
   },
 };

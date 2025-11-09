@@ -10,6 +10,8 @@ const algoData = {
       onhigherconstant: 'O(N) higher constant',
       onintegralmap: 'O(N) + integral map',
       onblockarea: 'O(N * blockArea)',
+      oncurve: 'O(N + curve)',
+      oncurvegeneration: 'O(N + curve generation)',
     },
     origins: {
       belllabs: 'Bell Labs',
@@ -29,6 +31,8 @@ const algoData = {
       educational: 'Educational',
       burkes: 'Burkes',
       stucki: 'Stucki',
+      riemersma: 'Riemersma',
+      variant: 'Variant',
     },
     1: {
       overview: 'Classic error-conserving diffusion (7/16,3/16,5/16,1/16) balancing quality and speed.',
@@ -265,6 +269,28 @@ const algoData = {
       artifacts: { 0: 'Blockiness', 1: 'Detail loss at fine scales' },
       bestFor: { 0: 'Stylized previews', 1: 'Posterization' },
       neighborhood: 'Block (4×4)',
+    },
+    26: {
+      overview: 'User-defined error diffusion kernel with configurable matrix and divisor.',
+      characteristics: { 0: 'Fully customizable', 1: 'Experimental' },
+      artifacts: { 0: 'Depends on kernel design' },
+      bestFor: { 0: 'Research', 1: 'Novel effects' },
+      neighborhood: 'Custom',
+    },
+    27: {
+      overview: 'Space-filling curve dithering using Hilbert curve traversal with circular error buffer.',
+      characteristics: { 0: 'Hilbert curve scan', 1: 'Non-directional', 2: 'Organic texture' },
+      artifacts: { 0: 'Unique worm-like patterns', 1: 'Requires curve generation' },
+      bestFor: { 0: 'Artistic effects', 1: 'Non-linear imagery' },
+      neighborhood: 'Circular buffer (16 pixels)',
+      tonalBias: 'Neutral',
+      noiseProfile: 'Organic, low directionality',
+      memoryFootprint: 'Curve + circular buffer',
+      notes: {
+        0: 'Produces unique non-linear patterns unlike scan-line algorithms',
+        1: 'Good for avoiding banding in gradients',
+        2: 'Higher overhead due to curve generation',
+      },
     },
   },
 };

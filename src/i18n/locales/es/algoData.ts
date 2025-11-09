@@ -29,6 +29,8 @@ const algoData = {
       educational: 'Educativo',
       burkes: 'Burkes',
       stucki: 'Stucki',
+      riemersma: 'Riemersma',
+      variant: 'Variante',
     },
     1: {
       overview: 'Difusión clásica que conserva el error (7/16,3/16,5/16,1/16) equilibrando calidad y velocidad.',
@@ -265,6 +267,28 @@ const algoData = {
       artifacts: { 0: 'Bloqueo', 1: 'Pérdida de detalles a escala fina' },
       bestFor: { 0: 'Vistas previas estilizadas', 1: 'Posterización' },
       neighborhood: 'Bloque (4×4)',
+    },
+    26: {
+      overview: 'Núcleo de difusión de errores definido por el usuario con matriz y divisor configurables.',
+      characteristics: { 0: 'Totalmente personalizable', 1: 'Experimental' },
+      artifacts: { 0: 'Depende del diseño del núcleo' },
+      bestFor: { 0: 'Investigación', 1: 'Efectos novedosos' },
+      neighborhood: 'Personalizado',
+    },
+    27: {
+      overview: 'Tramado de curva de llenado de espacio utilizando recorrido de curva de Hilbert con búfer de error circular.',
+      characteristics: { 0: 'Escaneo de curva de Hilbert', 1: 'No direccional', 2: 'Textura orgánica' },
+      artifacts: { 0: 'Patrones únicos en forma de gusano', 1: 'Requiere generación de curva' },
+      bestFor: { 0: 'Efectos artísticos', 1: 'Imágenes no lineales' },
+      neighborhood: 'Búfer circular (16 píxeles)',
+      tonalBias: 'Neutro',
+      noiseProfile: 'Orgánico, baja direccionalidad',
+      memoryFootprint: 'Curva + búfer circular',
+      notes: {
+        0: 'Produce patrones no lineales únicos a diferencia de los algoritmos de escaneo de líneas',
+        1: 'Bueno para evitar bandas en degradados',
+        2: 'Mayor sobrecarga debido a la generación de curvas',
+      },
     },
   },
 };

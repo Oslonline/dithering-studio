@@ -29,6 +29,8 @@ const algoData = {
       educational: '教育',
       burkes: 'Burkes',
       stucki: 'Stucki',
+      riemersma: 'Riemersma',
+      variant: '变体',
     },
     1: {
       overview: '经典误差守恒扩散（7/16,3/16,5/16,1/16）平衡质量和速度。',
@@ -265,6 +267,28 @@ const algoData = {
       artifacts: { 0: '块状', 1: '细尺度上细节损失' },
       bestFor: { 0: '风格化预览', 1: '色调分离' },
       neighborhood: '块（4×4）',
+    },
+    26: {
+      overview: '用户定义的误差扩散内核，具有可配置的矩阵和除数。',
+      characteristics: { 0: '完全可定制', 1: '实验性' },
+      artifacts: { 0: '取决于内核设计' },
+      bestFor: { 0: '研究', 1: '新颖效果' },
+      neighborhood: '自定义',
+    },
+    27: {
+      overview: '使用希尔伯特曲线遍历和循环误差缓冲区的空间填充曲线抖动。',
+      characteristics: { 0: '希尔伯特曲线扫描', 1: '无方向性', 2: '有机纹理' },
+      artifacts: { 0: '独特的蠕虫状图案', 1: '需要曲线生成' },
+      bestFor: { 0: '艺术效果', 1: '非线性图像' },
+      neighborhood: '循环缓冲区（16 像素）',
+      tonalBias: '中性',
+      noiseProfile: '有机，低方向性',
+      memoryFootprint: '曲线 + 循环缓冲区',
+      notes: {
+        0: '产生独特的非线性图案，不同于扫描线算法',
+        1: '适合避免渐变中的条带',
+        2: '由于曲线生成而具有较高的开销',
+      },
     },
   },
 };

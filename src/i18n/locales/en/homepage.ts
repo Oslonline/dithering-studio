@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: 'Core Features',
     subtitle: 'Four anchors — the rest stays out of the way.',
-    algorithms: '25+ algorithms',
+    algorithms: '27+ algorithms',
     algorithmsDesc: 'Diffusion families, ordered matrices, stochastic & adaptive variants in one workspace.',
     imageVideo: 'Image & video support',
     imageVideoDesc: 'Apply dithering to static images or videos. Create retro 8-bit effects, lofi aesthetics, vaporwave vibes.',
@@ -49,7 +49,7 @@ const homepage = {
     privacy1: 'Everything runs 100% client-side—your images and videos never leave your device. No uploads, no tracking, no accounts required. Plus, it is',
     openSource: 'open source (Apache 2.0)',
     privacy2: 'so you can inspect the code, fork it, or adapt it for your own projects.',
-    features: 'With 25+ dithering algorithms including error diffusion (Floyd-Steinberg, Atkinson, Sierra family), ordered matrices (Bayer, Blue Noise), and experimental techniques, you can create everything from newspaper-style halftone effects to retro video game aesthetics. Export your work as PNG, JPEG, SVG for images—or MP4, WebM, GIF for videos.',
+    features: 'With 27+ dithering algorithms including error diffusion (Floyd-Steinberg, Atkinson, Sierra family), ordered matrices (Bayer, Blue Noise), and experimental techniques, you can create everything from newspaper-style halftone effects to retro video game aesthetics. Export your work as PNG, JPEG, SVG for images—or MP4, WebM, GIF for videos.',
     inspiration1: 'Inspired by tools like',
     inspiration2: 'and',
     inspiration3: 'but built to handle both images and videos with real-time preview, custom palettes, and instant exports—all without leaving your browser.',
@@ -58,3 +58,4 @@ const homepage = {
 };
 
 export default homepage;
+

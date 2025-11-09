@@ -106,6 +106,7 @@ const Home: React.FC = () => {
                       { id: 14, name: "Stevenson–Arce" },
                       { id: 18, name: "Ostromoukhov" },
                       { id: 19, name: "False Floyd–Steinberg" },
+                      { id: 27, name: "Riemersma" },
                     ],
                   },
                   {

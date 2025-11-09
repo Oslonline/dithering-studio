@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: 'Kernfunktionen',
     subtitle: 'Vier Säulen – alles andere bleibt aus dem Weg.',
-    algorithms: '25+ Algorithmen',
+    algorithms: '27+ Algorithmen',
     algorithmsDesc: 'Diffusionsserien, geordnete Matrizen, zufällige und adaptive Varianten in einem Arbeitsbereich.',
     imageVideo: 'Bild- und Videounterstützung',
     imageVideoDesc: 'Wenden Sie Dithering auf statische Bilder oder Videos an. Erstellen Sie Retro-8-Bit-Effekte, Lo-Fi-Ästhetik, Vaporwave-Stil.',
@@ -49,7 +49,7 @@ const homepage = {
     privacy1: 'Alles läuft zu 100% clientseitig – Ihre Bilder und Videos verlassen niemals Ihr Gerät. Keine Uploads, kein Tracking, kein Konto. Außerdem ist es',
     openSource: 'Open-Source (Apache 2.0)',
     privacy2: ', sodass Sie den Code überprüfen, forken oder für Ihr eigenes Projekt anpassen können.',
-    features: 'Mit 25+ Dithering-Algorithmen, einschließlich Fehlerdiffusion (Floyd-Steinberg, Atkinson, Sierra-Familie), geordneten Matrizen (Bayer, Blue Noise) und experimentellen Techniken, können Sie alles von Zeitungsstil-Halbtönen bis hin zu Retro-Videospiel-Ästhetik erstellen. Exportieren Sie Ihre Arbeit als PNG, JPEG, SVG für Bilder oder MP4, WebM, GIF für Videos.',
+    features: 'Mit 27+ Dithering-Algorithmen, einschließlich Fehlerdiffusion (Floyd-Steinberg, Atkinson, Sierra-Familie), geordneten Matrizen (Bayer, Blue Noise) und experimentellen Techniken, können Sie alles von Zeitungsstil-Halbtönen bis hin zu Retro-Videospiel-Ästhetik erstellen. Exportieren Sie Ihre Arbeit als PNG, JPEG, SVG für Bilder oder MP4, WebM, GIF für Videos.',
     inspiration1: 'Inspiriert von Tools wie',
     inspiration2: 'und',
     inspiration3: ', aber gebaut, um sowohl Bilder als auch Videos zu handhaben, mit Echtzeit-Vorschau, benutzerdefinierten Paletten und Sofortexport – alles ohne Ihren Browser zu verlassen.',
@@ -58,3 +58,4 @@ const homepage = {
 };
 
 export default homepage;
+

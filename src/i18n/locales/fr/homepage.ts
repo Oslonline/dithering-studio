@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: 'Fonctionnalités Principales',
     subtitle: 'Quatre piliers — le reste reste discret.',
-    algorithms: '25+ algorithmes',
+    algorithms: '27+ algorithmes',
     algorithmsDesc: 'Familles de diffusion, matrices ordonnées, variantes stochastiques et adaptatives dans un seul espace de travail.',
     imageVideo: 'Support images & vidéos',
     imageVideoDesc: 'Appliquez le tramage aux images statiques ou aux vidéos. Créez des effets rétro 8-bit, esthétiques lofi, vibes vaporwave.',
@@ -49,7 +49,7 @@ const homepage = {
     privacy1: 'Tout s\'exécute 100% côté client—vos images et vidéos ne quittent jamais votre appareil. Aucun téléversement, aucun suivi, aucun compte requis. De plus, c\'est',
     openSource: 'open source (Apache 2.0)',
     privacy2: 'vous pouvez donc inspecter le code, le forker ou l\'adapter à vos propres projets.',
-    features: 'Avec plus de 25 algorithmes de tramage incluant la diffusion d\'erreur (Floyd-Steinberg, Atkinson, famille Sierra), des matrices ordonnées (Bayer, Blue Noise), et des techniques expérimentales, vous pouvez créer de tout, des effets de demi-teintes de style journal aux esthétiques de jeux vidéo rétro. Exportez votre travail en PNG, JPEG, SVG pour les images—ou MP4, WebM, GIF pour les vidéos.',
+    features: 'Avec plus de 30 algorithmes de tramage incluant la diffusion d\'erreur (Floyd-Steinberg, Atkinson, famille Sierra), des matrices ordonnées (Bayer, Blue Noise), et des techniques expérimentales, vous pouvez créer de tout, des effets de demi-teintes de style journal aux esthétiques de jeux vidéo rétro. Exportez votre travail en PNG, JPEG, SVG pour les images—ou MP4, WebM, GIF pour les vidéos.',
     inspiration1: 'Inspiré par des outils comme',
     inspiration2: 'et',
     inspiration3: 'mais conçu pour gérer à la fois les images et les vidéos avec aperçu en temps réel, palettes personnalisées et exportations instantanées—le tout sans quitter votre navigateur.',
@@ -58,3 +58,4 @@ const homepage = {
 };
 
 export default homepage;
+
