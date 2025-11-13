@@ -19,6 +19,7 @@ import {
 import { runBlueNoise, runBinaryThreshold, runRandomThreshold, runDotDiffusionSimple, runHalftone } from './orderedAndOther';
 import { runBayer2, runBayer4, runBayer8, runBayer16, runBayer32 } from './bayer';
 import { runRiemersma } from './riemersma';
+import { runPosterize, runWoodcut, runStipple } from './artistic';
 import runAsciiMosaic from './asciiMosaic';
 
 // Raw registry (unsorted). Maintain new entries here; ordering handled by helpers.
@@ -52,6 +53,9 @@ const registry: AlgorithmMeta[] = [
   { id: 10, name: 'Random Threshold', category: 'Other', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'other:random:3', run: (ctx) => runRandomThreshold(ctx) },
   { id: 11, name: 'Dot Diffusion (Simple)', category: 'Other', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'other:dotdiff:4', run: (ctx) => runDotDiffusionSimple(ctx) },
   { id: 25, name: 'ASCII Mosaic', category: 'Other', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'other:ascii:5', run: (ctx) => runAsciiMosaic(ctx) },
+  { id: 28, name: 'Posterize', category: 'Other', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'other:posterize:6', run: (ctx) => runPosterize(ctx) },
+  { id: 29, name: 'Woodcut', category: 'Other', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'other:woodcut:7', run: (ctx) => runWoodcut(ctx) },
+  { id: 30, name: 'Stipple', category: 'Other', supportsThreshold: true, supportsPalette: true, supportsSerpentine: false, orderKey: 'other:stipple:8', run: (ctx) => runStipple(ctx) },
 ];
 
 // Export a consistently sorted list (category group order defined here)

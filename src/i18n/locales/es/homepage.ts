@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: 'Características Principales',
     subtitle: 'Cuatro pilares — el resto se mantiene discreto.',
-    algorithms: '27+ algoritmos',
+    algorithms: '30+ algoritmos',
     algorithmsDesc: 'Familias de difusión, matrices ordenadas, variantes estocásticas y adaptativas en un solo espacio de trabajo.',
     imageVideo: 'Soporte para imágenes y vídeos',
     imageVideoDesc: 'Aplica difuminado a imágenes estáticas o vídeos. Crea efectos retro de 8 bits, estéticas lofi, vibraciones vaporwave.',

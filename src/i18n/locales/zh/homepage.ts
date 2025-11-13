@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: '核心功能',
     subtitle: '四大支柱——其余一切都不碍事。',
-    algorithms: '27+ 种算法',
+    algorithms: '30+ 种算法',
     algorithmsDesc: '扩散系列、有序矩阵、随机和自适应变体集于一个工作区。',
     imageVideo: '图像和视频支持',
     imageVideoDesc: '对静态图像或视频应用抖动效果。创建复古 8 位效果、Lo-fi 美学、蒸汽波风格。',
@@ -49,7 +49,7 @@ const homepage = {
     privacy1: '一切都 100% 在客户端运行——您的图像和视频永远不会离开您的设备。无需上传，无追踪，无需账号。此外，它是',
     openSource: '开源的（Apache 2.0）',
     privacy2: '因此您可以检查代码、分支它或将其改编为您自己的项目。',
-    features: '凭借 27+ 种抖动算法，包括误差扩散（Floyd-Steinberg、Atkinson、Sierra 系列）、有序矩阵（Bayer、Blue Noise）和实验性技术，您可以创建从报纸风格半色调效果到复古视频游戏美学的一切。将您的作品导出为图像的 PNG、JPEG、SVG，或视频的 MP4、WebM、GIF。',
+    features: '凭借 30+ 种抖动算法，包括误差扩散（Floyd-Steinberg、Atkinson、Sierra 系列）、有序矩阵（Bayer、Blue Noise）和实验性技术，您可以创建从报纸风格半色调效果到复古视频游戏美学的一切。将您的作品导出为图像的 PNG、JPEG、SVG，或视频的 MP4、WebM、GIF。',
     inspiration1: '受',
     inspiration2: '和',
     inspiration3: '等工具启发，但构建为同时处理图像和视频，具有实时预览、自定义调色板和即时导出功能——所有这些都无需离开您的浏览器。',

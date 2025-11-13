@@ -9,7 +9,7 @@ const homepage = {
   features: {
     title: 'Fonctionnalités Principales',
     subtitle: 'Quatre piliers — le reste reste discret.',
-    algorithms: '27+ algorithmes',
+    algorithms: '30+ algorithmes',
     algorithmsDesc: 'Familles de diffusion, matrices ordonnées, variantes stochastiques et adaptatives dans un seul espace de travail.',
     imageVideo: 'Support images & vidéos',
     imageVideoDesc: 'Appliquez le tramage aux images statiques ou aux vidéos. Créez des effets rétro 8-bit, esthétiques lofi, vibes vaporwave.',
