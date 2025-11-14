@@ -23,6 +23,8 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
   const [adding, setAdding] = useState(false);
   const [newColor, setNewColor] = useState("#ffffff");
   const [invalid, setInvalid] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editColor, setEditColor] = useState("#ffffff");
   const dragFrom = useRef<number | null>(null);
   const randomColor = (): [number, number, number] => [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
   const randomPair = (): [number, number, number][] => {
@@ -40,6 +42,14 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
       tries++;
     }
     return [a, b];
+  };
+  const randomPalette = (): [number, number, number][] => {
+    const count = Math.floor(Math.random() * 9) + 2;
+    const colors: [number, number, number][] = [];
+    for (let i = 0; i < count; i++) {
+      colors.push(randomColor());
+    }
+    return colors;
   };
 
   const parseColor = (val: string): [number, number, number] | null => {
@@ -91,6 +101,17 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
     });
     setAdding(false);
     setNewColor("#ffffff");
+  };
+
+  const updateColorAtIndex = (index: number, hexColor: string) => {
+    const col = parseColor(hexColor);
+    if (!col) return;
+    setActivePaletteColors((prev) => {
+      if (!prev || index < 0 || index >= prev.length) return prev;
+      const next = [...prev];
+      next[index] = col;
+      return next;
+    });
   };
 
   const extractOriginalFull = useCallback(async () => {
@@ -263,8 +284,13 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                       />
                     </div>
                   ))}
-                  <button type="button" onClick={() => setActivePaletteColors(randomPair())} className="relative h-6 w-6 cursor-pointer rounded-sm border border-neutral-600 text-[13px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]" title={t('tool.palettePanel.randomize')} aria-label={t('tool.palettePanel.randomize')}>
-                    ↺
+                  <button type="button" onClick={() => setActivePaletteColors(randomPair())} className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-neutral-600 text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]" title={t('tool.palettePanel.randomizeBinary')} aria-label={t('tool.palettePanel.randomizeBinary')}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                      <path d="M21 3v5h-5"/>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                      <path d="M3 21v-5h5"/>
+                    </svg>
                   </button>
                 </div>
                 <p className="text-[10px] text-gray-500">{t('tool.palettePanel.editBinaryHint')}</p>
@@ -344,9 +370,17 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                 activePaletteColors.map((c, i) => (
                   <div
                     key={i}
-                    className="group relative h-6 w-6 rounded-sm border border-neutral-600"
+                    className="group relative h-6 w-6 rounded-sm border border-neutral-600 cursor-pointer"
                     style={{ background: `rgb(${c[0]},${c[1]},${c[2]})` }}
                     draggable={paletteId === CUSTOM_ID}
+                    onClick={() => {
+                      if (paletteId === CUSTOM_ID) {
+                        const hex = `#${c[0].toString(16).padStart(2, '0')}${c[1].toString(16).padStart(2, '0')}${c[2].toString(16).padStart(2, '0')}`;
+                        setEditColor(hex);
+                        setEditingIndex(i);
+                      }
+                    }}
+                    title={paletteId === CUSTOM_ID ? t('tool.palettePanel.clickToEdit') : `rgb(${c[0]},${c[1]},${c[2]})`}
                     onDragStart={(e) => {
                       if (paletteId !== CUSTOM_ID) return;
                       dragFrom.current = i;
@@ -367,19 +401,22 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                       dragFrom.current = null;
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!activePaletteColors || activePaletteColors.length <= 2) return;
-                        const next = activePaletteColors.filter((_, idx) => idx !== i);
-                        setActivePaletteColors(next);
-                      }}
-                      className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-white opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100"
-                      title={t('tool.palettePanel.removeColor')}
-                      aria-label={`${t('tool.palettePanel.removeColor')} rgb(${c[0]},${c[1]},${c[2]})`}
-                    >
-                      ×
-                    </button>
+                    {paletteId === CUSTOM_ID && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!activePaletteColors || activePaletteColors.length <= 2) return;
+                          const next = activePaletteColors.filter((_, idx) => idx !== i);
+                          setActivePaletteColors(next);
+                        }}
+                        className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-white opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100"
+                        title={t('tool.palettePanel.removeColor')}
+                        aria-label={`${t('tool.palettePanel.removeColor')} rgb(${c[0]},${c[1]},${c[2]})`}
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 ))}
               {paletteId !== CUSTOM_ID && paletteId !== ORIGINAL_ID && effectivePalette && (
@@ -409,19 +446,24 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                   </button>
                   <button
                     type="button"
-                    onClick={() => setActivePaletteColors(randomPair())}
-                    className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-neutral-600 text-[14px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
+                    onClick={() => setActivePaletteColors(randomPalette())}
+                    className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border border-neutral-600 text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
                     title={t('tool.palettePanel.randomize')}
                     aria-label={t('tool.palettePanel.randomize')}
                   >
-                    ↺
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                      <path d="M21 3v5h-5"/>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                      <path d="M3 21v-5h5"/>
+                    </svg>
                   </button>
                 </>
               )}
             </div>
           )}
           {paletteId === CUSTOM_ID && adding && (
-            <div className="mt-2 w-full space-y-2">
+            <div className="mt-2 w-full space-y-2 rounded border border-neutral-700 bg-neutral-900/50 p-2">
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -430,7 +472,7 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                     setNewColor(e.target.value);
                     setInvalid(false);
                   }}
-                  className="h-7 w-10 cursor-pointer rounded border border-neutral-700 bg-neutral-800"
+                  className="h-8 w-12 cursor-pointer rounded border border-neutral-700 bg-neutral-800"
                 />
                 <input
                   type="text"
@@ -439,17 +481,53 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                     setNewColor(e.target.value);
                     setInvalid(false);
                   }}
-                  className={`clean-input h-7 flex-1 !px-2 text-[11px] ${invalid ? "!border-red-600" : ""}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') addColor();
+                    if (e.key === 'Escape') setAdding(false);
+                  }}
+                  className={`clean-input h-8 flex-1 !px-2 text-[11px] ${invalid ? "!border-red-600" : ""}`}
                   placeholder="#rrggbb | r,g,b | rgb(r,g,b)"
+                  autoFocus
                 />
-                <button onClick={addColor} className="clean-btn px-2 py-1 text-[10px]">
+                <button onClick={addColor} className="clean-btn px-3 py-1.5 text-[11px]">
                   {t('tool.palettePanel.add')}
                 </button>
               </div>
               <p className="text-[10px] text-gray-500">{t('tool.palettePanel.formatHint')}</p>
             </div>
           )}
-          {paletteId === CUSTOM_ID && !adding && <p className="mt-1 text-[10px] text-gray-500">{t('tool.palettePanel.dragHint')}</p>}
+          {paletteId === CUSTOM_ID && editingIndex !== null && activePaletteColors && editingIndex < activePaletteColors.length && (
+            <div className="mt-2 w-full space-y-2 rounded border border-neutral-700 bg-neutral-900/50 p-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={editColor}
+                  onChange={(e) => {
+                    setEditColor(e.target.value);
+                    updateColorAtIndex(editingIndex, e.target.value);
+                  }}
+                  className="h-8 w-12 cursor-pointer rounded border border-neutral-700 bg-neutral-800"
+                />
+                <input
+                  type="text"
+                  value={editColor}
+                  onChange={(e) => {
+                    setEditColor(e.target.value);
+                    updateColorAtIndex(editingIndex, e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Escape') setEditingIndex(null);
+                  }}
+                  className="clean-input h-8 flex-1 !px-2 text-[11px]"
+                  autoFocus
+                />
+                <button onClick={() => setEditingIndex(null)} className="clean-btn px-3 py-1.5 text-[11px]">
+                  {t('tool.palettePanel.done')}
+                </button>
+              </div>
+            </div>
+          )}
+          {paletteId === CUSTOM_ID && !adding && !editingIndex && <p className="mt-1 text-[10px] text-gray-500">{t('tool.palettePanel.dragHint')}</p>}
         </div>
       )}
     </div>
