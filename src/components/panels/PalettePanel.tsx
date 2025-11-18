@@ -7,7 +7,6 @@ interface PalettePanelProps {
   setPaletteId: (id: string | null) => void;
   activePaletteColors: [number, number, number][] | null;
   setActivePaletteColors: React.Dispatch<React.SetStateAction<[number, number, number][] | null>>;
-  effectivePalette: [number, number, number][] | null;
   image?: string | null;
   videoCanvas?: HTMLCanvasElement | null;
   binaryMode?: boolean;
@@ -17,7 +16,7 @@ interface PalettePanelProps {
 const CUSTOM_ID = "__custom";
 const ORIGINAL_ID = "__original";
 
-const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, effectivePalette, image, videoCanvas, binaryMode, isVideoMode }) => {
+const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, activePaletteColors, setActivePaletteColors, image, videoCanvas, binaryMode, isVideoMode }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -317,7 +316,7 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
             <label htmlFor="palette-select" className="font-mono text-[11px] tracking-wide text-gray-300">
               {t('tool.palettePanel.select')}
             </label>
-            {paletteId && (
+            {paletteId === CUSTOM_ID && (
               <button
                 className="clean-btn px-2 py-0 text-[10px]"
                 onClick={() => {
@@ -370,7 +369,7 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                 activePaletteColors.map((c, i) => (
                   <div
                     key={i}
-                    className="group relative h-6 w-6 rounded-sm border border-neutral-600 cursor-pointer"
+                    className={`group relative h-6 w-6 rounded-sm border border-neutral-600 ${paletteId === CUSTOM_ID ? 'cursor-pointer' : ''}`}
                     style={{ background: `rgb(${c[0]},${c[1]},${c[2]})` }}
                     draggable={paletteId === CUSTOM_ID}
                     onClick={() => {
@@ -419,17 +418,6 @@ const PalettePanel: React.FC<PalettePanelProps> = ({ paletteId, setPaletteId, ac
                     )}
                   </div>
                 ))}
-              {paletteId !== CUSTOM_ID && paletteId !== ORIGINAL_ID && effectivePalette && (
-                <button
-                  type="button"
-                  onClick={() => effectivePalette && setActivePaletteColors(effectivePalette.map((c) => [...c] as [number, number, number]))}
-                  className="relative h-5 w-5 cursor-pointer rounded-sm border border-neutral-600 text-[11px] font-semibold text-gray-300 transition hover:bg-neutral-800 hover:text-white focus-visible:shadow-[var(--focus-ring)]"
-                  title={t('tool.palettePanel.restoreFull')}
-                  aria-label={t('tool.palettePanel.restoreFull')}
-                >
-                  ↺
-                </button>
-              )}
               {paletteId === CUSTOM_ID && (
                 <>
                   <button

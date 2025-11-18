@@ -657,7 +657,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                         />
                         {pattern === 26 && <CustomKernelEditor inline={false} />}
                         <TonePanel contrast={contrast} setContrast={setContrast} midtones={midtones} setMidtones={setMidtones} highlights={highlights} setHighlights={setHighlights} blurRadius={blurRadius} setBlurRadius={setBlurRadius} workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} maxResolution={dynamicMaxResolution} />
-                        {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} effectivePalette={effectivePalette} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}
+                        {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}
                         <PresetPanel
                           current={{ params: { pattern, threshold, invert, serpentine, isErrorDiffusion: isErrorDiffusion(pattern), palette: activePaletteColors || undefined }, workingResolution, paletteId, activePaletteColors }}
                           apply={(p) => {
