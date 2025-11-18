@@ -9,7 +9,6 @@ import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
 import VideosPanel, { UploadedVideo } from "../components/panels/VideosPanel";
 import AlgorithmPanel from "../components/panels/AlgorithmPanel";
-import ErrorDiffusionPanel from "../components/panels/ErrorDiffusionPanel";
 import PalettePanel from "../components/panels/PalettePanel";
 import TonePanel from "../components/panels/TonePanel";
 import UploadIntro from "../components/uploaders/UploadIntro";
@@ -645,7 +644,19 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                           />
                         )}
                         <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
-                        <ErrorDiffusionPanel
+                        {pattern === 26 && <CustomKernelEditor inline={false} />}
+                        <TonePanel 
+                          contrast={contrast} 
+                          setContrast={setContrast} 
+                          midtones={midtones} 
+                          setMidtones={setMidtones} 
+                          highlights={highlights} 
+                          setHighlights={setHighlights} 
+                          blurRadius={blurRadius} 
+                          setBlurRadius={setBlurRadius} 
+                          workingResolution={workingResolution} 
+                          setWorkingResolution={setWorkingResolution} 
+                          maxResolution={dynamicMaxResolution}
                           pattern={pattern}
                           serpentine={serpentine}
                           setSerpentine={setSerpentine}
@@ -655,8 +666,6 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                           setErrorDiffusionStrength={setErrorDiffusionStrength}
                           isErrorDiffusion={isErrorDiffusion(pattern)}
                         />
-                        {pattern === 26 && <CustomKernelEditor inline={false} />}
-                        <TonePanel contrast={contrast} setContrast={setContrast} midtones={midtones} setMidtones={setMidtones} highlights={highlights} setHighlights={setHighlights} blurRadius={blurRadius} setBlurRadius={setBlurRadius} workingResolution={workingResolution} setWorkingResolution={setWorkingResolution} maxResolution={dynamicMaxResolution} />
                         {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}
                         <PresetPanel
                           current={{ params: { pattern, threshold, invert, serpentine, isErrorDiffusion: isErrorDiffusion(pattern), palette: activePaletteColors || undefined }, workingResolution, paletteId, activePaletteColors }}
