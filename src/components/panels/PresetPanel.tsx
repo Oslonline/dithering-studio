@@ -84,13 +84,13 @@ const PresetPanel: React.FC<PresetPanelProps> = ({ current, apply }) => {
       {open && (
         <div className="space-y-3 border-t border-neutral-800 px-4 pt-3 pb-4">
           <div className="flex gap-2">
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('tool.presetPanel.nameHint')} className="clean-input flex-1" aria-label={t('tool.presetPanel.presetName')} />
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('tool.presetPanel.nameHint')} className="clean-input flex-1" aria-label={t('tool.presetPanel.presetName')} autoComplete="off" />
             <button onClick={saveCurrent} className="clean-btn !px-3 text-[10px]" title={t('tool.presetPanel.saveHint')}>
               {t('tool.presetPanel.save')}
             </button>
           </div>
           <div className="flex gap-2">
-            <input value={importStr} onChange={(e) => setImportStr(e.target.value)} placeholder={t('tool.presetPanel.importHint')} className="clean-input flex-1" aria-label={t('tool.presetPanel.importToken')} />
+            <input value={importStr} onChange={(e) => setImportStr(e.target.value)} placeholder={t('tool.presetPanel.importHint')} className="clean-input flex-1" aria-label={t('tool.presetPanel.importToken')} autoComplete="off" />
             <button onClick={doImport} className="clean-btn !px-3 text-[10px]" title={t('tool.presetPanel.importTokenHint')}>
               {t('tool.presetPanel.import')}
             </button>
@@ -111,6 +111,7 @@ const PresetPanel: React.FC<PresetPanelProps> = ({ current, apply }) => {
                           onBlur={commitRename}
                           onKeyDown={e => { if (e.key === 'Enter') commitRename(); else if (e.key === 'Escape') cancelRename(); }}
                           className="clean-input flex-1 h-6 px-2 text-[11px]"
+                          autoComplete="off"
                         />
                       ) : (
                         <button type="button" onClick={() => apply(p)} className="flex-1 h-6 truncate text-left font-mono text-[11px] text-gray-200 focus-visible:shadow-[var(--focus-ring)]" title={t('tool.presetPanel.applyPreset')}>{p.name}</button>

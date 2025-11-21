@@ -78,7 +78,7 @@ export const AlgorithmControls: React.FC<AlgorithmControlsProps> = ({ pattern, s
             <span className="font-mono text-[10px] tracking-wide text-gray-400">{t('tool.algorithmPanel.asciiRamp')}</span>
             <span className="text-[9px] text-gray-500">{(asciiRamp || DEFAULT_ASCII_RAMP).length} {t('tool.algorithmPanel.chars')}</span>
           </div>
-          <input type="text" value={asciiRamp || DEFAULT_ASCII_RAMP} onChange={(e)=> { const v=e.target.value.replace(/\s/g,' ').slice(0,64); setAsciiRamp(v || DEFAULT_ASCII_RAMP); }} className="clean-input !px-2 !py-1 font-mono text-[11px]" aria-label={t('tool.algorithmPanel.asciiRamp')} />
+          <input type="text" value={asciiRamp || DEFAULT_ASCII_RAMP} onChange={(e)=> { const v=e.target.value.replace(/\s/g,' ').slice(0,64); setAsciiRamp(v || DEFAULT_ASCII_RAMP); }} className="clean-input !px-2 !py-1 font-mono text-[11px]" aria-label={t('tool.algorithmPanel.asciiRamp')} autoComplete="off" />
           <p className="text-[9px] leading-snug text-gray-500">{t('tool.algorithmPanel.asciiSimple')}</p>
         </div>
       )}

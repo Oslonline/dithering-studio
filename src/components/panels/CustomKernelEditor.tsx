@@ -61,6 +61,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
               value={rows} 
               onChange={(e) => resizeMatrix(parseInt(e.target.value) || 1, cols)}
               className="clean-input text-center"
+              autoComplete="off"
             />
           </div>
           <div>
@@ -72,6 +73,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
               value={cols} 
               onChange={(e) => resizeMatrix(rows, parseInt(e.target.value) || 1)}
               className="clean-input text-center"
+              autoComplete="off"
             />
           </div>
         </div>
@@ -84,6 +86,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
             value={divisor} 
             onChange={(e) => setDivisor(parseInt(e.target.value) || 1)}
             className="clean-input"
+            autoComplete="off"
           />
         </div>
 
@@ -100,6 +103,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
                       value={cell}
                       onChange={(e) => updateCell(i, j, e.target.value)}
                       className="w-12 rounded border border-neutral-700 bg-neutral-800 px-1 py-1 text-center text-[11px] text-gray-300 focus:border-blue-600 focus:outline-none flex-shrink-0"
+                      autoComplete="off"
                     />
                   ))}
                 </div>
@@ -137,6 +141,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
                 value={rows} 
                 onChange={(e) => resizeMatrix(parseInt(e.target.value) || 1, cols)}
                 className="clean-input text-center"
+                autoComplete="off"
               />
             </div>
             <div>
@@ -148,6 +153,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
                 value={cols} 
                 onChange={(e) => resizeMatrix(rows, parseInt(e.target.value) || 1)}
                 className="clean-input text-center"
+                autoComplete="off"
               />
             </div>
           </div>
@@ -160,6 +166,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
               value={divisor} 
               onChange={(e) => setDivisor(parseInt(e.target.value) || 1)}
               className="clean-input"
+              autoComplete="off"
             />
           </div>
 
@@ -176,6 +183,7 @@ const CustomKernelEditor: React.FC<CustomKernelEditorProps> = ({ inline = true, 
                         value={cell}
                         onChange={(e) => updateCell(i, j, e.target.value)}
                         className="w-12 rounded border border-neutral-700 bg-neutral-800 px-1 py-1 text-center text-[11px] text-gray-300 focus:border-blue-600 focus:outline-none flex-shrink-0"
+                        autoComplete="off"
                       />
                     ))}
                   </div>
