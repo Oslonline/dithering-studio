@@ -4,6 +4,7 @@ import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG } from "../utils/export";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { generateHreflangTags } from "../utils/seo";
 import ImageUploader from "../components/uploaders/ImageUploader";
 import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
@@ -44,7 +45,7 @@ interface DitheringToolProps {
 }
 
 const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const {
     images,
@@ -503,7 +504,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           name="description"
           content={videoMode ? t('tool.seo.videoDescription') : t('tool.seo.imageDescription')}
         />
+        <meta property="og:locale" content={i18n.language} />
         <link rel="canonical" href={videoMode ? "https://ditheringstudio.com/Dithering/Video" : "https://ditheringstudio.com/Dithering/Image"} />
+        {generateHreflangTags(videoMode ? '/Dithering/Video' : '/Dithering/Image')}
         <script type="application/ld+json">
           {`
           {

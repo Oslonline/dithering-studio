@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { getTranslatedAlgorithmDetails } from "../utils/algorithmInfoTranslated";
 import { findAlgorithm } from "../utils/algorithms";
+import { generateHreflangTags } from "../utils/seo";
 import Header from "../components/ui/Header";
 let importedSample: string | undefined;
 try {
@@ -169,7 +170,9 @@ const AlgorithmExplorer: React.FC = () => {
       <Helmet>
         <title>{t('explorer.seo.title')}</title>
         <meta name="description" content={t('explorer.seo.description')} />
+        <meta property="og:locale" content={i18n.language} />
         <link rel="canonical" href="https://ditheringstudio.com/Algorithms" />
+        {generateHreflangTags('/Algorithms')}
       </Helmet>
       <div className="flex h-screen w-full flex-col overflow-hidden">
       <Header page="explorer" />
