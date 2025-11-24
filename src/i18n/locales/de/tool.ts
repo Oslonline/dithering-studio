@@ -212,6 +212,7 @@ const tool = {
     frameExport: 'Frame-Export',
     frameExportLabel: 'Frame-Export',
     frameExportDesc: 'PNG (verlustfrei), JPEG (kleiner), WEBP {{webp}} Zwischenablage kopieren.',
+    pauseToExportFrame: 'Video pausieren, um aktuelles Bild zu exportieren',
     modern: '(modern)',
     unsupported: '(nicht unterstützt)',
     fullVideoLabel: 'Vollständiges Video',

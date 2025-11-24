@@ -212,6 +212,7 @@ const tool = {
     frameExport: 'Exportación de Fotograma',
     frameExportLabel: 'Exportación de Fotograma',
     frameExportDesc: 'PNG (sin pérdida), JPEG (más pequeño), WEBP {{webp}} copiar al portapapeles.',
+    pauseToExportFrame: 'Pause el video para exportar el fotograma actual',
     modern: '(moderno)',
     unsupported: '(no compatible)',
     fullVideoLabel: 'Vídeo Completo',

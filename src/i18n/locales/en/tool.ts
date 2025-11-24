@@ -212,6 +212,7 @@ const tool = {
     frameExport: 'Frame Export',
     frameExportLabel: 'Frame Export',
     frameExportDesc: 'PNG (lossless), JPEG (smaller), WEBP {{webp}} clipboard copy.',
+    pauseToExportFrame: 'Pause video to export current frame',
     modern: '(modern)',
     unsupported: '(unsupported)',
     fullVideoLabel: 'Full Video',

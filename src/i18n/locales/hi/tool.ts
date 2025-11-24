@@ -212,6 +212,7 @@ const tool = {
     frameExport: 'फ़्रेम निर्यात',
     frameExportLabel: 'फ़्रेम निर्यात',
     frameExportDesc: 'PNG (लॉसलेस), JPEG (छोटा), WEBP {{webp}} क्लिपबोर्ड कॉपी।',
+    pauseToExportFrame: 'वर्तमान फ़्रेम निर्यात करने के लिए वीडियो को रोकें',
     modern: '(आधुनिक)',
     unsupported: '(असमर्थित)',
     fullVideoLabel: 'पूर्ण वीडियो',

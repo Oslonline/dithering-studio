@@ -68,15 +68,18 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
   const handleSkipBackward = () => {
     const video = videoElRef.current;
-    if (video) {
+    if (video && isFinite(video.duration)) {
       video.currentTime = Math.max(0, video.currentTime - 5);
     }
   };
 
   const handleSkipForward = () => {
     const video = videoElRef.current;
-    if (video) {
-      video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
+    if (video && isFinite(video.duration)) {
+      const duration = video.duration;
+      const newTime = Math.min(duration, video.currentTime + 5);
+      // Prevent seeking past end which can cause freeze on short videos
+      video.currentTime = Math.min(newTime, duration - 0.1);
     }
   };
 

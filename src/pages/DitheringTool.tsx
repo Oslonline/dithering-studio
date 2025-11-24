@@ -446,7 +446,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const [showPostShare, setShowPostShare] = useState(false);
   const [lastDownloadFormat, setLastDownloadFormat] = useState<string | undefined>(undefined);
   const downloadImageAs = (fmt: "png" | "jpeg" | "webp") => {
-    const canvas = processedCanvasRef.current || canvasRef.current;
+    // For video mode: canvasRef has dithered result, processedCanvasRef has pre-dithering
+    // For image mode: processedCanvasRef has dithered result
+    const canvas = videoMode ? canvasRef.current : (processedCanvasRef.current || canvasRef.current);
     if (!canvas) return;
     let mime = `image/${fmt}`;
     if (fmt === "webp" && !webpSupported) mime = "image/png";
@@ -474,7 +476,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   };
 
   const downloadAsSVG = () => {
-    const canvas = processedCanvasRef.current || canvasRef.current;
+    // For video mode: canvasRef has dithered result, processedCanvasRef has pre-dithering
+    // For image mode: processedCanvasRef has dithered result
+    const canvas = videoMode ? canvasRef.current : (processedCanvasRef.current || canvasRef.current);
     if (!canvas) return;
     const { svg } = canvasToSVG(canvas, { mergeRuns: true });
     const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
@@ -829,6 +833,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           open={showDownload}
           onClose={() => setShowDownload(false)}
           videoMode={videoMode}
+          videoPlaying={videoPlaying}
           image={image}
           videoItem={currentVideo ? { url: currentVideo.url, name: currentVideo.name } : null}
           webpSupported={webpSupported}
