@@ -204,7 +204,7 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
         }}
       >
         {/* Slider handle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-10">
           <svg
             width="20"
             height="20"
@@ -228,7 +228,7 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
 
       {/* Instructions on first interaction */}
       {!isDragging && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white/80 border border-white/20 animate-pulse-subtle pointer-events-none">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white/80 border border-white/20 animate-pulse-subtle pointer-events-none z-20">
           {t('tool.imageComparison.dragToCompare')}
         </div>
       )}
