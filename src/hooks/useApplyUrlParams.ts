@@ -16,14 +16,22 @@ interface Params {
   setHighlights?: (n: number) => void;
   setBlurRadius?: (n: number) => void;
   setVideoMode?: (b: boolean) => void;
+  loadDemoImage?: () => void;
 }
 
 export function useApplyUrlParams(p: Params) {
-  const { setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode } = p;
+  const { setPattern, setThreshold, setWorkingResolution, setWorkingResInput, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode, loadDemoImage } = p;
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.size === 0) return;
+    
+    // Handle demo image loading
+    const demo = params.get('demo');
+    if (demo === '1' && loadDemoImage) {
+      loadDemoImage();
+    }
+    
     const num = (key: string, min: number, max: number) => {
       const v = parseInt(params.get(key) || '', 10);
       if (isNaN(v)) return undefined;

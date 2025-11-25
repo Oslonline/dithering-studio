@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG } from "../utils/export";
@@ -109,6 +109,22 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const [showComparison, setShowComparison] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
 
+  // Define loadDemoImage early so it can be used in useApplyUrlParams
+  const loadDemoImage = useCallback(() => {
+    const url = '/base-sample.webp';
+    setImages((prev: UploadedImage[]) => {
+      const id = `${Date.now()}-demo`;
+      const imgEl = new Image();
+      imgEl.onload = () => {
+        setImages((cur: UploadedImage[]) => cur.map((ci: UploadedImage) => (ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci)));
+      };
+      imgEl.src = url;
+      const newImage = { id, url, name: 'base-sample.webp' };
+      setActiveImageId(id);
+      return [...prev, newImage];
+    });
+  }, [setImages, setActiveImageId]);
+
   useEffect(() => {
     if (initialMode === "video" && !videoMode) {
       setVideoMode(true);
@@ -156,7 +172,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     // For custom/original we preserve whatever Panel manages.
   }, [effectivePaletteId, paletteId]);
 
-  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode });
+  useApplyUrlParams({ setPattern, setThreshold, setWorkingResolution, setInvert, setSerpentine, setAsciiRamp, setPaletteId, paletteFromURL, setContrast, setMidtones, setHighlights, setBlurRadius, setVideoMode, loadDemoImage });
 
   const { isOpen: isShortcutsOpen, close: closeShortcuts } = useKeyboardShortcutsModal();
 
@@ -296,6 +312,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
       return next;
     });
   };
+  
   const readAndAddFiles = (files: FileList) => {
     const toRead = Array.from(files).filter((f) => f.type.startsWith("image/"));
     if (!toRead.length) return;
