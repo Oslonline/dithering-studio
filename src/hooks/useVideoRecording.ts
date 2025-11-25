@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { createGifFromCanvas } from '../utils/gifEncoder';
 
 interface Params {
   videoItem: { url: string; name?: string } | null;
@@ -16,7 +17,7 @@ export function useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, s
   const recordedChunksRef = useRef<Blob[]>([]);
   const recordingMimeRef = useRef<string>('video/mp4');
   const [recordedBlobUrl, setRecordedBlobUrl] = useState<string | null>(null);
-  const [videoExportFormat, setVideoExportFormat] = useState<'mp4' | 'webm'>('mp4');
+  const [videoExportFormat, setVideoExportFormat] = useState<'mp4' | 'webm' | 'gif'>('mp4');
   const [videoFormatNote, setVideoFormatNote] = useState<string | null>(null);
   const lastProgressRef = useRef(0);
 
@@ -44,10 +45,46 @@ export function useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, s
     recordedChunksRef.current = [];
   }, []);
 
-  const startVideoExport = useCallback(() => {
+  const startVideoExport = useCallback(async () => {
     if (!canvasRef.current || !videoItem || recordingVideo) return;
     setRecordingError(null);
     setRecordedBlobUrl(r => { if (r) URL.revokeObjectURL(r); return null; });
+    
+    // Handle GIF export differently - capture frames while playing
+    if (videoExportFormat === 'gif') {
+      setRecordingVideo(true);
+      setRecordingProgress(0);
+      setVideoFormatNote('Generating GIF from video frames...');
+      
+      try {
+        const vEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
+        if (!vEl) {
+          throw new Error('Video element not available');
+        }
+        
+        const gifBlob = await createGifFromCanvas(
+          canvasRef.current,
+          vEl,
+          videoFps || 12,
+          (progress) => {
+            setRecordingProgress(progress);
+          }
+        );
+        
+        const url = URL.createObjectURL(gifBlob);
+        setRecordedBlobUrl(url);
+        setVideoFormatNote(null);
+      } catch (err: any) {
+        setRecordingError(err?.message || 'Failed to create GIF');
+        setVideoFormatNote(null);
+      } finally {
+        setRecordingVideo(false);
+        setRecordingProgress(1);
+      }
+      return;
+    }
+    
+    // Original video recording logic for MP4/WebM
     recordedChunksRef.current = [];
     const mime = pickBestVideoMime(videoExportFormat);
     recordingMimeRef.current = mime;

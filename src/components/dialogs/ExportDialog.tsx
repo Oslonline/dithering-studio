@@ -9,6 +9,8 @@ interface ExportDialogProps {
   onClose: () => void;
   videoMode: boolean;
   videoPlaying?: boolean;
+  videoDuration?: number;
+  videoFps?: number;
   image: string | null;
   videoItem: { url: string; name?: string } | null;
   webpSupported: boolean;
@@ -23,8 +25,8 @@ interface ExportDialogProps {
   recordedBlobUrl: string | null;
   recordingProgress: number;
   recordingError: string | null;
-  videoExportFormat: 'mp4' | 'webm';
-  setVideoExportFormat: (f: 'mp4' | 'webm') => void;
+  videoExportFormat: 'mp4' | 'webm' | 'gif';
+  setVideoExportFormat: (f: 'mp4' | 'webm' | 'gif') => void;
   videoFormatNote: string | null;
   recordingMimeType: string;
   setRecordedBlobUrl: React.Dispatch<React.SetStateAction<string | null>>;
@@ -36,6 +38,8 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
   onClose,
   videoMode,
   videoPlaying = false,
+  videoDuration = 0,
+  videoFps = 12,
   image,
   videoItem,
   webpSupported,
@@ -209,13 +213,16 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
                   <span className="text-gray-400">{t('tool.exportDialog.format')}</span>
                   <select 
                     value={videoExportFormat} 
-                    onChange={e => { const val = e.target.value === 'mp4' ? 'mp4':'webm'; setVideoExportFormat(val); setRecordedBlobUrl(r=>{ if(r) URL.revokeObjectURL(r); return null; }); }} 
+                    onChange={e => { const val = e.target.value as 'mp4' | 'webm' | 'gif'; setVideoExportFormat(val); setRecordedBlobUrl(r=>{ if(r) URL.revokeObjectURL(r); return null; }); }} 
                     className="clean-input !h-7 !px-2 !py-0 text-[10px]"
                     aria-label="Video export format"
                     disabled={recordingVideo}
                   >
                     <option value="mp4">MP4</option>
                     <option value="webm">WebM</option>
+                    {videoDuration > 0 && videoDuration <= 20 && (
+                      <option value="gif">GIF</option>
+                    )}
                   </select>
                 </label>
               </div>
@@ -242,15 +249,18 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
               {recordedBlobUrl && (
                 <a
                   href={recordedBlobUrl}
-                  download={`dithered-video.${recordingMimeType.includes('mp4') ? 'mp4' : 'webm'}`}
+                  download={`dithered-video.${videoExportFormat === 'gif' ? 'gif' : recordingMimeType.includes('mp4') ? 'mp4' : 'webm'}`}
                   className="clean-btn px-3 py-1 text-[11px]"
-                  onClick={() => onVideoDownload?.(recordingMimeType.includes('mp4') ? 'mp4' : 'webm')}
+                  onClick={() => onVideoDownload?.(videoExportFormat === 'gif' ? 'gif' : recordingMimeType.includes('mp4') ? 'mp4' : 'webm')}
                   aria-label={t('tool.exportDialog.download')}
                 >
                   {t('tool.exportDialog.download')}
                 </a>
               )}
             </div>
+            {videoExportFormat === 'gif' && videoFps > 20 && (
+              <p className="text-[10px] text-gray-500">GIF export is capped at 20 FPS</p>
+            )}
             {videoFormatNote && <p className="text-[10px] text-amber-400">{videoFormatNote}</p>}
             {recordingVideo && (
               <div className="flex items-center gap-2 text-[10px] text-gray-400">

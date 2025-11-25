@@ -834,6 +834,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           onClose={() => setShowDownload(false)}
           videoMode={videoMode}
           videoPlaying={videoPlaying}
+          videoDuration={videoDuration}
+          videoFps={videoFps}
           image={image}
           videoItem={currentVideo ? { url: currentVideo.url, name: currentVideo.name } : null}
           webpSupported={webpSupported}
