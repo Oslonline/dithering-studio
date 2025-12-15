@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../state/SettingsContext";
-import { canvasToSVG } from "../utils/export";
+import { canvasToSVG, exportAtOriginalResolution, exportVideoFrameAtOriginalResolution } from "../utils/export";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { generateHreflangTags } from "../utils/seo";
@@ -462,26 +462,123 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
 
   const [showPostShare, setShowPostShare] = useState(false);
   const [lastDownloadFormat, setLastDownloadFormat] = useState<string | undefined>(undefined);
-  const downloadImageAs = (fmt: "png" | "jpeg" | "webp") => {
-    // For video mode: canvasRef has dithered result, processedCanvasRef has pre-dithering
-    // For image mode: processedCanvasRef has dithered result
-    const canvas = videoMode ? canvasRef.current : (processedCanvasRef.current || canvasRef.current);
-    if (!canvas) return;
-    let mime = `image/${fmt}`;
-    if (fmt === "webp" && !webpSupported) mime = "image/png";
-    try {
-      const url = canvas.toDataURL(mime);
-      const link = document.createElement("a");
-      link.download = `dithering-effect.${fmt}`;
-      link.href = url;
-      link.click();
-    } catch {
-      if (mime !== "image/png") {
-        const fallback = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.download = "dithering-effect.png";
-        link.href = fallback;
-        link.click();
+  const [isExporting, setIsExporting] = useState(false);
+  
+  const downloadImageAs = async (fmt: "png" | "jpeg" | "webp") => {
+    // For video mode: re-process frame at original resolution (same as image export)
+    // For image mode: re-process at original resolution for full quality export
+    if (videoMode) {
+      // Get the video element from videoHook
+      const videoEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
+      if (!videoEl) return;
+      
+      setIsExporting(true);
+      try {
+        // Use the same approach as image export: re-process at workingResolution then upscale
+        const exportCanvas = exportVideoFrameAtOriginalResolution({
+          videoElement: videoEl,
+          pattern,
+          threshold,
+          invert,
+          serpentine,
+          serpentinePattern,
+          errorDiffusionStrength,
+          isErrorDiffusion: isErrorDiffusion(pattern),
+          paletteColors: activePaletteColors,
+          asciiRamp,
+          contrast,
+          midtones,
+          highlights,
+          blurRadius,
+          workingResolution
+        });
+        
+        let mime = `image/${fmt}`;
+        if (fmt === "webp" && !webpSupported) mime = "image/png";
+        try {
+          const url = exportCanvas.toDataURL(mime);
+          const link = document.createElement("a");
+          link.download = `dithering-effect.${fmt}`;
+          link.href = url;
+          link.click();
+        } catch {
+          if (mime !== "image/png") {
+            const fallback = exportCanvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.download = "dithering-effect.png";
+            link.href = fallback;
+            link.click();
+          }
+        }
+      } catch (error) {
+        console.error('Video frame export failed:', error);
+        // Fallback to current canvas
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const url = canvas.toDataURL(`image/${fmt}`);
+          const link = document.createElement("a");
+          link.download = `dithering-effect.${fmt}`;
+          link.href = url;
+          link.click();
+        }
+      } finally {
+        setIsExporting(false);
+      }
+    } else {
+      // Image mode: export at original resolution
+      if (!image) return;
+      setIsExporting(true);
+      try {
+        const exportCanvas = await exportAtOriginalResolution({
+          imageUrl: image,
+          pattern,
+          threshold,
+          invert,
+          serpentine,
+          serpentinePattern,
+          errorDiffusionStrength,
+          isErrorDiffusion: isErrorDiffusion(pattern),
+          paletteColors: activePaletteColors,
+          asciiRamp,
+          contrast,
+          midtones,
+          highlights,
+          blurRadius,
+          customKernel,
+          customKernelDivisor,
+          workingResolution
+        });
+        
+        let mime = `image/${fmt}`;
+        if (fmt === "webp" && !webpSupported) mime = "image/png";
+        try {
+          const url = exportCanvas.toDataURL(mime);
+          const link = document.createElement("a");
+          link.download = `dithering-effect.${fmt}`;
+          link.href = url;
+          link.click();
+        } catch {
+          if (mime !== "image/png") {
+            const fallback = exportCanvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.download = "dithering-effect.png";
+            link.href = fallback;
+            link.click();
+          }
+        }
+      } catch (error) {
+        console.error('Export failed:', error);
+        // Fallback to current canvas
+        const canvas = processedCanvasRef.current || canvasRef.current;
+        if (canvas) {
+          const url = canvas.toDataURL(`image/${fmt}`);
+          const link = document.createElement("a");
+          link.download = `dithering-effect.${fmt}`;
+          link.href = url;
+          link.click();
+        }
+      } finally {
+        setIsExporting(false);
       }
     }
     setLastDownloadFormat(fmt);
@@ -492,20 +589,106 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     }
   };
 
-  const downloadAsSVG = () => {
-    // For video mode: canvasRef has dithered result, processedCanvasRef has pre-dithering
-    // For image mode: processedCanvasRef has dithered result
-    const canvas = videoMode ? canvasRef.current : (processedCanvasRef.current || canvasRef.current);
-    if (!canvas) return;
-    const { svg } = canvasToSVG(canvas, { mergeRuns: true });
-    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = "dithering-effect.svg";
-    link.href = url;
-    link.click();
+  const downloadAsSVG = async () => {
+    if (videoMode) {
+      const videoEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
+      if (!videoEl) return;
+      
+      setIsExporting(true);
+      try {
+        const exportCanvas = exportVideoFrameAtOriginalResolution({
+          videoElement: videoEl,
+          pattern,
+          threshold,
+          invert,
+          serpentine,
+          serpentinePattern,
+          errorDiffusionStrength,
+          isErrorDiffusion: isErrorDiffusion(pattern),
+          paletteColors: activePaletteColors,
+          asciiRamp,
+          contrast,
+          midtones,
+          highlights,
+          blurRadius,
+          workingResolution
+        });
+        
+        const { svg } = canvasToSVG(exportCanvas, { mergeRuns: true });
+        const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = "dithering-effect.svg";
+        link.href = url;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      } catch (error) {
+        console.error('Video SVG export failed:', error);
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const { svg } = canvasToSVG(canvas, { mergeRuns: true });
+          const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.download = "dithering-effect.svg";
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }
+      } finally {
+        setIsExporting(false);
+      }
+    } else {
+      if (!image) return;
+      setIsExporting(true);
+      try {
+        const exportCanvas = await exportAtOriginalResolution({
+          imageUrl: image,
+          pattern,
+          threshold,
+          invert,
+          serpentine,
+          serpentinePattern,
+          errorDiffusionStrength,
+          isErrorDiffusion: isErrorDiffusion(pattern),
+          paletteColors: activePaletteColors,
+          asciiRamp,
+          contrast,
+          midtones,
+          highlights,
+          blurRadius,
+          customKernel,
+          customKernelDivisor,
+          workingResolution
+        });
+        
+        const { svg } = canvasToSVG(exportCanvas, { mergeRuns: true });
+        const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = "dithering-effect.svg";
+        link.href = url;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      } catch (error) {
+        console.error('SVG export failed:', error);
+        // Fallback to current canvas
+        const canvas = processedCanvasRef.current || canvasRef.current;
+        if (canvas) {
+          const { svg } = canvasToSVG(canvas, { mergeRuns: true });
+          const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.download = "dithering-effect.svg";
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }
+      } finally {
+        setIsExporting(false);
+      }
+    }
     setShowDownload(false);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
     setLastDownloadFormat("svg");
     if (!videoMode && image) {
       setTimeout(() => setShowPostShare(true), 150);
@@ -883,8 +1066,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         />
         <PerformanceOverlay hasImage={!!image || !!currentVideo} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : currentVideo?.size || null} processedBytes={processedSizeBytes} />
         <ProcessingOverlay 
-          isProcessing={busy || false} 
-          operation={videoMode ? "Processing video frame" : "Dithering image"} 
+          isProcessing={busy || isExporting || false} 
+          operation={isExporting ? "Exporting at full resolution" : (videoMode ? "Processing video frame" : "Dithering image")} 
         />
         <KeyboardShortcutsModal isOpen={isShortcutsOpen} onClose={closeShortcuts} />
       </div>

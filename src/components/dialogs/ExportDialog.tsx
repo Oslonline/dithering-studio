@@ -16,9 +16,8 @@ interface ExportDialogProps {
   webpSupported: boolean;
   processedCanvasRef: React.RefObject<HTMLCanvasElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  downloadImageAs: (fmt: 'png' | 'jpeg' | 'webp') => void;
-  downloadAsSVG: () => void;
-  // Recording
+  downloadImageAs: (fmt: 'png' | 'jpeg' | 'webp') => void | Promise<void>;
+  downloadAsSVG: () => void | Promise<void>;
   recordingVideo: boolean;
   startVideoExport: () => void;
   cancelVideoExport: () => void;
