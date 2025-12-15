@@ -9,6 +9,29 @@ interface Params {
   setVideoPlaying: (v: boolean) => void;
 }
 
+function upscaleFrameToExportCanvas(
+  srcCanvas: HTMLCanvasElement,
+  dstCanvas: HTMLCanvasElement,
+  dstCtx: CanvasRenderingContext2D
+) {
+  const srcWidth = srcCanvas.width;
+  const srcHeight = srcCanvas.height;
+  const dstWidth = dstCanvas.width;
+  const dstHeight = dstCanvas.height;
+
+  if (srcWidth === dstWidth && srcHeight === dstHeight) {
+    dstCtx.drawImage(srcCanvas, 0, 0);
+    return;
+  }
+
+  // Use imageSmoothingEnabled = false for nearest-neighbor
+  dstCtx.imageSmoothingEnabled = false;
+  (dstCtx as any).mozImageSmoothingEnabled = false;
+  (dstCtx as any).webkitImageSmoothingEnabled = false;
+  (dstCtx as any).msImageSmoothingEnabled = false;
+  dstCtx.drawImage(srcCanvas, 0, 0, dstWidth, dstHeight);
+}
+
 export function useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, setVideoPlaying }: Params) {
   const [recordingVideo, setRecordingVideo] = useState(false);
   const [recordingProgress, setRecordingProgress] = useState(0);
@@ -96,9 +119,37 @@ export function useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, s
       setVideoFormatNote(null);
     }
     try {
-      const stream = (canvasRef.current as HTMLCanvasElement).captureStream(videoFps || 12);
-  const rec = new MediaRecorder(stream, { mimeType: mime });
+      // Get original video dimensions
+      const vEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
+      const originalWidth = vEl?.videoWidth || canvasRef.current.width;
+      const originalHeight = vEl?.videoHeight || canvasRef.current.height;
+      
+      // Create export canvas at original video resolution
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = originalWidth;
+      exportCanvas.height = originalHeight;
+      const exportCtx = exportCanvas.getContext('2d', { willReadFrequently: true });
+      if (!exportCtx) throw new Error('Cannot create export canvas context');
+      
+      // Set up nearest-neighbor upscaling
+      exportCtx.imageSmoothingEnabled = false;
+      (exportCtx as any).mozImageSmoothingEnabled = false;
+      (exportCtx as any).webkitImageSmoothingEnabled = false;
+      (exportCtx as any).msImageSmoothingEnabled = false;
+      
+      const stream = exportCanvas.captureStream(videoFps || 12);
+      const rec = new MediaRecorder(stream, { mimeType: mime });
       recorderRef.current = rec;
+      
+      let frameLoopId: number | null = null;
+      const syncFrame = () => {
+        if (canvasRef.current && exportCtx) {
+          upscaleFrameToExportCanvas(canvasRef.current, exportCanvas, exportCtx);
+        }
+        frameLoopId = requestAnimationFrame(syncFrame);
+      };
+      frameLoopId = requestAnimationFrame(syncFrame);
+      
       rec.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
           recordedChunksRef.current.push(e.data);
@@ -109,6 +160,10 @@ export function useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, s
       const finalize = () => {
         if (stopped) return;
         stopped = true;
+        if (frameLoopId !== null) {
+          cancelAnimationFrame(frameLoopId);
+          frameLoopId = null;
+        }
         try {
           if (!recordedChunksRef.current.length) {
             try { rec.requestData(); } catch {}
@@ -131,7 +186,6 @@ export function useVideoRecording({ videoItem, canvasRef, videoHook, videoFps, s
       // Safety: ensure finalize even if onstop not fired (rare)
       const durationMs = ((videoHook as any).duration || 0) * 1000;
       const safety = setTimeout(() => { if (!stopped) { try { rec.requestData(); } catch {}; finalize(); } }, Math.max(2000, durationMs + 1500));
-      const vEl = (videoHook as any).videoElRef?.current as HTMLVideoElement | null;
       if (vEl) {
         const prevLoop = vEl.loop;
         vEl.loop = false;

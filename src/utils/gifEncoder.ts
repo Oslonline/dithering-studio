@@ -19,18 +19,29 @@ export async function createGifFromCanvas(
   const targetFrameCount = Math.ceil(totalDuration * gifFps);
   const frameInterval = 1 / gifFps; // Time between frames in seconds
   
-  // Downsample resolution for smaller file size
-  const maxDimension = 480;
-  const scale = Math.min(1, maxDimension / Math.max(canvasRef.width, canvasRef.height));
-  const gifWidth = Math.floor(canvasRef.width * scale);
-  const gifHeight = Math.floor(canvasRef.height * scale);
+  // Use original video dimensions for the GIF output
+  // The canvas might be small (workingResolution), but we upscale to original video size
+  const originalWidth = videoElement.videoWidth;
+  const originalHeight = videoElement.videoHeight;
   
-  // Create temporary canvas for resizing
+  // Downsample from original resolution for smaller file size (GIF-specific limit)
+  const maxDimension = 480;
+  const scale = Math.min(1, maxDimension / Math.max(originalWidth, originalHeight));
+  const gifWidth = Math.floor(originalWidth * scale);
+  const gifHeight = Math.floor(originalHeight * scale);
+  
+  // Create temporary canvas for upscaling + resizing
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = gifWidth;
   tempCanvas.height = gifHeight;
   const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
   if (!tempCtx) throw new Error('Failed to get canvas context');
+  
+  // Use nearest-neighbor interpolation to preserve pixelated dithering look
+  tempCtx.imageSmoothingEnabled = false;
+  (tempCtx as any).mozImageSmoothingEnabled = false;
+  (tempCtx as any).webkitImageSmoothingEnabled = false;
+  (tempCtx as any).msImageSmoothingEnabled = false;
 
   const gif = GIFEncoder();
   
