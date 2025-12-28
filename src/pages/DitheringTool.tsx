@@ -2,9 +2,9 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG, exportAtOriginalResolution, exportVideoFrameAtOriginalResolution } from "../utils/export";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl } from "../utils/seo";
+import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
 import ImageUploader from "../components/uploaders/ImageUploader";
 import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
@@ -49,6 +49,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const { t, i18n } = useTranslation();
   const activeLang = normalizeLang(i18n.language);
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     images,
     setImages,
@@ -702,41 +703,72 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setTimeout(() => setShowPostShare(true), 150);
   };
 
+  const pagePath = videoMode ? '/Dithering/Video' : '/Dithering/Image';
+  const pageTitle = videoMode ? t('tool.seo.videoTitle') : t('tool.seo.imageTitle');
+  const pageDescription = videoMode ? t('tool.seo.videoDescription') : t('tool.seo.imageDescription');
+  const shouldNoindex = new URLSearchParams(location.search).has('demo');
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": getCanonicalUrlWithLang('/', i18n.language),
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": videoMode ? 'Video Dithering' : 'Image Dithering',
+        "item": getCanonicalUrlWithLang(pagePath, i18n.language),
+      },
+    ],
+  };
+
+  const softwareAppJsonLd = {
+    "@context": "https://schema.org",
+    "@type": ["SoftwareApplication", "WebApplication"],
+    "name": "Dithering Studio",
+    "url": getCanonicalUrlWithLang(pagePath, i18n.language),
+    "description": pageDescription,
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Web",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+    },
+    "inLanguage": activeLang,
+  };
+
   return (
     <>
       <Helmet>
         <html lang={i18n.language} />
-        <title>{videoMode ? t('tool.seo.videoTitle') : t('tool.seo.imageTitle')}</title>
-        <meta
-          name="description"
-          content={videoMode ? t('tool.seo.videoDescription') : t('tool.seo.imageDescription')}
-        />
-        <meta property="og:url" content={getOgUrl(videoMode ? '/Dithering/Video' : '/Dithering/Image', i18n.language)} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        {shouldNoindex && <meta name="robots" content="noindex,follow" />}
+
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={getOgUrl(pagePath, i18n.language)} />
+        <meta property="og:image" content={getSocialImageUrl()} />
         <meta property="og:locale" content={i18n.language} />
-        <link rel="canonical" href={getCanonicalUrlWithLang(videoMode ? '/Dithering/Video' : '/Dithering/Image', i18n.language)} />
-        {generateHreflangTags(videoMode ? '/Dithering/Video' : '/Dithering/Image')}
-        <script type="application/ld+json">
-          {`
-          {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://ditheringstudio.com/"
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "${videoMode ? 'Video Dithering' : 'Image Dithering'}",
-                "item": "https://ditheringstudio.com/Dithering/${videoMode ? 'Video' : 'Image'}"
-              }
-            ]
-          }
-          `}
-        </script>
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={getSocialImageUrl()} />
+
+        <link rel="canonical" href={getCanonicalUrlWithLang(pagePath, i18n.language)} />
+        {generateHreflangTags(pagePath)}
+
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(softwareAppJsonLd)}</script>
       </Helmet>
       <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? "focus-mode" : ""}`}>
         <div ref={headerRef as React.RefObject<HTMLDivElement>} className={focusMode ? "hidden" : ""}>

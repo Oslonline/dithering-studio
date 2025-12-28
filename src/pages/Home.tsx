@@ -3,7 +3,7 @@ import InfiniteImageScroll from "../components/ui/InfiniteImageScroll";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl } from "../utils/seo";
+import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
 import { normalizeLang, withLangPrefix } from "../utils/localePath";
 
 const Home: React.FC = () => {
@@ -20,10 +20,12 @@ const Home: React.FC = () => {
         <meta property="og:description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art or apply 8-bit effects to videos." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl('/', i18n.language)} />
+        <meta property="og:image" content={getSocialImageUrl()} />
         <meta property="og:locale" content={i18n.language} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Free Online Image & Video Dithering Tool" />
         <meta name="twitter:description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art or apply 8-bit effects to videos." />
+        <meta name="twitter:image" content={getSocialImageUrl()} />
         <link rel="canonical" href={getCanonicalUrlWithLang('/', i18n.language)} />
         {generateHreflangTags('/')}
       </Helmet>

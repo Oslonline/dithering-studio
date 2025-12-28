@@ -1,7 +1,5 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/en/", "permanent": true },
-
     { "source": "/Algorithms", "destination": "/en/Algorithms", "permanent": true },
     { "source": "/Dithering", "destination": "/en/Dithering/Image", "permanent": true },
     { "source": "/Dithering/Image", "destination": "/en/Dithering/Image", "permanent": true },
@@ -16,6 +14,10 @@
     { "source": "/hi", "destination": "/hi/", "permanent": true }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
     {
       "source": "/en/",
       "destination": "/en/index.html"

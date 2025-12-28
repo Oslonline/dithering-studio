@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { getTranslatedAlgorithmDetails } from "../utils/algorithmInfoTranslated";
 import { findAlgorithm } from "../utils/algorithms";
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl } from "../utils/seo";
+import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
 import Header from "../components/ui/Header";
 let importedSample: string | undefined;
 try {
@@ -43,6 +43,8 @@ const AlgorithmExplorer: React.FC = () => {
   
   const location = useLocation();
   const navigate = useNavigate();
+  const initialHadAlgoParamRef = useRef<boolean>(new URLSearchParams(location.search).has("algo"));
+  const userInteractedRef = useRef<boolean>(false);
   // Parse query param for deep link (?algo=ID)
   const searchParams = new URLSearchParams(location.search);
   const initialParam = parseInt(searchParams.get("algo") || "", 10);
@@ -50,6 +52,7 @@ const AlgorithmExplorer: React.FC = () => {
   const [activeId, setActiveId] = useState<number>(initial);
   // Keep URL in sync when activeId changes (replace to avoid history spam)
   useEffect(() => {
+    if (!initialHadAlgoParamRef.current && !userInteractedRef.current) return;
     const sp = new URLSearchParams(location.search);
     const current = sp.get("algo");
     if (String(activeId) !== current) {
@@ -57,6 +60,8 @@ const AlgorithmExplorer: React.FC = () => {
       navigate({ pathname: location.pathname, search: sp.toString() }, { replace: true });
     }
   }, [activeId]);
+
+  const shouldNoindex = new URLSearchParams(location.search).has("algo");
   
   const active = translatedDetails.find((a) => a.id === activeId) || translatedDetails[0] || orderedDetails[0];
   
@@ -171,8 +176,17 @@ const AlgorithmExplorer: React.FC = () => {
         <html lang={i18n.language} />
         <title>{t('explorer.seo.title')}</title>
         <meta name="description" content={t('explorer.seo.description')} />
+        {shouldNoindex && <meta name="robots" content="noindex,follow" />}
+        <meta property="og:title" content={t('explorer.seo.title')} />
+        <meta property="og:description" content={t('explorer.seo.description')} />
+        <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl('/Algorithms', i18n.language)} />
+        <meta property="og:image" content={getSocialImageUrl()} />
         <meta property="og:locale" content={i18n.language} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={t('explorer.seo.title')} />
+        <meta name="twitter:description" content={t('explorer.seo.description')} />
+        <meta name="twitter:image" content={getSocialImageUrl()} />
         <link rel="canonical" href={getCanonicalUrlWithLang('/Algorithms', i18n.language)} />
         {generateHreflangTags('/Algorithms')}
       </Helmet>
@@ -183,7 +197,17 @@ const AlgorithmExplorer: React.FC = () => {
           <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">
             {orderedDetails.map((a) => {
               const translated = translatedDetails.find(t => t.id === a.id) || a;
-              return <AlgorithmCard key={a.id} algo={translated} active={a.id === activeId} onSelect={() => setActiveId(a.id)} />;
+              return (
+                <AlgorithmCard
+                  key={a.id}
+                  algo={translated}
+                  active={a.id === activeId}
+                  onSelect={() => {
+                    userInteractedRef.current = true;
+                    setActiveId(a.id);
+                  }}
+                />
+              );
             })}
           </div>
           <div className="space-y-1 border-t border-neutral-800 p-4 pt-2 pb-6 text-[10px] text-gray-500">

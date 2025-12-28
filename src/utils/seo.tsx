@@ -1,4 +1,5 @@
 const SITE_URL = 'https://ditheringstudio.com';
+const DEFAULT_SOCIAL_IMAGE_PATH = '/socials-img.png';
 
 export const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'] as const;
 
@@ -70,4 +71,12 @@ export const getCanonicalUrlWithLang = (pathname: string, lang?: string): string
  */
 export const getOgUrl = (pathname: string, lang?: string): string => {
   return withLocalePath(pathname, lang);
+};
+
+/**
+ * Default social share image for OG/Twitter.
+ * Keep as a single, stable absolute URL for all locales.
+ */
+export const getSocialImageUrl = (): string => {
+  return `${SITE_URL}${DEFAULT_SOCIAL_IMAGE_PATH}`;
 };
