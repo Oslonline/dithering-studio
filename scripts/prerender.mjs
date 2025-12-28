@@ -120,6 +120,23 @@ const shouldAbortRequest = (request) => {
   return false;
 };
 
+const fallbackStaticCopies = async (reason) => {
+  const msg = reason instanceof Error ? reason.message : String(reason ?? 'unknown');
+  process.stdout.write(`[${nowStamp()}] prerender fallback: skipping puppeteer (${msg})\n`);
+  process.stdout.write(`[${nowStamp()}] prerender fallback: writing static route copies so Vercel rewrites keep working\n`);
+
+  const baseIndexPath = path.join(distDir, 'index.html');
+  const baseHtml = await fs.readFile(baseIndexPath, 'utf8');
+
+  for (const route of routesToPrerender) {
+    const outFile = outputPathForRoute(route);
+    if (outFile === baseIndexPath) continue;
+    await fs.mkdir(path.dirname(outFile), { recursive: true });
+    await fs.writeFile(outFile, baseHtml, 'utf8');
+    process.stdout.write(`prerendered(fallback) ${route} -> ${path.relative(process.cwd(), outFile)}\n`);
+  }
+};
+
 const main = async () => {
   // Ensure dist exists
   await fs.stat(distDir);
@@ -127,10 +144,20 @@ const main = async () => {
   const { server, port } = await createStaticServer();
   const baseUrl = `http://127.0.0.1:${port}`;
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  } catch (e) {
+    // On some CI hosts (including Vercel build images), the bundled Chrome can fail
+    // to start due to missing shared libraries (e.g. libnspr4.so). Don't fail the build;
+    // instead generate route files by copying dist/index.html so rewrites still resolve.
+    await new Promise((resolve) => server.close(resolve));
+    await fallbackStaticCopies(e);
+    return;
+  }
 
   try {
     const page = await browser.newPage();
