@@ -102,6 +102,24 @@ const outputPathForRoute = (route) => {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const nowStamp = () => new Date().toISOString();
+
+const shouldAbortRequest = (request) => {
+  const type = request.resourceType();
+  // We only need HTML + JS + CSS to generate prerendered markup.
+  // Skip heavy/irrelevant assets for faster builds.
+  if (type === 'image' || type === 'media' || type === 'font') return true;
+
+  const url = request.url();
+  // Avoid long-hanging connections that can affect network-idle waits.
+  if (url.includes('vitals.vercel-insights.com')) return true;
+  if (url.includes('/_vercel/insights')) return true;
+  if (url.includes('analytics')) return true;
+  if (url.startsWith('data:')) return false;
+
+  return false;
+};
+
 const main = async () => {
   // Ensure dist exists
   await fs.stat(distDir);
@@ -117,11 +135,43 @@ const main = async () => {
   try {
     const page = await browser.newPage();
 
+    // Timeouts: avoid CI hangs on pages that never go idle.
+    page.setDefaultNavigationTimeout(45_000);
+    page.setDefaultTimeout(45_000);
+
+    // Reduce prerender time by skipping non-essential resources.
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      if (shouldAbortRequest(request)) {
+        request.abort().catch(() => {});
+        return;
+      }
+      request.continue().catch(() => {});
+    });
+
     for (const route of routesToPrerender) {
       const url = `${baseUrl}${route}`;
-      // networkidle0 can hang if analytics keeps connections open; networkidle2 is safer.
-      await page.goto(url, { waitUntil: 'networkidle2' });
-      await sleep(250);
+      process.stdout.write(`[${nowStamp()}] prerender start ${route}\n`);
+
+      // networkidle can still hang in real-world SPAs; enforce timeouts + fallback.
+      try {
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 45_000 });
+      } catch (e) {
+        process.stdout.write(`[${nowStamp()}] prerender warn ${route} goto(networkidle2) failed; retrying with domcontentloaded\n`);
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+      }
+
+      // Give React a brief moment to render meaningful HTML.
+      try {
+        await page.waitForFunction(() => {
+          const root = document.querySelector('#root');
+          return !!root && root.children.length > 0;
+        }, { timeout: 10_000 });
+      } catch {
+        // If the page is still empty, continue and snapshot anyway (better than hanging).
+      }
+
+      await sleep(50);
 
       const html = await page.content();
       const outFile = outputPathForRoute(route);
