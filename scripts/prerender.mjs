@@ -9,7 +9,14 @@ const __dirname = path.dirname(__filename);
 
 const distDir = path.resolve(__dirname, '..', 'dist');
 
-const routesToPrerender = ['/', '/Dithering/Image', '/Dithering/Video', '/Algorithms'];
+const languages = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'];
+const baseRoutes = ['/', '/Dithering/Image', '/Dithering/Video', '/Algorithms'];
+const routesToPrerender = languages.flatMap((lang) =>
+  baseRoutes.map((route) => {
+    if (route === '/') return `/${lang}/`;
+    return `/${lang}${route}`;
+  })
+);
 
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { normalizeLang, withLangPrefix } from "../../utils/localePath";
 
 interface HeaderProps {
   page: "tool" | "explorer";
@@ -9,7 +10,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ page, videoMode, onModeSwitch }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const activeLang = normalizeLang(i18n.language);
 
   return (
     <header className="flex items-center justify-between border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3">
@@ -51,19 +53,19 @@ const Header: React.FC<HeaderProps> = ({ page, videoMode, onModeSwitch }) => {
         {/* Navigation */}
         {page === "tool" ? (
           <>
-            <Link to="/Algorithms" className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800" title={t("tool.algorithmReference")}>
+            <Link to={withLangPrefix("/Algorithms", activeLang)} className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800" title={t("tool.algorithmReference")}>
               {t("tool.explore")}
             </Link>
-            <Link to="/" className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800">
+            <Link to={withLangPrefix("/", activeLang)} className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800">
               {t("tool.home")}
             </Link>
           </>
         ) : (
           <>
-            <Link to="/Dithering" className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800">
+            <Link to={withLangPrefix("/Dithering", activeLang)} className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800">
               {t("explorer.header.tool")}
             </Link>
-            <Link to="/" className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800">
+            <Link to={withLangPrefix("/", activeLang)} className="clean-btn px-3 py-1.5 !text-[10px] hover:bg-neutral-800">
               {t("explorer.header.home")}
             </Link>
           </>

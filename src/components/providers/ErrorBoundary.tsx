@@ -110,7 +110,7 @@ function ErrorFallback({
             aria-label={showDetails ? t('common.hideDetails') : t('common.showDetails')}
             aria-expanded={showDetails}
           >
-            {showDetails ? t('common.hide') : t('common.show')} {t('common.details')}
+            {showDetails ? t('common.hideDetails') : t('common.showDetails')}
           </button>
         </div>
       </div>

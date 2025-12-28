@@ -2,16 +2,22 @@ const SITE_URL = 'https://ditheringstudio.com';
 
 export const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'] as const;
 
-const withLanguageParam = (pathname: string, lang?: string): string => {
-  if (lang && lang !== 'en') {
-    return `${SITE_URL}${pathname}?lang=${lang}`;
-  }
-  return `${SITE_URL}${pathname}`;
+const normalizePathname = (pathname: string): string => {
+  if (!pathname) return '/';
+  return pathname.startsWith('/') ? pathname : `/${pathname}`;
+};
+
+const withLocalePath = (pathname: string, lang?: string): string => {
+  const normalizedPathname = normalizePathname(pathname);
+  const normalizedLang = (lang && SUPPORTED_LANGUAGES.includes(lang as any) ? lang : 'en') as string;
+  // Always use explicit locale prefixes (e.g. /en/, /fr/), including English.
+  // Home is represented as `/${lang}/`.
+  return `${SITE_URL}/${normalizedLang}${normalizedPathname}`;
 };
 
 /**
  * Generate hreflang link elements for a given page path
- * @param pathname - Current page path (e.g., '/', '/Dithering/Image', '/Algorithms')
+ * @param pathname - Page path without locale prefix (e.g., '/', '/Dithering/Image', '/Algorithms')
  * @returns Array of link elements with hreflang attributes
  */
 export const generateHreflangTags = (pathname: string) => {
@@ -20,7 +26,7 @@ export const generateHreflangTags = (pathname: string) => {
       key={`hreflang-${lang}`}
       rel="alternate"
       hrefLang={lang}
-      href={withLanguageParam(pathname, lang)}
+      href={withLocalePath(pathname, lang)}
     />
   ));
 
@@ -30,7 +36,7 @@ export const generateHreflangTags = (pathname: string) => {
       key="hreflang-default"
       rel="alternate"
       hrefLang="x-default"
-      href={withLanguageParam(pathname)}
+      href={withLocalePath(pathname, 'en')}
     />
   );
 
@@ -43,7 +49,7 @@ export const generateHreflangTags = (pathname: string) => {
  * @returns Canonical URL
  */
 export const getCanonicalUrl = (pathname: string): string => {
-  return withLanguageParam(pathname);
+  return withLocalePath(pathname, 'en');
 };
 
 /**
@@ -53,7 +59,7 @@ export const getCanonicalUrl = (pathname: string): string => {
  * @returns Canonical URL
  */
 export const getCanonicalUrlWithLang = (pathname: string, lang?: string): string => {
-  return withLanguageParam(pathname, lang);
+  return withLocalePath(pathname, lang);
 };
 
 /**
@@ -63,5 +69,5 @@ export const getCanonicalUrlWithLang = (pathname: string, lang?: string): string
  * @returns OG URL with language
  */
 export const getOgUrl = (pathname: string, lang?: string): string => {
-  return withLanguageParam(pathname, lang);
+  return withLocalePath(pathname, lang);
 };

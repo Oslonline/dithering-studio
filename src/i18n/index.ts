@@ -24,9 +24,13 @@ i18n
     },
     fallbackLng: 'en',
     supportedLngs: ['en', 'fr', 'es', 'zh', 'ru', 'hi', 'de'],
+    load: 'languageOnly',
+    nonExplicitSupportedLngs: true,
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      // SEO + shareable URLs: prefer explicit locale path prefixes like `/fr/...`.
+      order: ['path', 'localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
+      lookupFromPathIndex: 0,
       lookupLocalStorage: 'i18nextLng',
     },
     interpolation: {

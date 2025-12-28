@@ -37,6 +37,7 @@ import PresetPanel from "../components/panels/PresetPanel";
 import CustomKernelEditor from "../components/panels/CustomKernelEditor";
 import RandomizeButton from "../components/ui/RandomizeButton";
 import ResizableSidebar from "../components/ui/ResizableSidebar";
+import { normalizeLang, withLangPrefix } from "../utils/localePath";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
@@ -46,6 +47,7 @@ interface DitheringToolProps {
 
 const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) => {
   const { t, i18n } = useTranslation();
+  const activeLang = normalizeLang(i18n.language);
   const navigate = useNavigate();
   const {
     images,
@@ -265,9 +267,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
 
   const switchMode = () => {
     if (videoMode) {
-      navigate("/Dithering/Image");
+      navigate(withLangPrefix("/Dithering/Image", activeLang));
     } else {
-      navigate("/Dithering/Video");
+      navigate(withLangPrefix("/Dithering/Video", activeLang));
     }
   };
 
@@ -912,7 +914,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                       </button>
                     </div>
                   ) : (
-                    <Link to="/Algorithms" className="clean-btn w-full text-center text-[11px]">
+                    <Link to={withLangPrefix("/Algorithms", activeLang)} className="clean-btn w-full text-center text-[11px]">
                       {t('tool.exploreAlgorithms')}
                     </Link>
                   )}

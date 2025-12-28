@@ -1,16 +1,139 @@
 {
+  "redirects": [
+    { "source": "/", "destination": "/en/", "permanent": true },
+
+    { "source": "/Algorithms", "destination": "/en/Algorithms", "permanent": true },
+    { "source": "/Dithering", "destination": "/en/Dithering/Image", "permanent": true },
+    { "source": "/Dithering/Image", "destination": "/en/Dithering/Image", "permanent": true },
+    { "source": "/Dithering/Video", "destination": "/en/Dithering/Video", "permanent": true },
+
+    { "source": "/en", "destination": "/en/", "permanent": true },
+    { "source": "/fr", "destination": "/fr/", "permanent": true },
+    { "source": "/es", "destination": "/es/", "permanent": true },
+    { "source": "/de", "destination": "/de/", "permanent": true },
+    { "source": "/zh", "destination": "/zh/", "permanent": true },
+    { "source": "/ru", "destination": "/ru/", "permanent": true },
+    { "source": "/hi", "destination": "/hi/", "permanent": true }
+  ],
   "rewrites": [
     {
-      "source": "/Dithering/Image",
-      "destination": "/Dithering/Image/index.html"
+      "source": "/en/",
+      "destination": "/en/index.html"
     },
     {
-      "source": "/Dithering/Video",
-      "destination": "/Dithering/Video/index.html"
+      "source": "/fr/",
+      "destination": "/fr/index.html"
     },
     {
-      "source": "/Algorithms",
-      "destination": "/Algorithms/index.html"
+      "source": "/es/",
+      "destination": "/es/index.html"
+    },
+    {
+      "source": "/de/",
+      "destination": "/de/index.html"
+    },
+    {
+      "source": "/zh/",
+      "destination": "/zh/index.html"
+    },
+    {
+      "source": "/ru/",
+      "destination": "/ru/index.html"
+    },
+    {
+      "source": "/hi/",
+      "destination": "/hi/index.html"
+    },
+
+    {
+      "source": "/en/Dithering/Image",
+      "destination": "/en/Dithering/Image/index.html"
+    },
+    {
+      "source": "/en/Dithering/Video",
+      "destination": "/en/Dithering/Video/index.html"
+    },
+    {
+      "source": "/en/Algorithms",
+      "destination": "/en/Algorithms/index.html"
+    },
+
+    {
+      "source": "/fr/Dithering/Image",
+      "destination": "/fr/Dithering/Image/index.html"
+    },
+    {
+      "source": "/fr/Dithering/Video",
+      "destination": "/fr/Dithering/Video/index.html"
+    },
+    {
+      "source": "/fr/Algorithms",
+      "destination": "/fr/Algorithms/index.html"
+    },
+
+    {
+      "source": "/es/Dithering/Image",
+      "destination": "/es/Dithering/Image/index.html"
+    },
+    {
+      "source": "/es/Dithering/Video",
+      "destination": "/es/Dithering/Video/index.html"
+    },
+    {
+      "source": "/es/Algorithms",
+      "destination": "/es/Algorithms/index.html"
+    },
+
+    {
+      "source": "/de/Dithering/Image",
+      "destination": "/de/Dithering/Image/index.html"
+    },
+    {
+      "source": "/de/Dithering/Video",
+      "destination": "/de/Dithering/Video/index.html"
+    },
+    {
+      "source": "/de/Algorithms",
+      "destination": "/de/Algorithms/index.html"
+    },
+
+    {
+      "source": "/zh/Dithering/Image",
+      "destination": "/zh/Dithering/Image/index.html"
+    },
+    {
+      "source": "/zh/Dithering/Video",
+      "destination": "/zh/Dithering/Video/index.html"
+    },
+    {
+      "source": "/zh/Algorithms",
+      "destination": "/zh/Algorithms/index.html"
+    },
+
+    {
+      "source": "/ru/Dithering/Image",
+      "destination": "/ru/Dithering/Image/index.html"
+    },
+    {
+      "source": "/ru/Dithering/Video",
+      "destination": "/ru/Dithering/Video/index.html"
+    },
+    {
+      "source": "/ru/Algorithms",
+      "destination": "/ru/Algorithms/index.html"
+    },
+
+    {
+      "source": "/hi/Dithering/Image",
+      "destination": "/hi/Dithering/Image/index.html"
+    },
+    {
+      "source": "/hi/Dithering/Video",
+      "destination": "/hi/Dithering/Video/index.html"
+    },
+    {
+      "source": "/hi/Algorithms",
+      "destination": "/hi/Algorithms/index.html"
     },
     {
       "source": "/(.*)",

@@ -1,5 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getPathLang, normalizeLang, replaceLangPrefix, withLangPrefix } from '../../utils/localePath';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -14,11 +16,30 @@ const languages = [
 const LanguageSwitcher: React.FC = () => {
   const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+  const activeLang = normalizeLang(i18n.resolvedLanguage || i18n.language);
+  const currentLanguage = languages.find(lang => lang.code === activeLang) || languages[0];
 
   const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+    const normalizedLng = normalizeLang(lng);
+    const pathLang = getPathLang(location.pathname);
+
+    const nextPathname = pathLang
+      ? replaceLangPrefix(location.pathname, normalizedLng)
+      : withLangPrefix(location.pathname || '/', normalizedLng);
+
+    navigate(
+      {
+        pathname: nextPathname,
+        search: location.search,
+        hash: location.hash,
+      },
+      { replace: true }
+    );
+
+    i18n.changeLanguage(normalizedLng);
     setIsOpen(false);
   };
 
@@ -53,14 +74,14 @@ const LanguageSwitcher: React.FC = () => {
                 key={lang.code}
                 onClick={() => changeLanguage(lang.code)}
                 className={`flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                  i18n.language === lang.code
+                  activeLang === lang.code
                     ? 'bg-blue-600/20 text-blue-400'
                     : 'text-gray-300 hover:bg-neutral-800/60 hover:text-gray-100'
                 }`}
               >
                 <span className="text-base">{lang.flag}</span>
                 <span>{lang.name}</span>
-                {i18n.language === lang.code && (
+                {activeLang === lang.code && (
                   <svg className="ml-auto h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"

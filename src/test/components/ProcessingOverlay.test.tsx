@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import React from 'react';
 import ProcessingOverlay from '../../components/ui/ProcessingOverlay';
 
@@ -35,12 +35,14 @@ describe('ProcessingOverlay', () => {
   describe('Operation Label', () => {
     it('should display default operation text', () => {
       render(<ProcessingOverlay isProcessing={true} />);
-      expect(screen.getByText(/Processing/)).toBeInTheDocument();
+      const dialog = screen.getByRole('dialog', { name: 'Processing' });
+      expect(within(dialog).getByText(/^Processing$/)).toBeInTheDocument();
     });
 
     it('should display custom operation text', () => {
       render(<ProcessingOverlay isProcessing={true} operation="Uploading image" />);
-      expect(screen.getByText(/Uploading image/)).toBeInTheDocument();
+      const dialog = screen.getByRole('dialog', { name: 'Processing' });
+      expect(within(dialog).getByText(/^Uploading image$/)).toBeInTheDocument();
     });
   });
 

@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl } from "../utils/seo";
+import { normalizeLang, withLangPrefix } from "../utils/localePath";
 
 const Home: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const activeLang = normalizeLang(i18n.language);
   
   return (
     <>
@@ -40,10 +42,10 @@ const Home: React.FC = () => {
                 <p className="mt-3 text-center text-[10px] tracking-wide text-gray-500">{t('hero.liveGenerated')}</p>
               </div>
               <div className="flex flex-col items-center gap-4 text-[11px] sm:text-xs md:text-[13px]">
-                <Link to="/Dithering/Image" className="clean-btn clean-btn-primary text-base px-8 py-3">
+                <Link to={withLangPrefix('/Dithering/Image', activeLang)} className="clean-btn clean-btn-primary text-base px-8 py-3">
                   {t('hero.cta')}
                 </Link>
-                <Link to="/Algorithms" className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
+                <Link to={withLangPrefix('/Algorithms', activeLang)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
                   {t('hero.algorithmReference')}
                 </Link>
               </div>
@@ -139,7 +141,7 @@ const Home: React.FC = () => {
                       {group.items.map((a) => (
                         <Link
                           key={a.id}
-                          to={`/Algorithms?algo=${a.id}`}
+                          to={`${withLangPrefix('/Algorithms', activeLang)}?algo=${a.id}`}
                           className="group relative min-w-[140px] overflow-hidden rounded-md border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-center text-[10px] text-gray-300/85 transition will-change-transform hover:-translate-y-0.5 hover:border-blue-600/70 hover:bg-neutral-800/50 hover:text-gray-100 focus-visible:shadow-[var(--focus-ring)] sm:text-[11px] md:text-[12px]"
                           title={`View ${a.name} details`}
                         >
@@ -190,14 +192,14 @@ const Home: React.FC = () => {
         </div>
         <footer className="mt-auto flex flex-col gap-10 border-t border-neutral-900 pt-10 pb-12">
           <div className="flex flex-col items-center gap-5">
-            <Link to="/Dithering/Image" className="clean-btn clean-btn-primary">
+            <Link to={withLangPrefix('/Dithering/Image', activeLang)} className="clean-btn clean-btn-primary">
               {t('footer.cta')}
             </Link>
             <p className="text-[10px] tracking-wide text-gray-600">{t('footer.tagline')}</p>
           </div>
           <div className="flex flex-col items-center gap-4 text-[10px] text-gray-500 sm:text-[11px] md:text-xs">
             <nav className="flex flex-wrap justify-center gap-6">
-              <Link to="/Algorithms" className="transition-colors hover:text-gray-300">
+              <Link to={withLangPrefix('/Algorithms', activeLang)} className="transition-colors hover:text-gray-300">
                 {t('footer.algorithms')}
               </Link>
               <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">

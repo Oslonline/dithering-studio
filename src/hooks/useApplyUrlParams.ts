@@ -76,8 +76,15 @@ export function useApplyUrlParams(p: Params) {
     }
     const mode = params.get('mode');
     if (mode === 'video' && setVideoMode) setVideoMode(true);
-  try {
-      const clean = window.location.pathname + window.location.hash;
+
+    // Clean up tool-specific params but preserve SEO/navigation params like `lang`.
+    try {
+      const keep = new URLSearchParams();
+      const lang = params.get('lang');
+      if (lang) keep.set('lang', lang);
+
+      const qs = keep.toString();
+      const clean = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
       window.history.replaceState({}, '', clean || '/');
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
