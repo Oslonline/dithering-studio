@@ -4,7 +4,7 @@ import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG, exportAtOriginalResolution, exportVideoFrameAtOriginalResolution } from "../utils/export";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { generateHreflangTags } from "../utils/seo";
+import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl } from "../utils/seo";
 import ImageUploader from "../components/uploaders/ImageUploader";
 import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
@@ -703,13 +703,15 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   return (
     <>
       <Helmet>
+        <html lang={i18n.language} />
         <title>{videoMode ? t('tool.seo.videoTitle') : t('tool.seo.imageTitle')}</title>
         <meta
           name="description"
           content={videoMode ? t('tool.seo.videoDescription') : t('tool.seo.imageDescription')}
         />
+        <meta property="og:url" content={getOgUrl(videoMode ? '/Dithering/Video' : '/Dithering/Image', i18n.language)} />
         <meta property="og:locale" content={i18n.language} />
-        <link rel="canonical" href={videoMode ? "https://ditheringstudio.com/Dithering/Video" : "https://ditheringstudio.com/Dithering/Image"} />
+        <link rel="canonical" href={getCanonicalUrlWithLang(videoMode ? '/Dithering/Video' : '/Dithering/Image', i18n.language)} />
         {generateHreflangTags(videoMode ? '/Dithering/Video' : '/Dithering/Image')}
         <script type="application/ld+json">
           {`

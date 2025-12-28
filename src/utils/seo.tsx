@@ -2,6 +2,13 @@ const SITE_URL = 'https://ditheringstudio.com';
 
 export const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'] as const;
 
+const withLanguageParam = (pathname: string, lang?: string): string => {
+  if (lang && lang !== 'en') {
+    return `${SITE_URL}${pathname}?lang=${lang}`;
+  }
+  return `${SITE_URL}${pathname}`;
+};
+
 /**
  * Generate hreflang link elements for a given page path
  * @param pathname - Current page path (e.g., '/', '/Dithering/Image', '/Algorithms')
@@ -13,7 +20,7 @@ export const generateHreflangTags = (pathname: string) => {
       key={`hreflang-${lang}`}
       rel="alternate"
       hrefLang={lang}
-      href={`${SITE_URL}${pathname}?lang=${lang}`}
+      href={withLanguageParam(pathname, lang)}
     />
   ));
 
@@ -23,7 +30,7 @@ export const generateHreflangTags = (pathname: string) => {
       key="hreflang-default"
       rel="alternate"
       hrefLang="x-default"
-      href={`${SITE_URL}${pathname}`}
+      href={withLanguageParam(pathname)}
     />
   );
 
@@ -36,7 +43,17 @@ export const generateHreflangTags = (pathname: string) => {
  * @returns Canonical URL
  */
 export const getCanonicalUrl = (pathname: string): string => {
-  return `${SITE_URL}${pathname}`;
+  return withLanguageParam(pathname);
+};
+
+/**
+ * Generate canonical URL with language parameter (if non-English)
+ * @param pathname - Current page path
+ * @param lang - Current language
+ * @returns Canonical URL
+ */
+export const getCanonicalUrlWithLang = (pathname: string, lang?: string): string => {
+  return withLanguageParam(pathname, lang);
 };
 
 /**
@@ -46,8 +63,5 @@ export const getCanonicalUrl = (pathname: string): string => {
  * @returns OG URL with language
  */
 export const getOgUrl = (pathname: string, lang?: string): string => {
-  if (lang && lang !== 'en') {
-    return `${SITE_URL}${pathname}?lang=${lang}`;
-  }
-  return `${SITE_URL}${pathname}`;
+  return withLanguageParam(pathname, lang);
 };

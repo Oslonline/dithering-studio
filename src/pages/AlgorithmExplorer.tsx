@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { getTranslatedAlgorithmDetails } from "../utils/algorithmInfoTranslated";
 import { findAlgorithm } from "../utils/algorithms";
-import { generateHreflangTags } from "../utils/seo";
+import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl } from "../utils/seo";
 import Header from "../components/ui/Header";
 let importedSample: string | undefined;
 try {
@@ -168,10 +168,12 @@ const AlgorithmExplorer: React.FC = () => {
   return (
     <>
       <Helmet>
+        <html lang={i18n.language} />
         <title>{t('explorer.seo.title')}</title>
         <meta name="description" content={t('explorer.seo.description')} />
+        <meta property="og:url" content={getOgUrl('/Algorithms', i18n.language)} />
         <meta property="og:locale" content={i18n.language} />
-        <link rel="canonical" href="https://ditheringstudio.com/Algorithms" />
+        <link rel="canonical" href={getCanonicalUrlWithLang('/Algorithms', i18n.language)} />
         {generateHreflangTags('/Algorithms')}
       </Helmet>
       <div className="flex h-screen w-full flex-col overflow-hidden">

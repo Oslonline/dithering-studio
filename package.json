@@ -7,7 +7,7 @@
   "homepage": "https://ditheringstudio.com/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/prerender.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
@@ -46,6 +46,7 @@
     "jsdom": "^27.0.1",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
+    "puppeteer": "^24.15.0",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.11.0",

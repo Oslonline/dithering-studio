@@ -21,13 +21,14 @@
     <loc>https://ditheringstudio.com/Dithering/Image</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>
-  
-  <!-- Image Tool with Demo Example -->
-  <url>
-    <loc>https://ditheringstudio.com/Dithering/Image?demo=1</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/Dithering/Image"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/Dithering/Image?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/Dithering/Image?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/Dithering/Image?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/Dithering/Image?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/Dithering/Image?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/Dithering/Image?lang=hi"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/Dithering/Image"/>
   </url>
   
   <!-- Video Dithering Tool -->
@@ -35,43 +36,28 @@
     <loc>https://ditheringstudio.com/Dithering/Video</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/Dithering/Video"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/Dithering/Video?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/Dithering/Video?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/Dithering/Video?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/Dithering/Video?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/Dithering/Video?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/Dithering/Video?lang=hi"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/Dithering/Video"/>
   </url>
   
-  <!-- Algorithm Explorer with default algorithm -->
+  <!-- Algorithm Explorer -->
   <url>
-    <loc>https://ditheringstudio.com/Algorithms?algo=1</loc>
+    <loc>https://ditheringstudio.com/Algorithms</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>
-  
-  <!-- Popular Algorithm Examples -->
-  <url>
-    <loc>https://ditheringstudio.com/Algorithms?algo=19</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://ditheringstudio.com/Algorithms?algo=3</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://ditheringstudio.com/Algorithms?algo=2</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://ditheringstudio.com/Algorithms?algo=21</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://ditheringstudio.com/Algorithms?algo=26</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/Algorithms?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/Algorithms?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/Algorithms?lang=de"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/Algorithms?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/Algorithms?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/Algorithms?lang=hi"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/Algorithms"/>
   </url>
 </urlset>

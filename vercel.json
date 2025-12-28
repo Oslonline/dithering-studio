@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/Dithering/Image",
+      "destination": "/Dithering/Image/index.html"
+    },
+    {
+      "source": "/Dithering/Video",
+      "destination": "/Dithering/Video/index.html"
+    },
+    {
+      "source": "/Algorithms",
+      "destination": "/Algorithms/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
