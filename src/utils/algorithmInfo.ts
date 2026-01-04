@@ -59,6 +59,37 @@ export const algorithmDetails: AlgorithmDetail[] = [
   ,{ id: 30, name: "Stipple", category: "Other", overview: "Density-based dot placement creating stippling/engraving effects. Darker areas receive more dots. Threshold controls dot density.", characteristics: ["Dot-based", "Density variation", "Drawing-like"], artifacts: ["Grainy texture", "Sparse in bright areas"], bestFor: ["Engraving effects", "Artistic illustrations", "Pen & ink style"], complexity: "O(N)", year: 2025, origin: "Artistic", deterministic: false, errorConserving: false, neighborhood: "Independent dots" }
 ];
 
-export const getAlgorithmDetail = (id: number) => algorithmDetails.find(a => a.id === id);
 import { algorithms } from './algorithms';
-export function getOrderedAlgorithmDetails() { const map = new Map<number, number>(algorithms.map((a, i) => [a.id, i])); return [...algorithmDetails].sort((a, b) => (map.get(a.id) ?? 999) - (map.get(b.id) ?? 999)); }
+
+/**
+ * Returns algorithm details in the same order as the runtime algorithm registry.
+ * This keeps the Education/Explorer UI aligned with the actual implementation.
+ */
+export function getOrderedAlgorithmDetails(): AlgorithmDetail[] {
+  const byId = new Map<number, AlgorithmDetail>(algorithmDetails.map((d) => [d.id, d]));
+
+  return algorithms.map((meta) => {
+    const existing = byId.get(meta.id);
+    if (existing) {
+      // Ensure name/category stay consistent with the registry.
+      if (existing.name !== meta.name || existing.category !== meta.category) {
+        return { ...existing, name: meta.name, category: meta.category };
+      }
+      return existing;
+    }
+
+    // Fallback: registry algorithm exists but has no long-form info entry yet.
+    return {
+      id: meta.id,
+      name: meta.name,
+      category: meta.category,
+      overview: "",
+      characteristics: [],
+      artifacts: [],
+      bestFor: [],
+      complexity: "O(N)",
+    };
+  });
+}
+
+export const getAlgorithmDetail = (id: number) => getOrderedAlgorithmDetails().find((a) => a.id === id);

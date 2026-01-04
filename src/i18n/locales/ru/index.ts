@@ -4,10 +4,12 @@ import tool from './tool';
 import explorer from './explorer';
 import common from './common';
 import algoData from './algoData';
+import education from './education';
 
 const ru = {
   ...layout,
   ...homepage,
+  ...education,
   tool,
   explorer,
   ...common,

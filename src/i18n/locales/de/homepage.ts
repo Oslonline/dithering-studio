@@ -3,8 +3,23 @@ const homepage = {
     title: 'Multi-Algorithmus Bild- und Video-Dithering',
     subtitle: 'Bild oder Video hochladen → Algorithmus wählen → Einstellungen anpassen → Sofort exportieren. 100% clientseitige Verarbeitung, völlig kostenlos.',
     cta: 'Dithering starten',
+    learnDithering: 'Dithering lernen',
     algorithmReference: 'Algorithmus-Referenz ansehen',
     liveGenerated: 'Live generiert • Kein Konto • Dateien verlassen nie Ihren Browser',
+  },
+  home: {
+    education: {
+      title: 'Dithering lernen',
+      subtitle: 'Geschichte, Grundlagen und Unterschiede zwischen Algorithmen.',
+      cta1: 'Lernseite lesen',
+      cta2: 'Tool öffnen',
+    },
+    algorithmCategory: {
+      errordiffusion: 'Fehlerdiffusion',
+      ordered: 'Geordnet',
+      other: 'Andere',
+    },
+    algorithmTileTitle: 'Details zu {{name}} ansehen',
   },
   features: {
     title: 'Kernfunktionen',

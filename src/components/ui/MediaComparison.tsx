@@ -85,9 +85,8 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
       
       const canvas = document.createElement('canvas');
       canvas.className = 'w-full h-full block pixelated';
-      canvas.style.width = width || 'auto';
-      canvas.style.height = height || 'auto';
-      canvas.style.objectFit = 'contain';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
       
       canvas.width = beforeVideo.videoWidth || 640;
       canvas.height = beforeVideo.videoHeight || 480;
@@ -127,41 +126,36 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`relative select-none overflow-hidden ${className}`}
+      className={`relative h-full w-full select-none overflow-hidden ${className}`}
       onMouseDown={handleContainerMouseDown}
       style={{ 
         touchAction: 'none',
-        width: width || 'auto',
-        height: height || 'auto',
-        pointerEvents: 'auto'
+        pointerEvents: 'auto',
+        ...(width ? { width } : null),
+        ...(height ? { height } : null)
       }}
     >
       {/* Before image/video (clipped by slider) - shows original media */}
       {/* The processed image is the canvas underneath, which shows through where this doesn't cover */}
       <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+        className="absolute inset-0 overflow-hidden bg-neutral-950"
+        style={{
+          clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)`,
+          WebkitClipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)`,
+        }}
       >
         {beforeImage && (
           <img
             src={beforeImage}
             alt={beforeLabelText}
-            className="w-full h-full block pixelated object-contain"
+            className="block h-full w-full pixelated object-fill"
             draggable={false}
-            style={{
-              width: width || 'auto',
-              height: height || 'auto'
-            }}
           />
         )}
         {beforeVideo && (
           <div
             ref={videoContainerRef}
             className="w-full h-full"
-            style={{
-              width: width || 'auto',
-              height: height || 'auto'
-            }}
           />
         )}
         <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white border border-white/20 pointer-events-none">
@@ -176,7 +170,7 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
 
       {/* Slider */}
       <div
-        className="absolute inset-y-0 w-1 bg-white cursor-ew-resize z-10"
+        className="absolute inset-y-0 w-1 bg-white cursor-ew-resize z-10 shadow-md ring-1 ring-black/40"
         style={{ left: `${sliderPosition}%` }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -204,7 +198,7 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
         }}
       >
         {/* Slider handle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-10">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg ring-1 ring-black/40 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-10">
           <svg
             width="20"
             height="20"

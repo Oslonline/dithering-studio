@@ -3,8 +3,23 @@ const homepage = {
     title: 'Tramage Multi-Algorithmes pour Images & Vidéos',
     subtitle: 'Déposez une image ou vidéo → choisissez un algorithme → ajustez les paramètres → exportez instantanément. 100% côté client et gratuit.',
     cta: 'Commencer le Tramage',
+    learnDithering: 'Apprendre le dithering',
     algorithmReference: 'Voir la référence des algorithmes',
     liveGenerated: 'Généré en direct • Sans compte • Aucun fichier ne quitte votre navigateur',
+  },
+  home: {
+    education: {
+      title: 'Apprendre le dithering',
+      subtitle: 'Histoire, notions clés et différences entre algorithmes.',
+      cta1: "Lire l'Éducation",
+      cta2: "Ouvrir l'outil",
+    },
+    algorithmCategory: {
+      errordiffusion: "Diffusion d'erreur",
+      ordered: 'Ordonné',
+      other: 'Autre',
+    },
+    algorithmTileTitle: 'Voir les détails de {{name}}',
   },
   features: {
     title: 'Fonctionnalités Principales',

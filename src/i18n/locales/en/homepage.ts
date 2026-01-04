@@ -3,8 +3,23 @@ const homepage = {
     title: 'Multi-Algorithm Image & Video Dithering',
     subtitle: 'Drop an image or video → pick an algorithm → adjust settings → export instantly. 100% client-side & free.',
     cta: 'Start Dithering',
+    learnDithering: 'Learn dithering',
     algorithmReference: 'View algorithm reference',
     liveGenerated: 'Generated live • No account • No uploads leave your browser',
+  },
+  home: {
+    education: {
+      title: 'Learn dithering',
+      subtitle: 'History, key ideas, and how the algorithms differ.',
+      cta1: 'Read Education',
+      cta2: 'Open the tool',
+    },
+    algorithmCategory: {
+      errordiffusion: 'Error Diffusion',
+      ordered: 'Ordered',
+      other: 'Other',
+    },
+    algorithmTileTitle: 'View {{name}} details',
   },
   features: {
     title: 'Core Features',

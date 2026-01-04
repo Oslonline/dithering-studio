@@ -8,6 +8,7 @@ const tool = {
   switchToImageMode: '切换到图像模式',
   switchToVideoMode: '切换到视频模式',
   algorithmReference: '算法参考',
+  educationNav: '教程',
   changeVideo: '更换视频',
   changeImage: '更换图片',
   reset: '重置',

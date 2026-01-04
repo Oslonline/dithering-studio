@@ -1,13 +1,13 @@
 const layout = {
   header: {
     home: 'Startseite',
-    algorithms: 'Algorithmen',
+    algorithms: 'Lernen',
     github: 'GitHub',
   },
   footer: {
     cta: 'Dithering starten',
     tagline: 'Schnell • Lokal • Offen',
-    algorithms: 'Algorithmen',
+    algorithms: 'Lernen',
     github: 'GitHub',
     license: 'Lizenz',
     by: 'von',

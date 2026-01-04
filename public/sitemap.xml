@@ -45,19 +45,64 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Dithering/Video"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Dithering/Video"/>
   </url>
+
+  <!-- Education -->
+  <url>
+    <loc>https://ditheringstudio.com/en/Education</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education"/>
+  </url>
+
+  <!-- Education Basics -->
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Basics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Basics"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Basics"/>
+  </url>
+
+  <!-- Education Practice -->
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Practice</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Practice"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Practice"/>
+  </url>
   
   <!-- Algorithm Explorer -->
   <url>
-    <loc>https://ditheringstudio.com/en/Algorithms</loc>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Algorithms"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms"/>
   </url>
 </urlset>

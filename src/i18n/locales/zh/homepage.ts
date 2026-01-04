@@ -3,8 +3,23 @@ const homepage = {
     title: '多算法图像和视频抖动处理',
     subtitle: '上传图片或视频 → 选择算法 → 调整设置 → 立即导出。100% 客户端处理，完全免费。',
     cta: '开始抖动处理',
+    learnDithering: '了解抖动',
     algorithmReference: '查看算法参考',
     liveGenerated: '实时生成 • 无需账号 • 文件不会离开您的浏览器',
+  },
+  home: {
+    education: {
+      title: '了解抖动',
+      subtitle: '历史、关键概念，以及算法之间的差异。',
+      cta1: '阅读教程',
+      cta2: '打开工具',
+    },
+    algorithmCategory: {
+      errordiffusion: '误差扩散',
+      ordered: '有序',
+      other: '其他',
+    },
+    algorithmTileTitle: '查看 {{name}} 详情',
   },
   features: {
     title: '核心功能',

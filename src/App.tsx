@@ -9,6 +9,9 @@ import { useSyncLanguageWithPath } from "./hooks/useSyncLanguageWithPath";
 const Home = lazy(() => import("./pages/Home"));
 const DitheringTool = lazy(() => import("./pages/DitheringTool"));
 const AlgorithmExplorer = lazy(() => import("./pages/AlgorithmExplorer"));
+const Education = lazy(() => import("./pages/Education"));
+const EducationBasics = lazy(() => import("./pages/education/EducationBasics"));
+const EducationPractice = lazy(() => import("./pages/education/EducationPractice"));
 
 const LanguagePathSync: React.FC = () => {
   useSyncLanguageWithPath();
@@ -49,12 +52,16 @@ const App: React.FC = () => {
                 <Route path="Dithering" element={<Navigate to="Dithering/Image" replace />} />
                 <Route path="Dithering/Image" element={<DitheringTool initialMode="image" />} />
                 <Route path="Dithering/Video" element={<DitheringTool initialMode="video" />} />
-                <Route path="Algorithms" element={<AlgorithmExplorer />} />
+                <Route path="Education" element={<Education />} />
+                <Route path="Education/Basics" element={<EducationBasics />} />
+                <Route path="Education/Practice" element={<EducationPractice />} />
+                <Route path="Education/Algorithms" element={<AlgorithmExplorer />} />
+                <Route path="Algorithms" element={<Navigate to="Education" replace />} />
               </Route>
 
               {/* Legacy (no-locale) entry points */}
               <Route path="/" element={<LegacyRedirect to="/en/" />} />
-              <Route path="/Algorithms" element={<LegacyRedirect to="/en/Algorithms" />} />
+              <Route path="/Algorithms" element={<LegacyRedirect to="/en/Education" />} />
               <Route path="/Dithering" element={<LegacyRedirect to="/en/Dithering/Image" />} />
               <Route path="/Dithering/Image" element={<LegacyRedirect to="/en/Dithering/Image" />} />
               <Route path="/Dithering/Video" element={<LegacyRedirect to="/en/Dithering/Video" />} />

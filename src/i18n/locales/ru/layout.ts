@@ -1,13 +1,13 @@
 const layout = {
   header: {
     home: 'Главная',
-    algorithms: 'Алгоритмы',
+    algorithms: 'Обучение',
     github: 'GitHub',
   },
   footer: {
     cta: 'Начать дизеринг',
     tagline: 'Быстро • Локально • Открыто',
-    algorithms: 'Алгоритмы',
+    algorithms: 'Обучение',
     github: 'GitHub',
     license: 'Лицензия',
     by: 'От',

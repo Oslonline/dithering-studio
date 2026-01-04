@@ -2,18 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate } from "react-router-dom";
-import { algorithmDetails, AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
+import { AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { getTranslatedAlgorithmDetails } from "../utils/algorithmInfoTranslated";
 import { findAlgorithm } from "../utils/algorithms";
 import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
 import Header from "../components/ui/Header";
-let importedSample: string | undefined;
-try {
-  // @ts-ignore - optional asset
-  importedSample = (await import("../assets/base-sample.webp")).default as string;
-} catch {}
-
-const SAMPLE_IMAGE_SRC = importedSample || "/base-sample.webp";
+import SAMPLE_IMAGE_SRC from "../assets/base-sample.webp";
 const WORKING_WIDTH = 256;
 const THRESHOLD = 128;
 
@@ -50,7 +44,7 @@ const AlgorithmExplorer: React.FC = () => {
   const initialParam = parseInt(searchParams.get("algo") || "", 10);
   const initial = orderedDetails.some((a) => a.id === initialParam) ? initialParam : (orderedDetails[0]?.id ?? 1);
   const [activeId, setActiveId] = useState<number>(initial);
-  // Keep URL in sync when activeId changes (replace to avoid history spam)
+  // Keep the URL in sync with the selected algorithm (replace to avoid adding a history entry per click)
   useEffect(() => {
     if (!initialHadAlgoParamRef.current && !userInteractedRef.current) return;
     const sp = new URLSearchParams(location.search);
@@ -66,6 +60,7 @@ const AlgorithmExplorer: React.FC = () => {
   const active = translatedDetails.find((a) => a.id === activeId) || translatedDetails[0] || orderedDetails[0];
   
   const baseImgRef = useRef<HTMLImageElement | null>(null);
+  const baseWorkRef = useRef<{ width: number; height: number; srcData: Uint8ClampedArray } | null>(null);
   const [baseLoaded, setBaseLoaded] = useState(false);
   const [examples, setExamples] = useState<Record<number, ExampleSet>>({});
   const [basePreview, setBasePreview] = useState<string | null>(null);
@@ -129,7 +124,12 @@ const AlgorithmExplorer: React.FC = () => {
     if (!ctx) return;
     ctx.drawImage(img, 0, 0, w, h);
     const baseImageData = ctx.getImageData(0, 0, w, h);
-    const srcData = baseImageData.data;
+    baseWorkRef.current = {
+      width: w,
+      height: h,
+      // Copy because algorithms may mutate srcData in-place.
+      srcData: new Uint8ClampedArray(baseImageData.data),
+    };
 
     const baseCanvas = document.createElement("canvas");
     baseCanvas.width = w;
@@ -140,36 +140,76 @@ const AlgorithmExplorer: React.FC = () => {
       setBasePreview(baseCanvas.toDataURL("image/webp"));
     }
 
-    const makeImageFromData = (data: Uint8ClampedArray, w: number, h: number) => {
+    // Reset examples when the base sample changes.
+    setExamples({});
+  }, [baseLoaded]);
+
+  // Generate only the active algorithm preview (lazy + cached) to keep navigation fast.
+  useEffect(() => {
+    if (!baseLoaded) return;
+    if (!active?.id) return;
+    if (examples[active.id]?.dithered || examples[active.id]?.error) return;
+    if (!baseWorkRef.current) return;
+
+    let cancelled = false;
+    const { width, height, srcData } = baseWorkRef.current;
+
+    const makeImageFromData = (data: Uint8ClampedArray) => {
       const c = document.createElement("canvas");
-      c.width = w;
-      c.height = h;
+      c.width = width;
+      c.height = height;
       const cctx = c.getContext("2d");
       if (!cctx) return "";
-      const id = new ImageData(new Uint8ClampedArray(data), w, h);
+      const id = new ImageData(new Uint8ClampedArray(data), width, height);
       cctx.putImageData(id, 0, 0);
       return c.toDataURL("image/webp");
     };
 
-    const processAlgo = (patternId: number, threshold: number): string => {
-      const algo = findAlgorithm(patternId);
-      if (!algo) return makeImageFromData(srcData, w, h);
-      const out = algo.run({ srcData, width: w, height: h, params: { pattern: patternId, threshold, invert: false, serpentine: true, isErrorDiffusion: true } as any });
-      if (out instanceof ImageData) return makeImageFromData(out.data, w, h);
-      return makeImageFromData(out, w, h);
+    const run = () => {
+      try {
+        const algo = findAlgorithm(active.id);
+        if (!algo) {
+          const fallback = makeImageFromData(srcData);
+          if (!cancelled) setExamples((prev) => ({ ...prev, [active.id]: { dithered: fallback } }));
+          return;
+        }
+
+        const workingSrc = new Uint8ClampedArray(srcData);
+        const out = algo.run({
+          srcData: workingSrc,
+          width,
+          height,
+          params: {
+            pattern: active.id,
+            threshold: THRESHOLD,
+            invert: false,
+            serpentine: true,
+            isErrorDiffusion: true,
+          } as any,
+        });
+
+        const url = out instanceof ImageData ? makeImageFromData(out.data) : makeImageFromData(out);
+        if (!cancelled) setExamples((prev) => ({ ...prev, [active.id]: { dithered: url } }));
+      } catch {
+        if (!cancelled) setExamples((prev) => ({ ...prev, [active.id]: { error: true } }));
+      }
     };
 
-    const newExamples: Record<number, ExampleSet> = {};
-    for (const a of algorithmDetails) {
-      try {
-        const dithered = processAlgo(a.id, THRESHOLD);
-        newExamples[a.id] = { dithered };
-      } catch (e) {
-        newExamples[a.id] = { error: true } as ExampleSet;
-      }
+    // Defer heavy work to idle time when possible.
+    const ric = (window as any).requestIdleCallback as undefined | ((cb: () => void) => number);
+    const cancelRic = (window as any).cancelIdleCallback as undefined | ((id: number) => void);
+    let idleId: number | null = null;
+    if (ric) {
+      idleId = ric(run);
+    } else {
+      setTimeout(run, 0);
     }
-    setExamples(newExamples);
-  }, [baseLoaded]);
+
+    return () => {
+      cancelled = true;
+      if (idleId != null && cancelRic) cancelRic(idleId);
+    };
+  }, [baseLoaded, active?.id, examples]);
   return (
     <>
       <Helmet>
@@ -180,15 +220,15 @@ const AlgorithmExplorer: React.FC = () => {
         <meta property="og:title" content={t('explorer.seo.title')} />
         <meta property="og:description" content={t('explorer.seo.description')} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={getOgUrl('/Algorithms', i18n.language)} />
+        <meta property="og:url" content={getOgUrl('/Education/Algorithms', i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
         <meta property="og:locale" content={i18n.language} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={t('explorer.seo.title')} />
         <meta name="twitter:description" content={t('explorer.seo.description')} />
         <meta name="twitter:image" content={getSocialImageUrl()} />
-        <link rel="canonical" href={getCanonicalUrlWithLang('/Algorithms', i18n.language)} />
-        {generateHreflangTags('/Algorithms')}
+        <link rel="canonical" href={getCanonicalUrlWithLang('/Education/Algorithms', i18n.language)} />
+        {generateHreflangTags('/Education/Algorithms')}
       </Helmet>
       <div className="flex h-screen w-full flex-col overflow-hidden">
       <Header page="explorer" />
@@ -296,7 +336,6 @@ const AlgorithmExplorer: React.FC = () => {
                   </div>
                 )}
               </div>
-              {/* Spectral density section removed per request */}
             </section>
             {(active.kernel || active.orderedMatrixSize || active.implementationNotes) && (
               <section className="mb-8">

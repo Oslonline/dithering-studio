@@ -5,26 +5,40 @@ import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
 import { normalizeLang, withLangPrefix } from "../utils/localePath";
+import { algorithms } from "../utils/algorithms";
 
 const Home: React.FC = () => {
   const { t, i18n } = useTranslation();
   const activeLang = normalizeLang(i18n.language);
+
+  const algorithmGroups = React.useMemo(() => {
+    const byCategory = new Map<string, { category: string; items: { id: number; name: string }[] }>();
+    const order: string[] = [];
+    for (const algo of algorithms) {
+      if (!byCategory.has(algo.category)) {
+        byCategory.set(algo.category, { category: algo.category, items: [] });
+        order.push(algo.category);
+      }
+      byCategory.get(algo.category)!.items.push({ id: algo.id, name: algo.name });
+    }
+    return order.map((c) => byCategory.get(c)!).filter(Boolean);
+  }, []);
   
   return (
     <>
       <Helmet>
         <html lang={i18n.language} />
-        <title>Free Online Image & Video Dithering Tool | Floyd Steinberg & More</title>
-        <meta name="description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art from images or apply 8-bit effects to videos. Fast, privacy-friendly, fully client-side – no uploads or account required." />
+        <title>Free Online Image & Video Dithering Tool | Floyd–Steinberg, Bayer (Ordered) & More</title>
+        <meta name="description" content="Dither images and videos online for free using error diffusion (Floyd–Steinberg, Atkinson) and ordered dithering (Bayer matrix, blue noise). Create retro pixel art and reduce gradient banding. Fast, privacy-friendly, fully client-side – no uploads or account required." />
         <meta property="og:title" content="Free Online Image & Video Dithering Tool" />
-        <meta property="og:description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art or apply 8-bit effects to videos." />
+        <meta property="og:description" content="Dither images and videos online for free using Floyd–Steinberg, Bayer ordered dithering, Atkinson, and more. Create retro pixel art and reduce gradient banding." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl('/', i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
         <meta property="og:locale" content={i18n.language} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Free Online Image & Video Dithering Tool" />
-        <meta name="twitter:description" content="Dither images and videos online for free using Floyd Steinberg, Bayer, Atkinson, and more. Create retro pixel art or apply 8-bit effects to videos." />
+        <meta name="twitter:description" content="Dither images and videos online for free using Floyd–Steinberg, Bayer ordered dithering, Atkinson, and more. Create retro pixel art and reduce gradient banding." />
         <meta name="twitter:image" content={getSocialImageUrl()} />
         <link rel="canonical" href={getCanonicalUrlWithLang('/', i18n.language)} />
         {generateHreflangTags('/')}
@@ -47,9 +61,14 @@ const Home: React.FC = () => {
                 <Link to={withLangPrefix('/Dithering/Image', activeLang)} className="clean-btn clean-btn-primary text-base px-8 py-3">
                   {t('hero.cta')}
                 </Link>
-                <Link to={withLangPrefix('/Algorithms', activeLang)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
-                  {t('hero.algorithmReference')}
-                </Link>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <Link to={withLangPrefix('/Education', activeLang)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
+                    {t('hero.learnDithering')}
+                  </Link>
+                  <Link to={withLangPrefix('/Education/Algorithms', activeLang)} className="text-xs text-gray-500 hover:text-gray-300 transition-colors underline decoration-gray-700 hover:decoration-gray-500">
+                    {t('hero.algorithmReference')}
+                  </Link>
+                </div>
               </div>
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
@@ -79,6 +98,27 @@ const Home: React.FC = () => {
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
 
+            {/* EDUCATION INTRO */}
+            <section className="w-full max-w-5xl space-y-8">
+              <div className="space-y-2 text-center">
+                <h2 className="font-anton text-xl tracking-tight sm:text-2xl">
+                  {t('home.education.title')}
+                </h2>
+                <p className="mx-auto max-w-2xl text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">
+                  {t('home.education.subtitle')}
+                </p>
+              </div>
+              <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                <Link to={withLangPrefix('/Education', activeLang)} className="clean-btn clean-btn-primary px-6 py-2 text-[11px]">
+                  {t('home.education.cta1')}
+                </Link>
+                <Link to={withLangPrefix('/Dithering/Image', activeLang)} className="clean-btn px-6 py-2 text-[11px]">
+                  {t('home.education.cta2')}
+                </Link>
+              </div>
+            </section>
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
+
             {/* HOW IT WORKS */}
             <section className="w-full max-w-5xl space-y-10">
               <h2 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('howItWorks.title')}</h2>
@@ -97,55 +137,18 @@ const Home: React.FC = () => {
               <h2 className="font-anton text-center text-xl tracking-tight sm:text-2xl">{t('algorithmExplorer.title')}</h2>
               <p className="mx-auto max-w-xl text-center text-[11px] leading-relaxed text-gray-500 sm:text-[12px] md:text-[13px]">{t('algorithmExplorer.subtitle')}</p>
               <div className="space-y-12">
-                {[
-                  {
-                    label: "Error Diffusion",
-                    items: [
-                      { id: 1, name: "Floyd–Steinberg" },
-                      { id: 21, name: "Adaptive FS 3×3" },
-                      { id: 22, name: "Adaptive FS 7×7" },
-                      { id: 3, name: "Atkinson" },
-                      { id: 5, name: "Stucki" },
-                      { id: 4, name: "Burkes" },
-                      { id: 6, name: "Sierra" },
-                      { id: 13, name: "Two‑Row Sierra" },
-                      { id: 12, name: "Sierra Lite" },
-                      { id: 7, name: "Jarvis–Judice–Ninke" },
-                      { id: 14, name: "Stevenson–Arce" },
-                      { id: 18, name: "Ostromoukhov" },
-                      { id: 19, name: "False Floyd–Steinberg" },
-                      { id: 27, name: "Riemersma" },
-                    ],
-                  },
-                  {
-                    label: "Ordered / Stochastic",
-                    items: [
-                      { id: 16, name: "Bayer 2×2" },
-                      { id: 2, name: "Bayer 4×4" },
-                      { id: 8, name: "Bayer 8×8" },
-                      { id: 20, name: "Bayer 16×16" },
-                      { id: 17, name: "Blue Noise 64×64" },
-                    ],
-                  },
-                  {
-                    label: "Other / Experimental",
-                    items: [
-                      { id: 9, name: "Halftone" },
-                      { id: 10, name: "Random Threshold" },
-                      { id: 11, name: "Dot Diffusion (Simple)" },
-                      { id: 15, name: "Binary Threshold" },
-                    ],
-                  },
-                ].map((group) => (
-                  <div key={group.label} className="space-y-4">
-                    <h4 className="text-center font-mono text-[10px] tracking-wide text-gray-400 uppercase">{t(`algorithmExplorer.${group.label.replace(/[^a-zA-Z]/g, '').toLowerCase()}`)}</h4>
+                {algorithmGroups.map((group) => (
+                  <div key={group.category} className="space-y-4">
+                    <h4 className="text-center font-mono text-[10px] tracking-wide text-gray-400 uppercase">
+                      {t(`home.algorithmCategory.${group.category.toLowerCase().replace(/\s+/g, '')}`, { defaultValue: group.category })}
+                    </h4>
                     <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
                       {group.items.map((a) => (
                         <Link
                           key={a.id}
-                          to={`${withLangPrefix('/Algorithms', activeLang)}?algo=${a.id}`}
+                          to={`${withLangPrefix('/Education/Algorithms', activeLang)}?algo=${a.id}`}
                           className="group relative min-w-[140px] overflow-hidden rounded-md border border-neutral-800 bg-neutral-900/40 px-3 py-2 text-center text-[10px] text-gray-300/85 transition will-change-transform hover:-translate-y-0.5 hover:border-blue-600/70 hover:bg-neutral-800/50 hover:text-gray-100 focus-visible:shadow-[var(--focus-ring)] sm:text-[11px] md:text-[12px]"
-                          title={`View ${a.name} details`}
+                          title={t('home.algorithmTileTitle', { name: a.name })}
                         >
                           <span className="relative z-10 truncate">{a.name}</span>
                           <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
@@ -201,7 +204,7 @@ const Home: React.FC = () => {
           </div>
           <div className="flex flex-col items-center gap-4 text-[10px] text-gray-500 sm:text-[11px] md:text-xs">
             <nav className="flex flex-wrap justify-center gap-6">
-              <Link to={withLangPrefix('/Algorithms', activeLang)} className="transition-colors hover:text-gray-300">
+              <Link to={withLangPrefix('/Education', activeLang)} className="transition-colors hover:text-gray-300">
                 {t('footer.algorithms')}
               </Link>
               <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">

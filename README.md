@@ -71,7 +71,7 @@ Other / Experimental
 
 - Binary Threshold • Halftone • Random Threshold • Dot Diffusion (Simple) • ASCII Mosaic
 
-Explore details and live examples in the app’s Algorithm Explorer: `/Algorithms` (deep‑link with `?algo=<id>`).
+Explore details and live examples in the app’s Algorithm Explorer: `/Education/Algorithms` (deep‑link with `?algo=<id>`).
 
 ## Palettes included
 

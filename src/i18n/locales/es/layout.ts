@@ -1,13 +1,13 @@
 const layout = {
   header: {
     home: 'Inicio',
-    algorithms: 'Algoritmos',
+    algorithms: 'Educación',
     github: 'GitHub',
   },
   footer: {
     cta: 'Comenzar Difuminado',
     tagline: 'Rápido • Local • Abierto',
-    algorithms: 'Algoritmos',
+    algorithms: 'Educación',
     github: 'GitHub',
     license: 'Licencia',
     by: 'Por',

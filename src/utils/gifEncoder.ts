@@ -30,7 +30,7 @@ export async function createGifFromCanvas(
   const gifWidth = Math.floor(originalWidth * scale);
   const gifHeight = Math.floor(originalHeight * scale);
   
-  // Create temporary canvas for upscaling + resizing
+  // Create an offscreen canvas for upscaling + resizing
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = gifWidth;
   tempCanvas.height = gifHeight;

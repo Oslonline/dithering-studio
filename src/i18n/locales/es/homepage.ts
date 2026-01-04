@@ -3,8 +3,23 @@ const homepage = {
     title: 'Difuminado Multi-Algoritmo para Imágenes y Vídeos',
     subtitle: 'Suelta una imagen o vídeo → elige un algoritmo → ajusta la configuración → exporta al instante. 100% del lado del cliente y gratis.',
     cta: 'Comenzar Difuminado',
+    learnDithering: 'Aprender dithering',
     algorithmReference: 'Ver referencia de algoritmos',
     liveGenerated: 'Generado en vivo • Sin cuenta • Ninguna carga abandona tu navegador',
+  },
+  home: {
+    education: {
+      title: 'Aprender dithering',
+      subtitle: 'Historia, conceptos clave y diferencias entre algoritmos.',
+      cta1: 'Leer Educación',
+      cta2: 'Abrir la herramienta',
+    },
+    algorithmCategory: {
+      errordiffusion: 'Difusión de Error',
+      ordered: 'Ordenado',
+      other: 'Otro',
+    },
+    algorithmTileTitle: 'Ver detalles de {{name}}',
   },
   features: {
     title: 'Características Principales',

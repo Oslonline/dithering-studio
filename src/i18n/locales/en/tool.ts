@@ -8,6 +8,7 @@ const tool = {
   switchToImageMode: 'Switch to Image Mode',
   switchToVideoMode: 'Switch to Video Mode',
   algorithmReference: 'Algorithm reference',
+  educationNav: 'Education',
   changeVideo: 'Change Video',
   changeImage: 'Change Image',
   reset: 'Reset',

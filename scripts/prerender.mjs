@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const distDir = path.resolve(__dirname, '..', 'dist');
 
 const languages = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'];
-const baseRoutes = ['/', '/Dithering/Image', '/Dithering/Video', '/Algorithms'];
+const baseRoutes = ['/', '/Dithering/Image', '/Dithering/Video', '/Education', '/Education/Basics', '/Education/Practice', '/Education/Algorithms'];
 const routesToPrerender = languages.flatMap((lang) =>
   baseRoutes.map((route) => {
     if (route === '/') return `/${lang}/`;

@@ -152,7 +152,6 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     }
     setLocalWebpChecked(true);
   }, [localWebpChecked, setWebpSupported]);
-  // (state migrated to context above)
   const paletteFromURL = useRef<[number, number, number][] | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
@@ -946,7 +945,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                       </button>
                     </div>
                   ) : (
-                    <Link to={withLangPrefix("/Algorithms", activeLang)} className="clean-btn w-full text-center text-[11px]">
+                    <Link to={withLangPrefix("/Education/Algorithms", activeLang)} className="clean-btn w-full text-center text-[11px]">
                       {t('tool.exploreAlgorithms')}
                     </Link>
                   )}

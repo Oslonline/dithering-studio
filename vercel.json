@@ -1,6 +1,13 @@
 {
   "redirects": [
-    { "source": "/Algorithms", "destination": "/en/Algorithms", "permanent": true },
+    { "source": "/Algorithms", "destination": "/en/Education", "permanent": true },
+    { "source": "/en/Algorithms", "destination": "/en/Education", "permanent": true },
+    { "source": "/fr/Algorithms", "destination": "/fr/Education", "permanent": true },
+    { "source": "/es/Algorithms", "destination": "/es/Education", "permanent": true },
+    { "source": "/de/Algorithms", "destination": "/de/Education", "permanent": true },
+    { "source": "/zh/Algorithms", "destination": "/zh/Education", "permanent": true },
+    { "source": "/ru/Algorithms", "destination": "/ru/Education", "permanent": true },
+    { "source": "/hi/Algorithms", "destination": "/hi/Education", "permanent": true },
     { "source": "/Dithering", "destination": "/en/Dithering/Image", "permanent": true },
     { "source": "/Dithering/Image", "destination": "/en/Dithering/Image", "permanent": true },
     { "source": "/Dithering/Video", "destination": "/en/Dithering/Video", "permanent": true },
@@ -56,8 +63,12 @@
       "destination": "/en/Dithering/Video/index.html"
     },
     {
-      "source": "/en/Algorithms",
-      "destination": "/en/Algorithms/index.html"
+      "source": "/en/Education",
+      "destination": "/en/Education/index.html"
+    },
+    {
+      "source": "/en/Education/Algorithms",
+      "destination": "/en/Education/Algorithms/index.html"
     },
 
     {
@@ -69,8 +80,12 @@
       "destination": "/fr/Dithering/Video/index.html"
     },
     {
-      "source": "/fr/Algorithms",
-      "destination": "/fr/Algorithms/index.html"
+      "source": "/fr/Education",
+      "destination": "/fr/Education/index.html"
+    },
+    {
+      "source": "/fr/Education/Algorithms",
+      "destination": "/fr/Education/Algorithms/index.html"
     },
 
     {
@@ -82,8 +97,12 @@
       "destination": "/es/Dithering/Video/index.html"
     },
     {
-      "source": "/es/Algorithms",
-      "destination": "/es/Algorithms/index.html"
+      "source": "/es/Education",
+      "destination": "/es/Education/index.html"
+    },
+    {
+      "source": "/es/Education/Algorithms",
+      "destination": "/es/Education/Algorithms/index.html"
     },
 
     {
@@ -95,8 +114,12 @@
       "destination": "/de/Dithering/Video/index.html"
     },
     {
-      "source": "/de/Algorithms",
-      "destination": "/de/Algorithms/index.html"
+      "source": "/de/Education",
+      "destination": "/de/Education/index.html"
+    },
+    {
+      "source": "/de/Education/Algorithms",
+      "destination": "/de/Education/Algorithms/index.html"
     },
 
     {
@@ -108,8 +131,12 @@
       "destination": "/zh/Dithering/Video/index.html"
     },
     {
-      "source": "/zh/Algorithms",
-      "destination": "/zh/Algorithms/index.html"
+      "source": "/zh/Education",
+      "destination": "/zh/Education/index.html"
+    },
+    {
+      "source": "/zh/Education/Algorithms",
+      "destination": "/zh/Education/Algorithms/index.html"
     },
 
     {
@@ -121,8 +148,12 @@
       "destination": "/ru/Dithering/Video/index.html"
     },
     {
-      "source": "/ru/Algorithms",
-      "destination": "/ru/Algorithms/index.html"
+      "source": "/ru/Education",
+      "destination": "/ru/Education/index.html"
+    },
+    {
+      "source": "/ru/Education/Algorithms",
+      "destination": "/ru/Education/Algorithms/index.html"
     },
 
     {
@@ -134,8 +165,12 @@
       "destination": "/hi/Dithering/Video/index.html"
     },
     {
-      "source": "/hi/Algorithms",
-      "destination": "/hi/Algorithms/index.html"
+      "source": "/hi/Education",
+      "destination": "/hi/Education/index.html"
+    },
+    {
+      "source": "/hi/Education/Algorithms",
+      "destination": "/hi/Education/Algorithms/index.html"
     },
     {
       "source": "/(.*)",
