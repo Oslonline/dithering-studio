@@ -9,6 +9,7 @@ import { useSyncLanguageWithPath } from "./hooks/useSyncLanguageWithPath";
 const Home = lazy(() => import("./pages/Home"));
 const DitheringTool = lazy(() => import("./pages/DitheringTool"));
 const AlgorithmExplorer = lazy(() => import("./pages/AlgorithmExplorer"));
+const AlgorithmDetail = lazy(() => import("./pages/AlgorithmDetail"));
 const Education = lazy(() => import("./pages/Education"));
 const EducationBasics = lazy(() => import("./pages/education/EducationBasics"));
 const EducationPractice = lazy(() => import("./pages/education/EducationPractice"));
@@ -56,6 +57,7 @@ const App: React.FC = () => {
                 <Route path="Education/Basics" element={<EducationBasics />} />
                 <Route path="Education/Practice" element={<EducationPractice />} />
                 <Route path="Education/Algorithms" element={<AlgorithmExplorer />} />
+                <Route path="Education/Algorithms/:slug" element={<AlgorithmDetail />} />
                 <Route path="Algorithms" element={<Navigate to="Education" replace />} />
               </Route>
 

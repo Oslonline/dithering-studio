@@ -10,6 +10,8 @@ const algoData = {
       onhigherconstant: 'O(N) 更高常数',
       onintegralmap: 'O(N) + 积分图',
       onblockarea: 'O(N * 块区域)',
+      oncurve: 'O(N + 曲线)',
+      oncurvegeneration: 'O(N + 曲线生成)',
     },
     origins: {
       belllabs: '贝尔实验室',

@@ -10,12 +10,38 @@ const __dirname = path.dirname(__filename);
 const distDir = path.resolve(__dirname, '..', 'dist');
 
 const languages = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'];
-const baseRoutes = ['/', '/Dithering/Image', '/Dithering/Video', '/Education', '/Education/Basics', '/Education/Practice', '/Education/Algorithms'];
-const routesToPrerender = languages.flatMap((lang) =>
-  baseRoutes.map((route) => {
-    if (route === '/') return `/${lang}/`;
-    return `/${lang}${route}`;
-  })
+
+const readAlgorithmRoutes = async () => {
+  try {
+    const slugPath = path.resolve(__dirname, '..', 'src', 'data', 'algorithm-slugs.json');
+    const raw = await fs.readFile(slugPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    const slugs = Object.values(parsed).filter((v) => typeof v === 'string');
+    return slugs.map((slug) => `/Education/Algorithms/${slug}`);
+  } catch {
+    return [];
+  }
+};
+
+const staticBaseRoutes = ['/', '/Dithering/Image', '/Dithering/Video', '/Education', '/Education/Basics', '/Education/Practice', '/Education/Algorithms'];
+let algorithmRoutes = [];
+try {
+  algorithmRoutes = await readAlgorithmRoutes();
+} catch {
+  algorithmRoutes = [];
+}
+
+const baseRoutes = [...staticBaseRoutes, ...algorithmRoutes];
+
+const routesToPrerender = Array.from(
+  new Set(
+    languages.flatMap((lang) =>
+      baseRoutes.map((route) => {
+        if (route === '/') return `/${lang}/`;
+        return `/${lang}${route}`;
+      })
+    )
+  )
 );
 
 const contentTypes = {

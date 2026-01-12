@@ -10,6 +10,8 @@ const algoData = {
       onhigherconstant: 'O(N) उच्च स्थिरांक',
       onintegralmap: 'O(N) + इंटीग्रल मैप',
       onblockarea: 'O(N * ब्लॉक क्षेत्र)',
+      oncurve: 'O(N + वक्र)',
+      oncurvegeneration: 'O(N + वक्र निर्माण)',
     },
     origins: {
       belllabs: 'Bell Labs',

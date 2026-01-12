@@ -1,9 +1,9 @@
-﻿const education = {
+const education = {
       education: {
         seo: {
-          title: 'Dithering à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ? Ordered dithering, error diffusion à¤”à¤° Floydâ€“Steinberg',
+          title: 'Dithering क्या है? Ordered dithering, error diffusion और Floyd–Steinberg',
           description:
-            'Dithering à¤•à¥€ à¤ªà¤°à¤¿à¤­à¤¾à¤·à¤¾, ordered dithering (Bayer matrix) à¤¬à¤¨à¤¾à¤® error diffusion (Floydâ€“Steinberg), color dithering à¤•à¤¬ à¤‰à¤ªà¤¯à¥‹à¤—à¥€ à¤¹à¥ˆ, à¤”à¤° à¤‡à¤¸à¥‡ à¤‘à¤¨à¤²à¤¾à¤‡à¤¨ à¤•à¥ˆà¤¸à¥‡ à¤†à¤œà¤¼à¤®à¤¾à¤à¤à¥¤',
+            'Dithering की परिभाषा, ordered dithering (Bayer matrix) बनाम error diffusion (Floyd–Steinberg), color dithering कब उपयोगी है, और इसे ऑनलाइन कैसे आज़माएँ।',
         },
 
         header: {
@@ -14,7 +14,7 @@
           navEducation: 'Education',
         },
 
-        title: 'Dithering à¤¸à¥€à¤–à¥‡à¤‚',
+        title: 'Dithering सीखें',
         heroImageAlt: 'Dithering education banner',
 
         strong: {
@@ -31,90 +31,90 @@
 
         lead: {
           tail:
-            'â€” à¤à¤• à¤¤à¤•à¤¨à¥€à¤• à¤¹à¥ˆ à¤œà¥‹ à¤¸à¥€à¤®à¤¿à¤¤ à¤Ÿà¥‹à¤¨/à¤°à¤‚à¤—à¥‹à¤‚ à¤®à¥‡à¤‚ à¤­à¥€ à¤…à¤§à¤¿à¤• smooth shading à¤•à¤¾ illusion à¤¦à¥‡à¤¤à¥€ à¤¹à¥ˆ, à¤œà¤¾à¤¨à¤¬à¥‚à¤à¤•à¤° pattern/noise à¤œà¥‹à¤¡à¤¼à¤•à¤°à¥¤ à¤¯à¤¹ gradients à¤®à¥‡à¤‚ banding à¤•à¤® à¤•à¤°à¤¤à¥€ à¤¹à¥ˆ à¤”à¤° retro/pixelâ€‘art à¤œà¥ˆà¤¸à¤¾ texture à¤¬à¤¨à¤¾ à¤¸à¤•à¤¤à¥€ à¤¹à¥ˆà¥¤',
+            '— एक तकनीक है जो सीमित टोन/रंगों में भी अधिक smooth shading का illusion देती है, जानबूझकर pattern/noise जोड़कर। यह gradients में banding कम करती है और retro/pixel‑art जैसा texture बना सकती है।',
         },
 
         cta: {
-          openTool: 'Tool à¤–à¥‹à¤²à¥‡à¤‚',
-          basics: 'Basics à¤¸à¥‡ à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚',
-          practice: 'Practice à¤ªà¤° à¤œà¤¾à¤à¤',
-          tryImage: 'à¤‡à¤®à¥‡à¤œ à¤ªà¤° à¤Ÿà¥à¤°à¤¾à¤¯ à¤•à¤°à¥‡à¤‚',
-          tryVideo: 'à¤µà¥€à¤¡à¤¿à¤¯à¥‹ à¤ªà¤° à¤Ÿà¥à¤°à¤¾à¤¯ à¤•à¤°à¥‡à¤‚',
-          exploreAlgorithms: 'Algorithms à¤¦à¥‡à¤–à¥‡à¤‚',
+          openTool: 'Tool खोलें',
+          basics: 'Basics से शुरू करें',
+          practice: 'Practice पर जाएँ',
+          tryImage: 'इमेज पर ट्राय करें',
+          tryVideo: 'वीडियो पर ट्राय करें',
+          exploreAlgorithms: 'Algorithms देखें',
         },
 
         preview: {
           title: 'Quick preview (random settings)',
-          hint: 'Slider drag à¤•à¤°à¥‡à¤‚',
-          loading: 'Preview à¤¬à¤¨ à¤°à¤¹à¤¾ à¤¹à¥ˆâ€¦',
-          fallback: 'à¤‡à¤¸ device à¤ªà¤° preview à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤',
+          hint: 'Slider drag करें',
+          loading: 'Preview बन रहा है…',
+          fallback: 'इस device पर preview उपलब्ध नहीं है।',
         },
 
         onboarding: {
           title: 'Start here (2 steps)',
           body:
-            'à¤¯à¤¦à¤¿ à¤†à¤ª à¤¨à¤ à¤¹à¥ˆà¤‚, à¤¤à¥‹ à¤ªà¤¹à¤²à¥‡ basics à¤¸à¤®à¤à¥‡à¤‚, à¤«à¤¿à¤° à¤•à¥à¤› practical recipes à¤•à¥‡ à¤¸à¤¾à¤¥ tool à¤®à¥‡à¤‚ practice à¤•à¤°à¥‡à¤‚à¥¤',
+            'यदि आप नए हैं, तो पहले basics समझें, फिर कुछ practical recipes के साथ tool में practice करें।',
           step1: {
             kicker: 'Step 1',
             body:
-              'Definition + ordered dithering (Bayer) + error diffusion (Floydâ€“Steinberg): à¤‡à¤¤à¤¨à¤¾ à¤¸à¤®à¤à¤¨à¥‡ à¤¸à¥‡ algorithms à¤•à¥‡ differences à¤¸à¤¾à¤«à¤¼ à¤¹à¥‹ à¤œà¤¾à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤',
+              'Definition + ordered dithering (Bayer) + error diffusion (Floyd–Steinberg): इतना समझने से algorithms के differences साफ़ हो जाते हैं।',
           },
           step2: {
             kicker: 'Step 2',
             body:
-              'Practical knobs: threshold, serpentine, palette à¤”à¤° common artifacts à¤•à¥‹ à¤œà¤²à¥à¤¦à¥€ à¤ªà¤¹à¤šà¤¾à¤¨à¤¨à¤¾à¥¤',
+              'Practical knobs: threshold, serpentine, palette और common artifacts को जल्दी पहचानना।',
           },
         },
 
         whatIs: {
-          title: 'Dithering à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ? (Definition)',
+          title: 'Dithering क्या है? (Definition)',
           body:
-            'Computer graphics à¤®à¥‡à¤‚ dithering à¤à¤• technique à¤¹à¥ˆ à¤œà¥‹ à¤•à¤® colors/tones à¤•à¥‡ à¤¸à¤¾à¤¥ à¤­à¥€ intermediate tones à¤•à¤¾ illusion à¤¦à¥‡à¤¤à¥€ à¤¹à¥ˆà¥¤ à¤¯à¤¹ pixels à¤•à¥‹ pattern à¤®à¥‡à¤‚ arrange à¤•à¤°à¤•à¥‡ gradients à¤•à¥€ â€œstepsâ€ à¤•à¥‹ visually smooth à¤¬à¤¨à¤¾à¤¤à¥€ à¤¹à¥ˆà¥¤',
-          point1: 'Gradients à¤®à¥‡à¤‚ banding à¤•à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ',
-          point2: 'Limited palette à¤®à¥‡à¤‚ colors à¤•à¤¾ à¤¬à¥‡à¤¹à¤¤à¤° approximation (color dithering)',
-          point3: 'Retro / pixelâ€‘art texture',
+            'Computer graphics में dithering एक technique है जो कम colors/tones के साथ भी intermediate tones का illusion देती है। यह pixels को pattern में arrange करके gradients की “steps” को visually smooth बनाती है।',
+          point1: 'Gradients में banding कम करता है',
+          point2: 'Limited palette में colors का बेहतर approximation (color dithering)',
+          point3: 'Retro / pixel‑art texture',
         },
 
         families: {
-          title: 'à¤¦à¥‹ à¤®à¥à¤–à¥à¤¯ families',
+          title: 'दो मुख्य families',
           ordered: {
             title: 'Ordered dithering (Bayer matrix)',
             body:
-              'Ordered dithering à¤à¤• repeating threshold matrix à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤¯à¤¹ fast à¤”à¤° deterministic à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆ, à¤”à¤° pixelâ€‘art à¤®à¥‡à¤‚ à¤‡à¤¸à¤•à¤¾ structure à¤…à¤•à¥à¤¸à¤° desirable à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆà¥¤',
-            cta: 'Bayer 4Ã—4 à¤¦à¥‡à¤–à¥‡à¤‚',
-            point1: 'à¤œà¤¬ à¤†à¤ªà¤•à¥‹ predictable/repeatable pattern à¤šà¤¾à¤¹à¤¿à¤à¥¤',
-            point2: 'Typical artifact: visible tiling / grid structure (matrix size à¤¸à¥‡ control à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆ)à¥¤',
+              'Ordered dithering एक repeating threshold matrix का उपयोग करता है। यह fast और deterministic होता है, और pixel‑art में इसका structure अक्सर desirable होता है।',
+            cta: 'Bayer 4×4 देखें',
+            point1: 'जब आपको predictable/repeatable pattern चाहिए।',
+            point2: 'Typical artifact: visible tiling / grid structure (matrix size से control होता है)।',
           },
           error: {
-            title: 'Error diffusion (Floydâ€“Steinberg)',
+            title: 'Error diffusion (Floyd–Steinberg)',
             body:
-              'Error diffusion à¤¹à¤° pixel à¤ªà¤° quantization à¤•à¤°à¤•à¥‡ error à¤•à¥‹ neighbors à¤®à¥‡à¤‚ spread à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤¯à¤¹ à¤…à¤•à¥à¤¸à¤° ordered dithering à¤¸à¥‡ à¤œà¥à¤¯à¤¾à¤¦à¤¾ organic à¤”à¤° smooth gradient à¤¦à¥‡à¤¤à¤¾ à¤¹à¥ˆà¥¤',
-            cta: 'Floydâ€“Steinberg à¤¦à¥‡à¤–à¥‡à¤‚',
-            point1: 'Photos à¤”à¤° gradients à¤•à¥‡ à¤²à¤¿à¤ great; banding à¤•à¥‹ à¤…à¤šà¥à¤›à¥‡ à¤¸à¥‡ hide à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤',
-            point2: 'Artifacts: worms/streaks à¤¯à¤¾ directional noise (serpentine à¤®à¤¦à¤¦ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ)à¥¤',
+              'Error diffusion हर pixel पर quantization करके error को neighbors में spread करता है। यह अक्सर ordered dithering से ज्यादा organic और smooth gradient देता है।',
+            cta: 'Floyd–Steinberg देखें',
+            point1: 'Photos और gradients के लिए great; banding को अच्छे से hide करता है।',
+            point2: 'Artifacts: worms/streaks या directional noise (serpentine मदद करता है)।',
           },
-          tryInTool: 'Tool à¤®à¥‡à¤‚ try à¤•à¤°à¥‡à¤‚',
+          tryInTool: 'Tool में try करें',
         },
 
         color: {
-          title: 'Color dithering à¤¬à¤¨à¤¾à¤® grayscale',
+          title: 'Color dithering बनाम grayscale',
           body:
-            'Grayscale dithering black/white (à¤¯à¤¾ à¤•à¥à¤› grays) à¤•à¥‡ à¤¬à¥€à¤š choose à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ Color dithering à¤à¤• limited palette à¤¸à¥‡ colors à¤šà¥à¤¨à¤•à¤° original colors à¤•à¤¾ approximation à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ Palette à¤œà¤¿à¤¤à¤¨à¥€ à¤›à¥‹à¤Ÿà¥€, à¤‰à¤¤à¤¨à¤¾ â€œ8â€‘bitâ€ lookà¥¤',
+            'Grayscale dithering black/white (या कुछ grays) के बीच choose करता है। Color dithering एक limited palette से colors चुनकर original colors का approximation करता है। Palette जितनी छोटी, उतना “8‑bit” look।',
         },
 
         when: {
-          title: 'à¤•à¤¬ dithering à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤°à¥‡à¤‚',
+          title: 'कब dithering उपयोग करें',
           good: {
             title: 'Best for',
-            1: 'Gradients à¤”à¤° skies (banding reduction)',
-            2: 'Pixelâ€‘art, retro/CRT aesthetics',
-            3: 'Printâ€‘style looks: halftone à¤”à¤° stipple',
+            1: 'Gradients और skies (banding reduction)',
+            2: 'Pixel‑art, retro/CRT aesthetics',
+            3: 'Print‑style looks: halftone और stipple',
           },
           avoid: {
             title: 'Avoid when',
-            1: 'à¤†à¤ªà¤•à¥‹ perfectly smooth tones à¤šà¤¾à¤¹à¤¿à¤',
-            2: 'Very thin text à¤•à¥‹ ultraâ€‘sharp à¤°à¤–à¤¨à¤¾ à¤¹à¥ˆ',
-            3: 'Noise/pattern distract à¤•à¤° à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆ',
+            1: 'आपको perfectly smooth tones चाहिए',
+            2: 'Very thin text को ultra‑sharp रखना है',
+            3: 'Noise/pattern distract कर सकता है',
           },
         },
 
@@ -122,183 +122,183 @@
           title: 'FAQ',
           q1: 'Ordered dithering vs error diffusion: difference?',
           a1:
-            'Ordered dithering fixed threshold matrix (fast, structured, deterministic) à¤ªà¤° à¤†à¤§à¤¾à¤°à¤¿à¤¤ à¤¹à¥ˆà¥¤ Error diffusion error à¤•à¥‹ neighbors à¤®à¥‡à¤‚ distribute à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ (often smoother/organic). à¤†à¤ª à¤œà¤¿à¤¸ texture à¤•à¥‹ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤‰à¤¸à¥€ à¤•à¥‡ à¤…à¤¨à¥à¤¸à¤¾à¤° à¤šà¥à¤¨à¥‡à¤‚à¥¤',
-          q2: 'Floydâ€“Steinberg dithering à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ?',
+            'Ordered dithering fixed threshold matrix (fast, structured, deterministic) पर आधारित है। Error diffusion error को neighbors में distribute करता है (often smoother/organic). आप जिस texture को चाहते हैं, उसी के अनुसार चुनें।',
+          q2: 'Floyd–Steinberg dithering क्या है?',
           a2:
-            'Floydâ€“Steinberg à¤à¤• classic error diffusion algorithm à¤¹à¥ˆ à¤œà¤¿à¤¸à¤®à¥‡à¤‚ fixed weights à¤¹à¥‹à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤ à¤¯à¤¹ gradients/photos à¤•à¥‡ à¤²à¤¿à¤ à¤à¤• à¤…à¤šà¥à¤›à¤¾ default option à¤¹à¥ˆà¥¤',
-          q3: 'Bayer matrix à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ?',
+            'Floyd–Steinberg एक classic error diffusion algorithm है जिसमें fixed weights होते हैं। यह gradients/photos के लिए एक अच्छा default option है।',
+          q3: 'Bayer matrix क्या है?',
           a3:
-            'Bayer matrix ordered thresholds à¤•à¤¾ à¤›à¥‹à¤Ÿà¤¾ repeating table à¤¹à¥ˆ (à¤œà¥ˆà¤¸à¥‡ 4Ã—4, 8Ã—8)à¥¤ à¤¯à¤¹ characteristic pixel pattern à¤¬à¤¨à¤¾à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+            'Bayer matrix ordered thresholds का छोटा repeating table है (जैसे 4×4, 8×8)। यह characteristic pixel pattern बनाता है।',
         },
 
         next: {
-          title: 'Next: techniques try à¤•à¤°à¥‡à¤‚',
+          title: 'Next: techniques try करें',
           body:
-            'Gradients à¤µà¤¾à¤²à¥€ image à¤ªà¤° Bayer à¤”à¤° Floydâ€“Steinberg compare à¤•à¤°à¥‡à¤‚à¥¤ à¤«à¤¿à¤° palette limit à¤•à¤°à¤•à¥‡ color dithering à¤¦à¥‡à¤–à¥‡à¤‚à¥¤',
-          cta1: 'Tool à¤–à¥‹à¤²à¥‡à¤‚',
-          cta2: 'Algorithm details à¤¦à¥‡à¤–à¥‡à¤‚',
+            'Gradients वाली image पर Bayer और Floyd–Steinberg compare करें। फिर palette limit करके color dithering देखें।',
+          cta1: 'Tool खोलें',
+          cta2: 'Algorithm details देखें',
         },
 
         basics: {
           seo: {
-            title: 'Dithering basics | Definition, Bayer matrix à¤”à¤° error diffusion',
+            title: 'Dithering basics | Definition, Bayer matrix और error diffusion',
             description:
-              'Dithering à¤•à¤¾ basic guide: definition, banding à¤•à¥ˆà¤¸à¥‡ à¤•à¤® à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆ, à¤”à¤° ordered dithering (Bayer) à¤¬à¤¨à¤¾à¤® error diffusion (Floydâ€“Steinberg).',
+              'Dithering का basic guide: definition, banding कैसे कम होता है, और ordered dithering (Bayer) बनाम error diffusion (Floyd–Steinberg).',
           },
           title: 'Basics',
           lead:
-            'Short foundation: dithering à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ, à¤¯à¤¹ à¤•à¤¿à¤¸ problem à¤•à¥‹ solve à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ, à¤”à¤° à¤¦à¥‹ à¤®à¥à¤–à¥à¤¯ algorithm families à¤•à¥ˆà¤¸à¥‡ behave à¤•à¤°à¤¤à¥€ à¤¹à¥ˆà¤‚à¥¤',
+            'Short foundation: dithering क्या है, यह किस problem को solve करता है, और दो मुख्य algorithm families कैसे behave करती हैं।',
           whatIs: {
             bodyTail:
-              'â€” pixels à¤•à¥‹ pattern à¤®à¥‡à¤‚ arrange à¤•à¤°à¤•à¥‡ intermediate tones à¤•à¤¾ illusion à¤¬à¤¨à¤¾à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤¯à¤¹ à¤…à¤•à¥à¤¸à¤° quantization (colors/levels à¤•à¤® à¤•à¤°à¤¨à¤¾) à¤•à¥‡ à¤¬à¤¾à¤¦ à¤²à¤—à¤¾à¤¯à¤¾ à¤œà¤¾à¤¤à¤¾ à¤¹à¥ˆ, à¤¤à¤¾à¤•à¤¿ banding à¤•à¤® à¤¹à¥‹ à¤”à¤° intentional dither look à¤®à¤¿à¤²à¥‡à¥¤',
+              '— pixels को pattern में arrange करके intermediate tones का illusion बनाता है। यह अक्सर quantization (colors/levels कम करना) के बाद लगाया जाता है, ताकि banding कम हो और intentional dither look मिले।',
           },
           ditherVsDithering: {
             title: 'Dither vs dithering',
             body:
-              ': à¤¯à¥‡ essentially same idea à¤¹à¥ˆà¤‚â€”quantization steps à¤•à¥‹ hide à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ pattern/noise à¤•à¤¾ useà¥¤ Goal à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• detail à¤œà¥‹à¤¡à¤¼à¤¨à¤¾ à¤¨à¤¹à¥€à¤‚, perception à¤¬à¤¦à¤²à¤¨à¤¾ à¤¹à¥ˆà¥¤',
+              ': ये essentially same idea हैं—quantization steps को hide करने के लिए pattern/noise का use। Goal वास्तविक detail जोड़ना नहीं, perception बदलना है।',
           },
           bandings: {
-            title: 'Dithering banding à¤•à¥à¤¯à¥‹à¤‚ à¤•à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ',
+            title: 'Dithering banding क्यों कम करता है',
             body:
-              'Banding à¤¤à¤¬ à¤¦à¤¿à¤–à¤¤à¤¾ à¤¹à¥ˆ à¤œà¤¬ smooth gradient à¤•à¥‹ à¤•à¤® levels à¤®à¥‡à¤‚ map à¤•à¤°à¤¨à¤¾ à¤ªà¤¡à¤¼à¤¤à¤¾ à¤¹à¥ˆà¥¤ Dithering missing tones à¤•à¥‹ space à¤®à¥‡à¤‚ distribute à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ, à¤œà¤¿à¤¸à¤¸à¥‡ gradient à¤œà¥à¤¯à¤¾à¤¦à¤¾ smooth à¤®à¤¹à¤¸à¥‚à¤¸ à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆà¥¤',
-            point1: 'Quantization tones/colors à¤•à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ; dithering â€œstepsâ€ à¤•à¥‹ hide à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤',
-            point2: 'Algorithms speed, texture à¤”à¤° artifacts à¤®à¥‡à¤‚ à¤…à¤²à¤— à¤¹à¥‹à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤',
+              'Banding तब दिखता है जब smooth gradient को कम levels में map करना पड़ता है। Dithering missing tones को space में distribute करता है, जिससे gradient ज्यादा smooth महसूस होता है।',
+            point1: 'Quantization tones/colors कम करता है; dithering “steps” को hide करता है।',
+            point2: 'Algorithms speed, texture और artifacts में अलग होते हैं।',
           },
           whenToUse: {
-            title: 'à¤•à¤¬ à¤•à¥à¤¯à¤¾ choose à¤•à¤°à¥‡à¤‚',
-            ordered: 'Ordered dithering à¤šà¥à¤¨à¥‡à¤‚ à¤œà¤¬â€¦',
-            ordered1: 'à¤†à¤ªà¤•à¥‹ clean repeatable pattern à¤šà¤¾à¤¹à¤¿à¤ (pixelâ€‘art / UI icons)à¥¤',
-            ordered2: 'Speed à¤¯à¤¾ deterministic output important à¤¹à¥‹à¥¤',
-            error: 'Error diffusion à¤šà¥à¤¨à¥‡à¤‚ à¤œà¤¬â€¦',
-            error1: 'Photos/gradients à¤®à¥‡à¤‚ smoother look à¤šà¤¾à¤¹à¤¿à¤à¥¤',
-            error2: 'Palette reduce à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤¬à¤¾à¤¦ banding à¤•à¥‹ à¤œà¥à¤¯à¤¾à¤¦à¤¾ effectively hide à¤•à¤°à¤¨à¤¾ à¤¹à¥‹à¥¤',
+            title: 'कब क्या choose करें',
+            ordered: 'Ordered dithering चुनें जब…',
+            ordered1: 'आपको clean repeatable pattern चाहिए (pixel‑art / UI icons)।',
+            ordered2: 'Speed या deterministic output important हो।',
+            error: 'Error diffusion चुनें जब…',
+            error1: 'Photos/gradients में smoother look चाहिए।',
+            error2: 'Palette reduce करने के बाद banding को ज्यादा effectively hide करना हो।',
           },
           history: {
             title: 'Very short history',
             body:
-              'Dithering à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤¤à¤¬ à¤¸à¥‡ à¤¹à¥‹à¤¤à¤¾ à¤†à¤¯à¤¾ à¤¹à¥ˆ à¤œà¤¬ displays/printers à¤®à¥‡à¤‚ tones limited à¤¥à¥‡à¥¤ à¤†à¤œ à¤­à¥€ à¤¯à¤¹ quality (banding reduction) à¤”à¤° style (retro texture) à¤¦à¥‹à¤¨à¥‹à¤‚ à¤•à¥‡ à¤²à¤¿à¤ à¤‡à¤¸à¥à¤¤à¥‡à¤®à¤¾à¤² à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+              'Dithering का उपयोग तब से होता आया है जब displays/printers में tones limited थे। आज भी यह quality (banding reduction) और style (retro texture) दोनों के लिए इस्तेमाल होता है।',
             body2:
-              'Modern tools à¤®à¥‡à¤‚ structured ordered patterns à¤”à¤° organic error diffusion à¤•à¥‡ à¤¬à¥€à¤š choose à¤•à¤¿à¤¯à¤¾ à¤œà¤¾ à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+              'Modern tools में structured ordered patterns और organic error diffusion के बीच choose किया जा सकता है।',
           },
           keyTerms: {
             title: 'Key terms (mini glossary)',
             quantization: 'Quantization',
-            quantizationTail: ': available tones/colors à¤•à¥€ à¤¸à¤‚à¤–à¥à¤¯à¤¾ à¤•à¤® à¤•à¤°à¤¨à¤¾à¥¤',
+            quantizationTail: ': available tones/colors की संख्या कम करना।',
             threshold: 'Threshold',
-            thresholdTail: ': cutâ€‘off value à¤œà¥‹ light/dark à¤¨à¤¿à¤°à¥à¤£à¤¯ à¤ªà¥à¤°à¤­à¤¾à¤µà¤¿à¤¤ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+            thresholdTail: ': cut‑off value जो light/dark निर्णय प्रभावित करता है।',
             bayer: 'Bayer matrix',
-            bayerTail: ': ordered dithering à¤•à¥‡ à¤²à¤¿à¤ repeating threshold matrixà¥¤',
+            bayerTail: ': ordered dithering के लिए repeating threshold matrix।',
             palette: 'Palette',
-            paletteTail: ': fixed color set; color dithering à¤‡à¤¸à¥€ set à¤¸à¥‡ colors à¤šà¥à¤¨à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+            paletteTail: ': fixed color set; color dithering इसी set से colors चुनता है।',
           },
           sources: {
             title: 'Sources / reading',
           },
-          ctaHome: 'Education à¤ªà¤° à¤µà¤¾à¤ªà¤¸',
+          ctaHome: 'Education पर वापस',
           ctaNext: 'Next: Practice',
         },
 
         practice: {
           seo: {
-            title: 'Dithering practice | Controls, artifacts à¤”à¤° quick recipes',
+            title: 'Dithering practice | Controls, artifacts और quick recipes',
             description:
-              'Practical guide: workflow, main controls à¤•à¥à¤¯à¤¾ à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤”à¤° common dithering artifacts à¤•à¥‹ à¤•à¥ˆà¤¸à¥‡ fix à¤•à¤°à¥‡à¤‚à¥¤',
+              'Practical guide: workflow, main controls क्या करते हैं, और common dithering artifacts को कैसे fix करें।',
           },
           title: 'Practice',
           lead:
-            'Practical workflow: algorithm à¤šà¥à¤¨à¥‡à¤‚, parameters tune à¤•à¤°à¥‡à¤‚, artifacts fix à¤•à¤°à¥‡à¤‚, à¤”à¤° clean export à¤•à¤°à¥‡à¤‚à¥¤',
+            'Practical workflow: algorithm चुनें, parameters tune करें, artifacts fix करें, और clean export करें।',
           workflow: {
-            title: '3â€‘step workflow',
+            title: '3‑step workflow',
             lead:
-              'à¤…à¤—à¤° à¤†à¤ª unsure à¤¹à¥ˆà¤‚, à¤¯à¤¹ plan à¤œà¤²à¥à¤¦à¥€ stable results à¤¦à¥‡à¤¤à¤¾ à¤¹à¥ˆ à¤”à¤° Image tool controls à¤•à¥‡ à¤…à¤¨à¥à¤¸à¤¾à¤° à¤¹à¥ˆà¥¤',
+              'अगर आप unsure हैं, यह plan जल्दी stable results देता है और Image tool controls के अनुसार है।',
             step1: {
               kicker: 'Step 1',
-              title: 'Algorithm family choose à¤•à¤°à¥‡à¤‚',
+              title: 'Algorithm family choose करें',
               body:
-                'Photos/gradients à¤•à¥‡ à¤²à¤¿à¤ error diffusion (Floydâ€“Steinberg, Sierra) à¤¸à¥‡ à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚à¥¤ Pixelâ€‘art/structure à¤•à¥‡ à¤²à¤¿à¤ ordered dithering (Bayer, blue noise) à¤šà¥à¤¨à¥‡à¤‚à¥¤',
+                'Photos/gradients के लिए error diffusion (Floyd–Steinberg, Sierra) से शुरू करें। Pixel‑art/structure के लिए ordered dithering (Bayer, blue noise) चुनें।',
             },
             step2: {
               kicker: 'Step 2',
-              title: 'Tone + scale à¤¸à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚',
+              title: 'Tone + scale सेट करें',
               body:
-                'Working resolution (speed vs detail) set à¤•à¤°à¥‡à¤‚; à¤«à¤¿à¤° contrast/midtones/highlights (à¤”à¤° optional blur) adjust à¤•à¤°à¥‡à¤‚ à¤¤à¤¾à¤•à¤¿ input stable à¤¹à¥‹à¥¤',
+                'Working resolution (speed vs detail) set करें; फिर contrast/midtones/highlights (और optional blur) adjust करें ताकि input stable हो।',
             },
             step3: {
               kicker: 'Step 3',
-              title: 'Fineâ€‘tune + export',
+              title: 'Fine‑tune + export',
               body:
-                'Threshold/invert, serpentine (diffusion à¤•à¥‡ à¤²à¤¿à¤), palette à¤”à¤° algorithmâ€‘specific settings tune à¤•à¤°à¥‡à¤‚à¥¤ à¤«à¤¿à¤° original resolution export à¤•à¤°à¥‡à¤‚à¥¤',
+                'Threshold/invert, serpentine (diffusion के लिए), palette और algorithm‑specific settings tune करें। फिर original resolution export करें।',
             },
           },
           recipes: {
             title: 'Quick recipes',
             photo: {
               title: 'Photo (natural texture)',
-              li1: 'Floydâ€“Steinberg à¤¯à¤¾ Sierra à¤¸à¥‡ à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚ à¤”à¤° threshold tweak à¤•à¤°à¥‡à¤‚à¥¤',
-              li2: 'Directional artifacts à¤¦à¤¿à¤–à¥‡à¤‚ à¤¤à¥‹ serpentine on à¤•à¤°à¥‡à¤‚à¥¤',
-              li3: 'Palette 4â€“16 stylized look à¤¦à¥‡à¤¤à¥€ à¤¹à¥ˆ; larger palette smoothness à¤¬à¤¢à¤¼à¤¾à¤¤à¥€ à¤¹à¥ˆà¥¤',
+              li1: 'Floyd–Steinberg या Sierra से शुरू करें और threshold tweak करें।',
+              li2: 'Directional artifacts दिखें तो serpentine on करें।',
+              li3: 'Palette 4–16 stylized look देती है; larger palette smoothness बढ़ाती है।',
               li4:
-                'Shadows noisy à¤¹à¥‹à¤‚ à¤¤à¥‹ contrast à¤•à¤® à¤•à¤°à¥‡à¤‚, midtones adjust à¤•à¤°à¥‡à¤‚, à¤¯à¤¾ à¤¥à¥‹à¤¡à¤¼à¤¾ blur à¤œà¥‹à¤¡à¤¼à¥‡à¤‚à¥¤',
+                'Shadows noisy हों तो contrast कम करें, midtones adjust करें, या थोड़ा blur जोड़ें।',
             },
             pixel: {
-              title: 'Pixelâ€‘art / icons (clean structure)',
-              li1: 'Ordered dithering (Bayer 4Ã—4 à¤¯à¤¾ 8Ã—8) try à¤•à¤°à¥‡à¤‚à¥¤',
-              li2: 'Small palette (2â€“8 colors) à¤°à¤–à¥‡à¤‚; threshold à¤¸à¥‡ pattern density control à¤•à¤°à¥‡à¤‚à¥¤',
-              li3: 'Visible tiling à¤¹à¥‹ à¤¤à¥‹ matrix size à¤¬à¤¢à¤¼à¤¾à¤à¤ (4Ã—4 â†’ 8Ã—8 â†’ 16Ã—16)à¥¤',
+              title: 'Pixel‑art / icons (clean structure)',
+              li1: 'Ordered dithering (Bayer 4×4 या 8×8) try करें।',
+              li2: 'Small palette (2–8 colors) रखें; threshold से pattern density control करें।',
+              li3: 'Visible tiling हो तो matrix size बढ़ाएँ (4×4 → 8×8 → 16×16)।',
             },
           },
           controls: {
-            title: 'Main controls à¤•à¥à¤¯à¤¾ à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚',
+            title: 'Main controls क्या करते हैं',
             lead:
-              'à¤¯à¤¹ list Image tool à¤•à¥‡ controls à¤¸à¥‡ match à¤•à¤°à¤¤à¥€ à¤¹à¥ˆà¥¤ à¤•à¥à¤› controls à¤•à¥‡à¤µà¤² specific algorithms à¤•à¥‡ à¤²à¤¿à¤ à¤¦à¤¿à¤–à¤¤à¥‡ à¤¹à¥ˆà¤‚ (à¤œà¥ˆà¤¸à¥‡ ASCII ramp à¤¯à¤¾ Custom Kernel)à¥¤',
+              'यह list Image tool के controls से match करती है। कुछ controls केवल specific algorithms के लिए दिखते हैं (जैसे ASCII ramp या Custom Kernel)।',
             algorithm: 'Algorithm',
             algorithmTail:
-              ': method choose à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ (error diffusion, Bayer/ordered, blue noise, à¤†à¤¦à¤¿)à¥¤ Texture, artifacts à¤”à¤° performance à¤¬à¤¦à¤²à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤',
-            threshold2: ': cutâ€‘off shift à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ Lower â†’ à¤œà¥à¤¯à¤¾à¤¦à¤¾ dark; higher â†’ à¤œà¥à¤¯à¤¾à¤¦à¤¾ light.',
+              ': method choose करता है (error diffusion, Bayer/ordered, blue noise, आदि)। Texture, artifacts और performance बदलते हैं।',
+            threshold2: ': cut‑off shift करता है। Lower → ज्यादा dark; higher → ज्यादा light.',
             invert: 'Invert',
-            invertTail: ': tones swap à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ (dark â†” light)à¥¤ Negative look/alternate palette à¤•à¥‡ à¤²à¤¿à¤ usefulà¥¤',
+            invertTail: ': tones swap करता है (dark ↔ light)। Negative look/alternate palette के लिए useful।',
             resolution2:
-              ': preview processing scaleà¥¤ Lower = faster + chunkier; higher = sharper + slowerà¥¤ Export original resolution à¤ªà¤° possible à¤¹à¥ˆà¥¤',
+              ': preview processing scale। Lower = faster + chunkier; higher = sharper + slower। Export original resolution पर possible है।',
             contrast: 'Contrast',
-            contrastTail: ': dithering à¤¸à¥‡ à¤ªà¤¹à¤²à¥‡ contrast adjust à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤›à¥‹à¤Ÿà¥‡ changes shadows/highlights noise à¤ªà¤° à¤¬à¤¡à¤¼à¤¾ à¤…à¤¸à¤° à¤¡à¤¾à¤²à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤',
+            contrastTail: ': dithering से पहले contrast adjust करता है। छोटे changes shadows/highlights noise पर बड़ा असर डालते हैं।',
             midtones: 'Midtones (gamma)',
-            midtonesTail: ': brightness curve shift à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆâ€”midtones tune à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ best knobà¥¤',
+            midtonesTail: ': brightness curve shift करता है—midtones tune करने के लिए best knob।',
             highlights: 'Highlights',
-            highlightsTail: ': bright areas à¤•à¥‹ push à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ; highlights à¤®à¥‡à¤‚ â€œspeckleâ€ à¤•à¤® à¤•à¤° à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+            highlightsTail: ': bright areas को push करता है; highlights में “speckle” कम कर सकता है।',
             blur: 'Blur',
-            blurTail: ': optional preâ€‘blur à¤œà¤¿à¤¸à¤¸à¥‡ gradients clean à¤”à¤° stable dither à¤¹à¥‹à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤',
+            blurTail: ': optional pre‑blur जिससे gradients clean और stable dither होते हैं।',
             palette2:
-              ': output colors limit à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ Smaller palette = à¤œà¥à¤¯à¤¾à¤¦à¤¾ stylized; larger = smoother tonesà¥¤ Custom palette exact colors à¤¦à¥‡à¤¤à¥€ à¤¹à¥ˆà¥¤',
-            serpentine2: ': supported error diffusion à¤®à¥‡à¤‚ direction alternate à¤•à¤°à¤•à¥‡ directional streaks à¤•à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+              ': output colors limit करता है। Smaller palette = ज्यादा stylized; larger = smoother tones। Custom palette exact colors देती है।',
+            serpentine2: ': supported error diffusion में direction alternate करके directional streaks कम करता है।',
             serpentinePattern: 'Serpentine pattern',
-            serpentinePatternTail: ': serpentine behavior define à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ (directional artifacts affect à¤¹à¥‹à¤¤à¥‡ à¤¹à¥ˆà¤‚)à¥¤',
+            serpentinePatternTail: ': serpentine behavior define करता है (directional artifacts affect होते हैं)।',
             errorStrength: 'Error diffusion strength',
-            errorStrengthTail: ': error à¤•à¤¿à¤¤à¤¨à¥€ à¤®à¤¾à¤¤à¥à¤°à¤¾ à¤®à¥‡à¤‚ distribute à¤¹à¥‹, à¤‡à¤¸à¥‡ scale à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+            errorStrengthTail: ': error कितनी मात्रा में distribute हो, इसे scale करता है।',
             asciiRamp: 'ASCII ramp',
-            asciiRampTail: ': à¤•à¥‡à¤µà¤² ASCII Mosaic à¤•à¥‡ à¤²à¤¿à¤à¥¤ Darkâ†’light mapping à¤•à¥‡ à¤²à¤¿à¤ symbols setà¥¤',
+            asciiRampTail: ': केवल ASCII Mosaic के लिए। Dark→light mapping के लिए symbols set।',
             customKernel: 'Custom Kernel + divisor',
-            customKernelTail: ': à¤•à¥‡à¤µà¤² Custom Kernel à¤•à¥‡ à¤²à¤¿à¤à¥¤ Matrix à¤”à¤° divisor specify à¤•à¤°à¤•à¥‡ experiment à¤•à¤°à¥‡à¤‚à¥¤',
+            customKernelTail: ': केवल Custom Kernel के लिए। Matrix और divisor specify करके experiment करें।',
             grid: 'Grid',
-            gridTail: ': preview aid; export à¤ªà¤° à¤…à¤¸à¤° à¤¨à¤¹à¥€à¤‚à¥¤',
+            gridTail: ': preview aid; export पर असर नहीं।',
             gridSize: 'Grid size',
-            gridSizeTail: ': pixels à¤®à¥‡à¤‚ grid spacing à¤¬à¤¦à¤²à¤¤à¤¾ à¤¹à¥ˆà¥¤',
+            gridSizeTail: ': pixels में grid spacing बदलता है।',
             presets: 'Presets / randomize / share',
-            presetsTail: ': settings save à¤•à¤°à¥‡à¤‚, randomize à¤•à¤°à¥‡à¤‚, à¤”à¤° shareable link copy à¤•à¤°à¥‡à¤‚à¥¤',
+            presetsTail: ': settings save करें, randomize करें, और shareable link copy करें।',
             export: 'Export',
-            exportTail: ': PNG/JPEG/WebP (à¤”à¤° images à¤•à¥‡ à¤²à¤¿à¤ SVG)à¥¤ Original resolution export supported à¤¹à¥ˆà¥¤',
+            exportTail: ': PNG/JPEG/WebP (और images के लिए SVG)। Original resolution export supported है।',
           },
           artifacts: {
-            title: 'Common artifacts (à¤”à¤° à¤•à¥à¤¯à¤¾ try à¤•à¤°à¥‡à¤‚)',
+            title: 'Common artifacts (और क्या try करें)',
             banding: 'Banding',
-            bandingTail: ': error diffusion use à¤•à¤°à¥‡à¤‚, serpentine on à¤•à¤°à¥‡à¤‚, à¤”à¤° working resolution à¤¬à¤¢à¤¼à¤¾à¤à¤à¥¤',
+            bandingTail: ': error diffusion use करें, serpentine on करें, और working resolution बढ़ाएँ।',
             tiles: 'Visible tiles',
-            tilesTail: ': larger ordered matrix à¤šà¥à¤¨à¥‡à¤‚ à¤¯à¤¾ error diffusion à¤ªà¤° switch à¤•à¤°à¥‡à¤‚à¥¤',
+            tilesTail: ': larger ordered matrix चुनें या error diffusion पर switch करें।',
             worms: 'Worms / streaks',
-            wormsTail: ': serpentine on à¤•à¤°à¥‡à¤‚, contrast à¤¥à¥‹à¤¡à¤¼à¤¾ à¤•à¤® à¤•à¤°à¥‡à¤‚, à¤¯à¤¾ à¤¦à¥‚à¤¸à¤°à¤¾ diffusion kernel try à¤•à¤°à¥‡à¤‚à¥¤',
+            wormsTail: ': serpentine on करें, contrast थोड़ा कम करें, या दूसरा diffusion kernel try करें।',
           },
-          prev: 'â† Basics',
-          ctaExplorer: 'Algorithms explore à¤•à¤°à¥‡à¤‚',
-          finish: 'Done: tool à¤–à¥‹à¤²à¥‡à¤‚',
+          prev: '← Basics',
+          ctaExplorer: 'Algorithms explore करें',
+          finish: 'Done: tool खोलें',
         },
       },
     };

@@ -10,6 +10,8 @@ const algoData = {
       onhigherconstant: 'O(N) constante supérieure',
       onintegralmap: 'O(N) + carte intégrale',
       onblockarea: 'O(N * surfaceBloc)',
+      oncurve: 'O(N + courbe)',
+      oncurvegeneration: 'O(N + génération de courbe)',
     },
     origins: {
       belllabs: 'Bell Labs',
