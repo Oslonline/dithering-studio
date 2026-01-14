@@ -11,6 +11,7 @@ const explorer = {
   title: 'Referencia de Algoritmos',
   subtitle: 'Explora algoritmos de difuminado, núcleos y características visuales',
   backToTool: 'Volver a la Herramienta',
+  backToList: 'Volver a los algoritmos',
   close: 'Cerrar',
   category: 'Categoría',
   divisor: 'Divisor',

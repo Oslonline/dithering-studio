@@ -11,6 +11,7 @@ const explorer = {
   title: '算法参考',
   subtitle: '探索抖动算法、内核和视觉特性',
   backToTool: '返回工具',
+  backToList: '返回算法列表',
   close: '关闭',
   category: '类别',
   divisor: '除数',

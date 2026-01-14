@@ -11,6 +11,7 @@ const explorer = {
   title: 'Référence des Algorithmes',
   subtitle: 'Explorez les algorithmes de tramage, les noyaux et les caractéristiques visuelles',
   backToTool: 'Retour à l\'Outil',
+  backToList: 'Retour aux algorithmes',
   close: 'Fermer',
   category: 'Catégorie',
   divisor: 'Diviseur',

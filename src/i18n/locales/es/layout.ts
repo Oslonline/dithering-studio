@@ -1,4 +1,7 @@
 const layout = {
+  nav: {
+    education: 'Educación',
+  },
   header: {
     home: 'Inicio',
     algorithms: 'Educación',

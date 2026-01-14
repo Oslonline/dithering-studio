@@ -11,6 +11,7 @@ const explorer = {
   title: 'Algorithm Reference',
   subtitle: 'Explore dithering algorithms, kernels, and visual characteristics',
   backToTool: 'Back to Tool',
+  backToList: 'Back to algorithms',
   close: 'Close',
   category: 'Category',
   divisor: 'Divisor',

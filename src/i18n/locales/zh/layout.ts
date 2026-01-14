@@ -1,4 +1,7 @@
 const layout = {
+  nav: {
+    education: '教程',
+  },
   header: {
     home: '首页',
     algorithms: '教程',

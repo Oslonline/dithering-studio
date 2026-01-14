@@ -11,6 +11,7 @@ const explorer = {
   title: 'Algorithmus-Referenz',
   subtitle: 'Erkunden Sie Dithering-Algorithmen, Kernel und visuelle Eigenschaften',
   backToTool: 'Zurück zum Tool',
+  backToList: 'Zurück zu den Algorithmen',
   close: 'Schließen',
   category: 'Kategorie',
   divisor: 'Divisor',
