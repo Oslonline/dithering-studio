@@ -4,7 +4,7 @@ import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG, exportAtOriginalResolution, exportVideoFrameAtOriginalResolution } from "../utils/export";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
+import { generateHreflangTags, generateOpenGraphLocaleAlternates, getCanonicalUrlWithLang, getOgUrl, getOpenGraphLocale, getSocialImageUrl } from "../utils/seo";
 import ImageUploader from "../components/uploaders/ImageUploader";
 import VideoUploader from "../components/uploaders/VideoUploader";
 import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
@@ -756,7 +756,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl(pagePath, i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
-        <meta property="og:locale" content={i18n.language} />
+        <meta property="og:locale" content={getOpenGraphLocale(i18n.language)} />
+        {generateOpenGraphLocaleAlternates(i18n.language)}
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />

@@ -5,7 +5,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import Header from '../components/ui/Header';
 import { getTranslatedAlgorithmDetails } from '../utils/algorithmInfoTranslated';
 import { getOrderedAlgorithmDetails } from '../utils/algorithmInfo';
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from '../utils/seo';
+import { generateHreflangTags, generateOpenGraphLocaleAlternates, getCanonicalUrlWithLang, getOgUrl, getOpenGraphLocale, getSocialImageUrl } from '../utils/seo';
 import { normalizeLang, withLangPrefix } from '../utils/localePath';
 import { getAlgorithmIdFromSlug } from '../utils/algorithmSlug';
 
@@ -74,7 +74,8 @@ const AlgorithmDetailPage: React.FC = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl(pagePath, i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
-        <meta property="og:locale" content={i18n.language} />
+        <meta property="og:locale" content={getOpenGraphLocale(i18n.language)} />
+        {generateOpenGraphLocaleAlternates(i18n.language)}
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />

@@ -3,6 +3,16 @@ const DEFAULT_SOCIAL_IMAGE_PATH = '/socials-img.png';
 
 export const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'de', 'zh', 'ru', 'hi'] as const;
 
+const OG_LOCALE_BY_LANG: Record<(typeof SUPPORTED_LANGUAGES)[number], string> = {
+  en: 'en_US',
+  fr: 'fr_FR',
+  es: 'es_ES',
+  de: 'de_DE',
+  zh: 'zh_CN',
+  ru: 'ru_RU',
+  hi: 'hi_IN'
+};
+
 const normalizePathname = (pathname: string): string => {
   if (!pathname) return '/';
   return pathname.startsWith('/') ? pathname : `/${pathname}`;
@@ -42,6 +52,29 @@ export const generateHreflangTags = (pathname: string) => {
   );
 
   return tags;
+};
+
+/**
+ * Convert app language codes (e.g. `en`, `fr`, `en-US`) into OpenGraph locale format.
+ */
+export const getOpenGraphLocale = (lang?: string): string => {
+  const normalized = (lang && SUPPORTED_LANGUAGES.includes(lang as any) ? lang : (lang ?? 'en'))
+    .toLowerCase()
+    .split(/[-_]/)[0] as (typeof SUPPORTED_LANGUAGES)[number];
+
+  return OG_LOCALE_BY_LANG[normalized] ?? OG_LOCALE_BY_LANG.en;
+};
+
+/**
+ * Generate OpenGraph alternate locales, excluding the active locale.
+ * Useful for rich previews when multiple localized versions exist.
+ */
+export const generateOpenGraphLocaleAlternates = (activeLang?: string) => {
+  const active = getOpenGraphLocale(activeLang);
+  return SUPPORTED_LANGUAGES
+    .map((lang) => OG_LOCALE_BY_LANG[lang])
+    .filter((og) => og !== active)
+    .map((og) => <meta key={`og:locale:alternate:${og}`} property="og:locale:alternate" content={og} />);
 };
 
 /**

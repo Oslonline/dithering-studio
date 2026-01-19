@@ -6,7 +6,7 @@ import Header from "../components/ui/Header";
 import MediaComparison from "../components/ui/MediaComparison";
 import SAMPLE_IMAGE_SRC from "../assets/base-sample.webp";
 import { findAlgorithm, algorithms } from "../utils/algorithms";
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
+import { generateHreflangTags, generateOpenGraphLocaleAlternates, getCanonicalUrlWithLang, getOgUrl, getOpenGraphLocale, getSocialImageUrl } from "../utils/seo";
 import { normalizeLang, withLangPrefix } from "../utils/localePath";
 
 const EDUCATION_PATH = "/Education";
@@ -167,7 +167,8 @@ const Education: React.FC = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl(EDUCATION_PATH, i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
-        <meta property="og:locale" content={i18n.language} />
+        <meta property="og:locale" content={getOpenGraphLocale(i18n.language)} />
+        {generateOpenGraphLocaleAlternates(i18n.language)}
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />

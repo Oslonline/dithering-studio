@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <!-- Homepage -->
   <url>
     <loc>https://ditheringstudio.com/en/</loc>
     <changefreq>weekly</changefreq>
@@ -15,8 +14,6 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/"/>
   </url>
-  
-  <!-- Image Dithering Tool -->
   <url>
     <loc>https://ditheringstudio.com/en/Dithering/Image</loc>
     <changefreq>weekly</changefreq>
@@ -30,8 +27,6 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Dithering/Image"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Dithering/Image"/>
   </url>
-  
-  <!-- Video Dithering Tool -->
   <url>
     <loc>https://ditheringstudio.com/en/Dithering/Video</loc>
     <changefreq>weekly</changefreq>
@@ -45,8 +40,6 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Dithering/Video"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Dithering/Video"/>
   </url>
-
-  <!-- Education -->
   <url>
     <loc>https://ditheringstudio.com/en/Education</loc>
     <changefreq>weekly</changefreq>
@@ -60,8 +53,6 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education"/>
   </url>
-
-  <!-- Education Basics -->
   <url>
     <loc>https://ditheringstudio.com/en/Education/Basics</loc>
     <changefreq>weekly</changefreq>
@@ -75,8 +66,6 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Basics"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Basics"/>
   </url>
-
-  <!-- Education Practice -->
   <url>
     <loc>https://ditheringstudio.com/en/Education/Practice</loc>
     <changefreq>weekly</changefreq>
@@ -90,8 +79,6 @@
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Practice"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Practice"/>
   </url>
-  
-  <!-- Algorithm Explorer -->
   <url>
     <loc>https://ditheringstudio.com/en/Education/Algorithms</loc>
     <changefreq>weekly</changefreq>
@@ -104,5 +91,395 @@
     <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms"/>
     <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/adaptive-fs-3x3</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/adaptive-fs-3x3"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/adaptive-fs-3x3"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/adaptive-fs-7x7</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/adaptive-fs-7x7"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/adaptive-fs-7x7"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/ascii-mosaic</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/ascii-mosaic"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/ascii-mosaic"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/atkinson</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/atkinson"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/atkinson"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/bayer-16x16</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/bayer-16x16"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-16x16"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/bayer-2x2</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/bayer-2x2"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-2x2"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/bayer-32x32</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/bayer-32x32"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-32x32"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/bayer-4x4</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/bayer-4x4"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-4x4"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/bayer-8x8</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/bayer-8x8"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/bayer-8x8"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/binary-threshold</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/binary-threshold"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/binary-threshold"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/blue-noise-64x64</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/blue-noise-64x64"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/blue-noise-64x64"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/burkes</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/burkes"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/burkes"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/custom-kernel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/custom-kernel"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/custom-kernel"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/dot-diffusion-simple</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/dot-diffusion-simple"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/dot-diffusion-simple"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/false-floyd-steinberg</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/false-floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/false-floyd-steinberg"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/floyd-steinberg</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/floyd-steinberg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/floyd-steinberg"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/halftone</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/halftone"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/halftone"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/jarvis-judice-ninke</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/jarvis-judice-ninke"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/jarvis-judice-ninke"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/ostromoukhov</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/ostromoukhov"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/ostromoukhov"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/posterize</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/posterize"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/posterize"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/random-threshold</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/random-threshold"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/random-threshold"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/riemersma</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/riemersma"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/riemersma"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/sierra</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/sierra"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/sierra"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/sierra-2-4a</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/sierra-2-4a"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/sierra-2-4a"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/sierra-lite</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/sierra-lite"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/sierra-lite"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/stevenson-arce</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/stevenson-arce"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/stevenson-arce"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/stipple</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/stipple"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/stipple"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/stucki</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/stucki"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/stucki"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/two-row-sierra</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/two-row-sierra"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/two-row-sierra"/>
+  </url>
+  <url>
+    <loc>https://ditheringstudio.com/en/Education/Algorithms/woodcut</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ditheringstudio.com/en/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://ditheringstudio.com/fr/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ditheringstudio.com/es/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://ditheringstudio.com/de/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://ditheringstudio.com/zh/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ditheringstudio.com/ru/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://ditheringstudio.com/hi/Education/Algorithms/woodcut"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ditheringstudio.com/en/Education/Algorithms/woodcut"/>
   </url>
 </urlset>

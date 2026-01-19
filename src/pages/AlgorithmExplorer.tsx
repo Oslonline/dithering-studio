@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AlgorithmDetail, getOrderedAlgorithmDetails } from "../utils/algorithmInfo";
 import { getTranslatedAlgorithmDetails } from "../utils/algorithmInfoTranslated";
 import { findAlgorithm } from "../utils/algorithms";
-import { generateHreflangTags, getCanonicalUrlWithLang, getOgUrl, getSocialImageUrl } from "../utils/seo";
+import { generateHreflangTags, generateOpenGraphLocaleAlternates, getCanonicalUrlWithLang, getOgUrl, getOpenGraphLocale, getSocialImageUrl } from "../utils/seo";
 import Header from "../components/ui/Header";
 import SAMPLE_IMAGE_SRC from "../assets/base-sample.webp";
 const WORKING_WIDTH = 256;
@@ -222,7 +222,8 @@ const AlgorithmExplorer: React.FC = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl('/Education/Algorithms', i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
-        <meta property="og:locale" content={i18n.language} />
+        <meta property="og:locale" content={getOpenGraphLocale(i18n.language)} />
+        {generateOpenGraphLocaleAlternates(i18n.language)}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={t('explorer.seo.title')} />
         <meta name="twitter:description" content={t('explorer.seo.description')} />
