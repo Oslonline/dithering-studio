@@ -217,7 +217,7 @@ const Home: React.FC = () => {
             </nav>
             <p className="flex items-center gap-1">
               {t('footer.by')}{" "}
-              <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://oslo418.com" rel="noopener noreferrer">
+              <a className="text-blue-300 duration-100 hover:text-blue-500" href="https://x.com/Oslo418" rel="noopener noreferrer">
                 Oslo418
               </a>{" "}
               • Apache 2.0
