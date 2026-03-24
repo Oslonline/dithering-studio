@@ -24,6 +24,7 @@ import ExportDialog from "../components/dialogs/ExportDialog";
 import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDialog";
 import Header from "../components/ui/Header";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
+import useClipboardPaste from "../hooks/useClipboardPaste";
 import useVideoRecording from "../hooks/useVideoRecording";
 import useSettingsHeight from "../hooks/useSettingsHeight";
 import useApplyUrlParams from "../hooks/useApplyUrlParams";
@@ -381,6 +382,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setActiveVideoId(null);
   };
 
+  useClipboardPaste({ videoMode, setVideoMode, navigate, activeLang, addImages, addVideos });
   const resetSettings = () => {
     // Reset dither settings to defaults
     setPattern(1);
