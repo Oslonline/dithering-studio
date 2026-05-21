@@ -3,7 +3,7 @@ import { createGifFromCanvas } from '../utils/gifEncoder';
 
 interface Params {
   videoItem: { url: string; name?: string } | null;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
   videoHook: any;
   videoFps: number;
   setVideoPlaying: (v: boolean) => void;

@@ -43,7 +43,7 @@ const App: React.FC = () => {
           Skip to main content
         </a>
         <FeatureWarnings />
-        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Router>
           <LanguagePathSync />
           <Suspense fallback={null}>
             <Routes>

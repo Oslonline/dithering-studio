@@ -5,8 +5,8 @@ import { createFocusTrap } from "../../utils/a11y";
 interface PostDownloadShareDialogProps {
   open: boolean;
   onClose: () => void;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
-  processedCanvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  processedCanvasRef: React.RefObject<HTMLCanvasElement | null>;
   lastFormat?: string;
   isVideo?: boolean;
 }
