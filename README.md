@@ -12,7 +12,7 @@ No uploads, no account. Everything runs locally in the tab.
 
 ## Highlights
 
-- 25+ algorithms: error diffusion, ordered matrices, stochastic, adaptive, ASCII.
+- 30 algorithms: error diffusion, ordered matrices, stochastic, adaptive, ASCII.
 - Image and video modes. Export frames (PNG/JPEG/WEBP/SVG) or full videos (WebM/MP4\*).
 - Built‑in palettes (Game Boy, PICO‑8, DB16/32, CGA/EGA, etc.) with live swatch toggling.
 - Presets you can save, rename, import/export as tokens, and re‑apply.
@@ -102,4 +102,4 @@ Small, focused PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Credits
 
-Built by [Oslo418](https://oslo418.com). Inspired by tools like Dither It and Dither Boy — combined with multi‑algorithm exploration, fast iteration, and palette/threshold tweaking in one place. From a sideproject to a fully functionnal tool !
+Built by [Oslo418](https://x.com/Oslo418). Inspired by tools like Dither It and Dither Boy — combined with multi‑algorithm exploration, fast iteration, and palette/threshold tweaking in one place. From a sideproject to a fully functional tool!

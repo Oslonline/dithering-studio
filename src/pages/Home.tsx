@@ -172,7 +172,7 @@ const Home: React.FC = () => {
                 </p>
                 <p>
                   {t('about.privacy1')}{" "}
-                  <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
+                  <a href="https://github.com/Oslonline/dithering-studio" target="_blank" rel="noopener noreferrer" className="text-gray-200 underline decoration-neutral-600 hover:decoration-neutral-400">
                     {t('about.openSource')}
                   </a>
                   , {t('about.privacy2')}
@@ -208,10 +208,10 @@ const Home: React.FC = () => {
               <Link to={withLangPrefix('/Education', activeLang)} className="transition-colors hover:text-gray-300">
                 {t('footer.algorithms')}
               </Link>
-              <a href="https://github.com/Oslonline/steinberg-image" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">
+              <a href="https://github.com/Oslonline/dithering-studio" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">
                 {t('footer.github')}
               </a>
-              <a href="https://github.com/Oslonline/steinberg-image/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">
+              <a href="https://github.com/Oslonline/dithering-studio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-300">
                 {t('footer.license')}
               </a>
             </nav>
