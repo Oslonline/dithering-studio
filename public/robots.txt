@@ -4,3 +4,6 @@ Disallow:
 
 # Point to the sitemap
 Sitemap: https://ditheringstudio.com/sitemap.xml
+
+# Machine-readable summary for AI systems and coding agents (llmstxt.org convention)
+# https://ditheringstudio.com/llms.txt
