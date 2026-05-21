@@ -7,7 +7,7 @@ import { getTranslatedAlgorithmDetails } from '../utils/algorithmInfoTranslated'
 import { getOrderedAlgorithmDetails } from '../utils/algorithmInfo';
 import { generateHreflangTags, generateOpenGraphLocaleAlternates, getCanonicalUrlWithLang, getOgUrl, getOpenGraphLocale, getSocialImageUrl } from '../utils/seo';
 import { normalizeLang, withLangPrefix } from '../utils/localePath';
-import { getAlgorithmIdFromSlug } from '../utils/algorithmSlug';
+import { getAlgorithmIdFromSlug, getAlgorithmSlug } from '../utils/algorithmSlug';
 
 const AlgorithmDetailPage: React.FC = () => {
   const { i18n, t } = useTranslation();
@@ -30,6 +30,53 @@ const AlgorithmDetailPage: React.FC = () => {
   const pagePath = `/Education/Algorithms/${slug}`;
   const title = `${algorithm.name} — ${t('explorer.seo.title')}`;
   const description = algorithm.overview || t('explorer.seo.description');
+  const ordered = getOrderedAlgorithmDetails();
+  const currentIdx = ordered.findIndex((a) => a.id === algorithm.id);
+  const comparedWith =
+    ordered.find((a, idx) => idx > currentIdx && a.category === algorithm.category && a.id !== algorithm.id) ||
+    ordered.find((a) => a.category === algorithm.category && a.id !== algorithm.id);
+  const comparedSlug = comparedWith ? getAlgorithmSlug(comparedWith.id) : undefined;
+
+  const starterSettings = (() => {
+    if (algorithm.category === 'Error Diffusion') {
+      return [
+        t('tool.threshold', { defaultValue: 'Threshold' }) + ': 120-140',
+        t('tool.serpentine', { defaultValue: 'Serpentine' }) + `: ${t('explorer.yes', { defaultValue: 'Yes' })}`,
+        t('tool.resolution', { defaultValue: 'Resolution' }) + ': 768-1280',
+      ];
+    }
+    if (algorithm.category === 'Ordered') {
+      return [
+        t('tool.threshold', { defaultValue: 'Threshold' }) + ': 110-145',
+        t('tool.resolution', { defaultValue: 'Resolution' }) + ': 512-1024',
+        t('tool.palette', { defaultValue: 'Palette' }) + ': 4-16 colors',
+      ];
+    }
+    return [
+      t('tool.threshold', { defaultValue: 'Threshold' }) + ': 120-160',
+      t('tool.resolution', { defaultValue: 'Resolution' }) + ': 512-1024',
+      t('tool.contrast', { defaultValue: 'Contrast' }) + ': low to moderate',
+    ];
+  })();
+
+  const avoidCases = (() => {
+    if (algorithm.category === 'Error Diffusion') {
+      return [
+        'UI icons or geometric assets where deterministic repeating structure is preferred.',
+        'Very low-power preview contexts where larger kernels can be too expensive.',
+      ];
+    }
+    if (algorithm.category === 'Ordered') {
+      return [
+        'Natural photos where repeating matrix patterns are undesirable.',
+        'Large smooth gradients where low-frequency tiling becomes visible.',
+      ];
+    }
+    return [
+      'Production-critical outputs requiring fully predictable tonal behavior.',
+      'Cases where preserving subtle gradients is more important than stylization.',
+    ];
+  })();
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -161,6 +208,63 @@ const AlgorithmDetailPage: React.FC = () => {
                 <p className="text-[12px] text-gray-300">{algorithm.complexity}</p>
               </div>
             </section>
+
+            <section className="mt-8 grid gap-6 md:grid-cols-2">
+              <div>
+                <h2 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">
+                  {t('education.practice.workflow.step2.title', { defaultValue: 'Start settings' })}
+                </h2>
+                <ul className="list-disc space-y-1 pl-4 text-[12px] text-gray-300">
+                  {starterSettings.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+                <div className="mt-3">
+                  <Link
+                    to={`${withLangPrefix('/Dithering/Image', activeLang)}?p=${algorithm.id}&t=128&r=1024&ser=1`}
+                    className="clean-btn clean-btn-primary px-3 py-2 text-[11px]"
+                  >
+                    {t('tool.tryOnline', { defaultValue: 'Try in the tool' })}
+                  </Link>
+                </div>
+              </div>
+
+              <div>
+                <h2 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">
+                  {t('education.when.avoid.title', { defaultValue: 'When to avoid' })}
+                </h2>
+                <ul className="list-disc space-y-1 pl-4 text-[12px] text-gray-300">
+                  {avoidCases.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            {comparedWith && comparedSlug && (
+              <section className="mt-8">
+                <h2 className="mb-2 font-mono text-[11px] tracking-wide text-gray-400 uppercase">
+                  {t('education.practice.controls.algorithm', { defaultValue: 'Compared with' })}
+                </h2>
+                <p className="text-[12px] text-gray-300">
+                  {algorithm.name} vs {comparedWith.name}: compare texture, artifact profile, and complexity for the same source media.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    to={withLangPrefix(`/Education/Algorithms/${comparedSlug}`, activeLang)}
+                    className="clean-btn px-3 py-2 text-[11px]"
+                  >
+                    {t('explorer.viewDetails', { defaultValue: 'View {{name}} details', name: comparedWith.name })}
+                  </Link>
+                  <Link
+                    to={`${withLangPrefix('/Dithering/Image', activeLang)}?p=${comparedWith.id}&t=128&r=1024&ser=1`}
+                    className="clean-btn px-3 py-2 text-[11px]"
+                  >
+                    {t('tool.tryOnline', { defaultValue: 'Try in the tool' })} ({comparedWith.name})
+                  </Link>
+                </div>
+              </section>
+            )}
 
             {algorithm.papers && algorithm.papers.length > 0 && (
               <section className="mt-8">

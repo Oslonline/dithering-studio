@@ -23,6 +23,29 @@ const Home: React.FC = () => {
     }
     return order.map((c) => byCategory.get(c)!).filter(Boolean);
   }, []);
+
+  const softwareAppJsonLd = {
+    "@context": "https://schema.org",
+    "@type": ["SoftwareApplication", "WebApplication"],
+    "name": "Dithering Studio",
+    "url": getCanonicalUrlWithLang('/', i18n.language),
+    "description": "Free online image and video dithering tool with 30 algorithms. Fully client-side with no uploads.",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Web",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Image and video dithering",
+      "30 algorithms including Floyd-Steinberg, Atkinson, Bayer, Blue Noise",
+      "Palette constraints and custom palettes",
+      "Export PNG, JPEG, WEBP, SVG, GIF, MP4, WebM",
+      "Runs fully in-browser with no uploads"
+    ]
+  };
   
   return (
     <>
@@ -43,6 +66,7 @@ const Home: React.FC = () => {
         <meta name="twitter:image" content={getSocialImageUrl()} />
         <link rel="canonical" href={getCanonicalUrlWithLang('/', i18n.language)} />
         {generateHreflangTags('/')}
+        <script type="application/ld+json">{JSON.stringify(softwareAppJsonLd)}</script>
       </Helmet>
 
       <div id="main-content" className="relative flex min-h-screen flex-col bg-neutral-950 px-6 py-6 text-neutral-50 md:px-10 md:py-6 lg:px-16 xl:px-24 2xl:px-32">

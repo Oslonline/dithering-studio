@@ -155,6 +155,43 @@ const Education: React.FC = () => {
     defaultValue: "Learn the dithering definition and the main methods (ordered dithering/Bayer matrix and error diffusion/Floyd–Steinberg). See when to use color dithering and try it online.",
   });
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": t("education.faq.q1", { defaultValue: "Ordered dithering vs error diffusion: what’s the difference?" }),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": t("education.faq.a1", {
+            defaultValue: "Ordered dithering uses a repeating threshold matrix (fast, patterned, deterministic). Error diffusion propagates quantization error to neighbors (often smoother gradients, more organic noise). Both are valid—choose based on the texture you want.",
+          }),
+        },
+      },
+      {
+        "@type": "Question",
+        "name": t("education.faq.q2", { defaultValue: "What is Floyd–Steinberg dithering?" }),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": t("education.faq.a2", {
+            defaultValue: "Floyd–Steinberg is a classic error diffusion algorithm that spreads quantization error to nearby pixels with fixed weights. It’s a strong default when you want smooth-looking gradients and a fine-grain texture.",
+          }),
+        },
+      },
+      {
+        "@type": "Question",
+        "name": t("education.faq.q3", { defaultValue: "What is a Bayer matrix?" }),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": t("education.faq.a3", {
+            defaultValue: "A Bayer matrix is a small ordered threshold pattern (like 4×4 or 8×8) used for ordered dithering. It creates a repeating structure that approximates intermediate tones with a recognizable, pixel-friendly texture.",
+          }),
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <Helmet>
@@ -177,6 +214,7 @@ const Education: React.FC = () => {
 
         <link rel="canonical" href={getCanonicalUrlWithLang(EDUCATION_PATH, i18n.language)} />
         {generateHreflangTags(EDUCATION_PATH)}
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 
       <div className="flex h-screen w-full flex-col overflow-hidden">
