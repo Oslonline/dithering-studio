@@ -77,11 +77,14 @@ export function useApplyUrlParams(p: Params) {
     const mode = params.get('mode');
     if (mode === 'video' && setVideoMode) setVideoMode(true);
 
-    // Clean up tool-specific params but preserve SEO/navigation params like `lang`.
+    // Clean up tool-specific params while preserving attribution parameters.
     try {
       const keep = new URLSearchParams();
-      const lang = params.get('lang');
-      if (lang) keep.set('lang', lang);
+      const keepKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid', 'msclkid', 'ref'];
+      keepKeys.forEach((key) => {
+        const value = params.get(key);
+        if (value) keep.set(key, value);
+      });
 
       const qs = keep.toString();
       const clean = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;

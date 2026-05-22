@@ -1,5 +1,6 @@
 {
   "redirects": [
+    { "source": "/", "destination": "/en/", "permanent": true },
     { "source": "/llm.txt", "destination": "/llms.txt", "permanent": true },
     { "source": "/Algorithms", "destination": "/en/Education", "permanent": true },
     { "source": "/en/Algorithms", "destination": "/en/Education", "permanent": true },

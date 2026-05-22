@@ -1,9 +1,9 @@
 const education = {
   education: {
     seo: {
-      title: 'What is Dithering? Ordered Dithering, Error Diffusion & Floyd–Steinberg',
+      title: 'What Is Dithering? Complete Guide to Ordered & Error Diffusion',
       description:
-        'Learn the dithering definition and the main methods (ordered dithering/Bayer matrix and error diffusion/Floyd–Steinberg). See when to use color dithering and try it online.',
+        'Learn what dithering is, when to use it, and how Bayer ordered dithering compares to Floyd-Steinberg error diffusion. Practical guide with examples and tool links.',
     },
 
     header: {

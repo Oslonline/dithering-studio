@@ -707,7 +707,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const pagePath = videoMode ? '/Dithering/Video' : '/Dithering/Image';
   const pageTitle = videoMode ? t('tool.seo.videoTitle') : t('tool.seo.imageTitle');
   const pageDescription = videoMode ? t('tool.seo.videoDescription') : t('tool.seo.imageDescription');
-  const shouldNoindex = new URLSearchParams(location.search).has('demo');
+  const shouldNoindex = new URLSearchParams(location.search).size > 0;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",

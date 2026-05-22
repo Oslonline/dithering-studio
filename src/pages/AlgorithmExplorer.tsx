@@ -55,7 +55,7 @@ const AlgorithmExplorer: React.FC = () => {
     }
   }, [activeId]);
 
-  const shouldNoindex = new URLSearchParams(location.search).has("algo");
+  const shouldNoindex = new URLSearchParams(location.search).size > 0;
   
   const active = translatedDetails.find((a) => a.id === activeId) || translatedDetails[0] || orderedDetails[0];
   

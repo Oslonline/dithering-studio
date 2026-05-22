@@ -51,18 +51,18 @@ const Home: React.FC = () => {
     <>
       <Helmet>
         <html lang={i18n.language} />
-        <title>Free Online Image & Video Dithering Tool | Floyd–Steinberg, Bayer (Ordered) & More</title>
-        <meta name="description" content="Dither images and videos online for free using error diffusion (Floyd–Steinberg, Atkinson) and ordered dithering (Bayer matrix, blue noise). Create retro pixel art and reduce gradient banding. Fast, privacy-friendly, fully client-side – no uploads or account required." />
-        <meta property="og:title" content="Free Online Image & Video Dithering Tool" />
-        <meta property="og:description" content="Dither images and videos online for free using Floyd–Steinberg, Bayer ordered dithering, Atkinson, and more. Create retro pixel art and reduce gradient banding." />
+        <title>Online Dithering Tool for Images & Videos | Free, No Uploads</title>
+        <meta name="description" content="Dither images and videos online with Floyd-Steinberg, Bayer, Atkinson, Sierra and 30 algorithms. Export PNG, JPG, WEBP, SVG, GIF, MP4, WebM. Free and fully client-side." />
+        <meta property="og:title" content="Online Dithering Tool for Images & Videos" />
+        <meta property="og:description" content="Free browser-based dithering for images and videos with 30 algorithms, custom palettes, and instant exports. No uploads required." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={getOgUrl('/', i18n.language)} />
         <meta property="og:image" content={getSocialImageUrl()} />
         <meta property="og:locale" content={getOpenGraphLocale(i18n.language)} />
         {generateOpenGraphLocaleAlternates(i18n.language)}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Online Image & Video Dithering Tool" />
-        <meta name="twitter:description" content="Dither images and videos online for free using Floyd–Steinberg, Bayer ordered dithering, Atkinson, and more. Create retro pixel art and reduce gradient banding." />
+        <meta name="twitter:title" content="Online Dithering Tool for Images & Videos" />
+        <meta name="twitter:description" content="Free browser-based dithering for images and videos with 30 algorithms, custom palettes, and instant exports. No uploads required." />
         <meta name="twitter:image" content={getSocialImageUrl()} />
         <link rel="canonical" href={getCanonicalUrlWithLang('/', i18n.language)} />
         {generateHreflangTags('/')}

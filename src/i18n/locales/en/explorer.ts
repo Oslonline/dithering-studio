@@ -5,8 +5,8 @@ const explorer = {
     home: 'Home',
   },
   seo: {
-    title: 'Algorithm Explorer | Dithering Studio',
-    description: 'Browse dithering algorithms with live examples and references.',
+    title: 'Dithering Algorithm Explorer | Compare 30 Algorithms',
+    description: 'Compare 30 dithering algorithms including Floyd-Steinberg, Bayer, Atkinson, Sierra, and Blue Noise with visual examples, artifacts, and use cases.',
   },
   title: 'Algorithm Reference',
   subtitle: 'Explore dithering algorithms, kernels, and visual characteristics',
