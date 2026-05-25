@@ -90,11 +90,15 @@ Everything happens in your browser. Media never leaves your machine. No accounts
 ## Development
 
 - Scripts: `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`
-- Stack: React • TypeScript • Vite • Tailwind • Canvas API
+- Stack: Next.js • React • TypeScript • Tailwind • Canvas API
 
 ## Contributing
 
 Small, focused PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## V2 planning docs
+
+V2 planning and research documents live in [`docs/v2`](./docs/v2/README.md).
 
 ## License
 

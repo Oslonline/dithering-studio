@@ -7,12 +7,12 @@ export type RoutePrefetchKey =
   | "explorer";
 
 const prefetchers: Record<RoutePrefetchKey, () => Promise<unknown>> = {
-  home: () => import("../pages/Home"),
-  tool: () => import("../pages/DitheringTool"),
-  education: () => import("../pages/Education"),
-  educationBasics: () => import("../pages/education/EducationBasics"),
-  educationPractice: () => import("../pages/education/EducationPractice"),
-  explorer: () => import("../pages/AlgorithmExplorer"),
+  home: () => import("../views/Home"),
+  tool: () => import("../views/DitheringTool"),
+  education: () => import("../views/Education"),
+  educationBasics: () => import("../views/education/EducationBasics"),
+  educationPractice: () => import("../views/education/EducationPractice"),
+  explorer: () => import("../views/AlgorithmExplorer"),
 };
 
 export function prefetchRoute(key: RoutePrefetchKey): void {

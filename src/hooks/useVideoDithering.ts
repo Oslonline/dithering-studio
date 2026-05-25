@@ -27,7 +27,7 @@ type ExtraParams = { contrast?: number; midtones?: number; highlights?: number; 
 
 const useVideoDithering = ({ video, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, fps = 12, playing, loop = true, ...extras }: Params & ExtraParams) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
+  const processedCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoElRef = useRef<HTMLVideoElement | null>(null);
   const [ready, setReady] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
@@ -39,6 +39,12 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
   const tokenRef = useRef(0);
   const lastFrameTimeRef = useRef(0);
   const needResizeRef = useRef(true);
+
+  useEffect(() => {
+    if (!processedCanvasRef.current) {
+      processedCanvasRef.current = document.createElement("canvas");
+    }
+  }, []);
 
   useEffect(() => {
     const onResize = () => { needResizeRef.current = true; };

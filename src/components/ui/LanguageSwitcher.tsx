@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from '../../lib/nextRouterCompat';
 import { getPathLang, normalizeLang, replaceLangPrefix, withLangPrefix } from '../../utils/localePath';
 
 const languages = [

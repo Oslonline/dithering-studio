@@ -10,9 +10,13 @@ import hi from './locales/hi/index';
 import de from './locales/de/index';
 
 i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
+  .use(initReactI18next);
+
+if (typeof window !== 'undefined') {
+  i18n.use(LanguageDetector);
+}
+
+i18n.init({
     resources: {
       en: { translation: en },
       fr: { translation: fr },
@@ -26,13 +30,13 @@ i18n
     supportedLngs: ['en', 'fr', 'es', 'zh', 'ru', 'hi', 'de'],
     load: 'languageOnly',
     nonExplicitSupportedLngs: true,
-    detection: {
+    detection: typeof window !== 'undefined' ? {
       // SEO + shareable URLs: prefer explicit locale path prefixes like `/fr/...`.
       order: ['path', 'localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
       lookupFromPathIndex: 0,
       lookupLocalStorage: 'i18nextLng',
-    },
+    } : undefined,
     interpolation: {
       escapeValue: false,
     },

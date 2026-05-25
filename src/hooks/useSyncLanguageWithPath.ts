@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from '../lib/nextRouterCompat';
 import { useTranslation } from 'react-i18next';
 import { normalizeLang, getPathLang, replaceLangPrefix, withLangPrefix, stripLangPrefix } from '../utils/localePath';
 

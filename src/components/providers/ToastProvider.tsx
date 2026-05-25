@@ -38,10 +38,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     [remove],
   );
 
-  // Expose minimal API globally for non-React code paths (e.g., inside hooks without context access when decoupled)
-  (window as any).__toasts = { push };
-  // Also listen for CustomEvent('toast') for non-context callers
+  // Expose minimal API globally for non-React code paths (browser only)
+  // and listen for CustomEvent('toast') for non-context callers.
   useEffect(() => {
+    (window as any).__toasts = { push };
     const handler = (e: any) => {
       const d = e.detail || {};
       push({ message: d.message || "Notice", level: d.variant || d.level || "info", ttl: d.ttl });

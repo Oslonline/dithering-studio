@@ -43,6 +43,9 @@ export const defaultSettings: PersistedSettingsV1 = {
   gridSize: 8,
 };
 
+const canUseStorage = (): boolean =>
+  typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
 function coerceNumber(n: any, fallback: number) { return typeof n === 'number' && !isNaN(n) ? n : fallback; }
 function coerceBool(b: any, fallback: boolean) { return typeof b === 'boolean' ? b : fallback; }
 function coerceArray(a: any) { return Array.isArray(a) ? a : []; }
@@ -50,6 +53,7 @@ function coercePalette(p: any) { return Array.isArray(p) ? p.filter((c: any) => 
 
 // Attempt migration from legacy scattered keys if unified key missing.
 function readLegacy(): PersistedSettingsV1 | null {
+  if (!canUseStorage()) return null;
   try {
     const legacyPattern = localStorage.getItem('ds_pattern');
   if (legacyPattern == null) return null;
@@ -80,6 +84,7 @@ function readLegacy(): PersistedSettingsV1 | null {
 }
 
 export function loadSettings(): PersistedSettingsV1 {
+  if (!canUseStorage()) return { ...defaultSettings };
   try {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (raw) {
@@ -121,6 +126,7 @@ export function loadSettings(): PersistedSettingsV1 {
 
 let writeTimer: any = null;
 export function persistSettings(settings: PersistedSettingsV1, debounceMs = 250) {
+  if (!canUseStorage()) return;
   try {
     if (writeTimer) clearTimeout(writeTimer);
     writeTimer = setTimeout(() => {
@@ -135,5 +141,6 @@ export function persistSettings(settings: PersistedSettingsV1, debounceMs = 250)
 // Optional utility to clear legacy keys after successful consolidation
 export function clearLegacyKeys() {
   const legacy = ['ds_pattern','ds_threshold','ds_workingResolution','ds_paletteId','ds_customPalette','ds_invert','ds_serpentine','ds_asciiRamp','ds_showGrid','ds_gridSize','ds_activeImageId','ds_images'];
+  if (!canUseStorage()) return;
   try { legacy.forEach(k => localStorage.removeItem(k)); } catch {}
 }

@@ -23,7 +23,10 @@ export const useFileProcessor = () => {
 
     for (const file of imageFiles) {
       try {
-        await validateImage(file);
+        const validation = await validateImage(file);
+        if (!validation.valid) {
+          throw new Error(validation.error || 'Invalid image');
+        }
         
         backgroundProcessor.add({
           id: `${file.name}-${Date.now()}`,
@@ -45,6 +48,15 @@ export const useFileProcessor = () => {
             errorList.push(`${file.name}: ${error.message}`);
             trackError(`Image processing error: ${error.message}`, { file: file.name });
             setProcessing(prev => prev - 1);
+            if (results.length + errorList.length === imageFiles.length) {
+              if (results.length > 0) {
+                onComplete(results);
+              }
+              if (errorList.length > 0) {
+                setErrors(errorList);
+                setTimeout(() => setErrors([]), 5000);
+              }
+            }
           }
         });
       } catch (err) {
@@ -52,6 +64,15 @@ export const useFileProcessor = () => {
         errorList.push(`${file.name}: ${error.message}`);
         trackValidationError('image-validation', file, error.message);
         setProcessing(prev => prev - 1);
+        if (results.length + errorList.length === imageFiles.length) {
+          if (results.length > 0) {
+            onComplete(results);
+          }
+          if (errorList.length > 0) {
+            setErrors(errorList);
+            setTimeout(() => setErrors([]), 5000);
+          }
+        }
       }
     }
   }, [trackValidationError, trackError]);

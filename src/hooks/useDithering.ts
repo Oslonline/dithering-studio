@@ -66,7 +66,7 @@ function useDebouncedValue<T>(value: T, delay: number): T {
 
 const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0, customKernel, customKernelDivisor }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const processedCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
+  const processedCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const originalDimensions = useRef({ width: 0, height: 0 });
   const [hasApplied, setHasApplied] = useState(false);
   const [origDims, setOrigDims] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
@@ -99,6 +99,12 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
   const resolvedPalette = useMemo(() => {
     return ((paletteColors && paletteColors.length >= 2) ? paletteColors : null) || findPalette(paletteId || null)?.colors || null;
   }, [paletteId, paletteColors]);
+
+  useEffect(() => {
+    if (!processedCanvasRef.current) {
+      processedCanvasRef.current = document.createElement("canvas");
+    }
+  }, []);
 
   useEffect(() => {
     const onResize = () => setLayoutTick((v: number) => v + 1);
@@ -136,6 +142,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     const displayCtx = displayCanvas.getContext("2d");
     if (!displayCtx) return;
     const procCanvas = processedCanvasRef.current;
+    if (!procCanvas) return;
     const procCtx = procCanvas.getContext("2d");
     if (!procCtx) return;
 
