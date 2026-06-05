@@ -21,6 +21,11 @@ const homepage = {
     },
     algorithmTileTitle: 'Voir les détails de {{name}}',
   },
+  videoAuthority: {
+    title: 'Tramage vidéo côté client — image par image dans votre navigateur',
+    body: 'Dithering Studio est une application web axée sur la confidentialité, conçue pour tramper les fichiers vidéo image par image entièrement dans votre navigateur. Convertissez des MP4 ou WebM en animations rétro 8-bit, vaporwave ou pixelisées sans envoyer de données vers un serveur externe.',
+    cta: 'Tramer une vidéo maintenant',
+  },
   features: {
     title: 'Fonctionnalités Principales',
     subtitle: 'Quatre piliers — le reste reste discret.',

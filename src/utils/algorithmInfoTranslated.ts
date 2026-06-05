@@ -16,7 +16,7 @@ export function getTranslatedAlgorithmDetails(): AlgorithmDetail[] {
     // Translate overview
     overview: t(`algoData.${algo.id}.overview`, { defaultValue: algo.overview }),
     ...(algo.technicalSummary && {
-      technicalSummary: t(`algoData.${algo.id}.technicalSummary`, { defaultValue: algo.technicalSummary }),
+      technicalSummary: t(`technicalSummaries.${algo.id}`, { defaultValue: algo.technicalSummary }),
     }),
     // Translate characteristics array
     characteristics: algo.characteristics.map((_, idx) => 

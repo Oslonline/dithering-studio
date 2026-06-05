@@ -5,6 +5,16 @@ const education = {
             description:
               'Découvrez la définition du dithering et les principales méthodes (dithering ordonné/matrice de Bayer et diffusion d’erreur/Floyd–Steinberg). Quand utiliser le dithering couleur et comment l’essayer en ligne.',
           },
+          techArticle: {
+            headline: 'Qu’est-ce que le dithering ? Guide complet du tramage ordonné et de la diffusion d’erreur',
+            description:
+              'Guide éducatif interactif expliquant les mathématiques du tramage d’images et de vidéos, couvrant plus de 30 algorithmes dont Floyd-Steinberg, Bayer et Blue Noise.',
+            audienceType: 'Développeurs, graphistes, pixel artists',
+            aboutDithering: 'Dithering',
+            aboutFloydSteinberg: 'Algorithme Floyd–Steinberg',
+            aboutErrorDiffusion: 'Diffusion d’erreur',
+            aboutOrderedDithering: 'Tramage ordonné',
+          },
 
           header: {
             title: 'Éducation',

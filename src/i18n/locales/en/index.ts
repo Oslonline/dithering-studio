@@ -5,6 +5,7 @@ import explorer from './explorer';
 import common from './common';
 import algoData from './algoData';
 import education from './education';
+import technicalSummaries from './technicalSummaries';
 
 const en = {
   ...layout,
@@ -14,6 +15,7 @@ const en = {
   explorer,
   ...common,
   ...algoData,
+  ...technicalSummaries,
 };
 
 export default en;

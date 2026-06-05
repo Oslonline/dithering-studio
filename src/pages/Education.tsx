@@ -158,18 +158,34 @@ const Education: React.FC = () => {
   const techArticleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": "What Is Dithering? Complete Guide to Ordered & Error Diffusion",
-    "description": "An interactive educational reference guide explaining digital image and video dithering math, covering 30+ algorithms including Floyd-Steinberg, Bayer, and Blue Noise.",
+    "headline": t("education.techArticle.headline", {
+      defaultValue: "What Is Dithering? Complete Guide to Ordered & Error Diffusion",
+    }),
+    "description": t("education.techArticle.description", {
+      defaultValue:
+        "An interactive educational reference guide explaining digital image and video dithering math, covering 30+ algorithms including Floyd-Steinberg, Bayer, and Blue Noise.",
+    }),
     "inLanguage": i18n.language?.startsWith("en") ? "en" : i18n.language,
     "about": [
-      { "@type": "Thing", "name": "Dithering" },
-      { "@type": "Thing", "name": "Floyd–Steinberg algorithm" },
-      { "@type": "Thing", "name": "Error diffusion" },
-      { "@type": "Thing", "name": "Ordered dithering" },
+      { "@type": "Thing", "name": t("education.techArticle.aboutDithering", { defaultValue: "Dithering" }) },
+      {
+        "@type": "Thing",
+        "name": t("education.techArticle.aboutFloydSteinberg", { defaultValue: "Floyd–Steinberg algorithm" }),
+      },
+      {
+        "@type": "Thing",
+        "name": t("education.techArticle.aboutErrorDiffusion", { defaultValue: "Error diffusion" }),
+      },
+      {
+        "@type": "Thing",
+        "name": t("education.techArticle.aboutOrderedDithering", { defaultValue: "Ordered dithering" }),
+      },
     ],
     "audience": {
       "@type": "Audience",
-      "audienceType": "Developers, Graphic Designers, Pixel Artists",
+      "audienceType": t("education.techArticle.audienceType", {
+        defaultValue: "Developers, Graphic Designers, Pixel Artists",
+      }),
     },
     "url": getCanonicalUrlWithLang(EDUCATION_PATH, i18n.language),
   };

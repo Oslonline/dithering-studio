@@ -5,6 +5,16 @@ const education = {
           description:
             'Dithering की परिभाषा, ordered dithering (Bayer matrix) बनाम error diffusion (Floyd–Steinberg), color dithering कब उपयोगी है, और इसे ऑनलाइन कैसे आज़माएँ।',
         },
+        techArticle: {
+          headline: 'Dithering क्या है? Ordered और Error Diffusion का पूरा गाइड',
+          description:
+            'डिजिटल इमेज और वीडियो डिथरिंग गणित समझाने वाला इंटरैक्टिव शैक्षिक संदर्भ गाइड, 30+ एल्गोरिदम सहित Floyd-Steinberg, Bayer और Blue Noise।',
+          audienceType: 'डेवलपर, ग्राफ़िक डिज़ाइनर, पिक्सेल कलाकार',
+          aboutDithering: 'Dithering',
+          aboutFloydSteinberg: 'Floyd–Steinberg एल्गोरिदम',
+          aboutErrorDiffusion: 'Error diffusion',
+          aboutOrderedDithering: 'Ordered dithering',
+        },
 
         header: {
           title: 'Education',

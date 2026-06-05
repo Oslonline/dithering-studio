@@ -5,6 +5,16 @@ const education = {
       description:
         'Learn what dithering is, when to use it, and how Bayer ordered dithering compares to Floyd-Steinberg error diffusion. Practical guide with examples and tool links.',
     },
+    techArticle: {
+      headline: 'What Is Dithering? Complete Guide to Ordered & Error Diffusion',
+      description:
+        'An interactive educational reference guide explaining digital image and video dithering math, covering 30+ algorithms including Floyd-Steinberg, Bayer, and Blue Noise.',
+      audienceType: 'Developers, Graphic Designers, Pixel Artists',
+      aboutDithering: 'Dithering',
+      aboutFloydSteinberg: 'Floyd–Steinberg algorithm',
+      aboutErrorDiffusion: 'Error diffusion',
+      aboutOrderedDithering: 'Ordered dithering',
+    },
 
     header: {
       title: 'Education',

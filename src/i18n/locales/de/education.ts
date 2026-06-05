@@ -5,6 +5,16 @@ const education = {
             description:
               'Lerne die Dithering-Definition und die wichtigsten Methoden (Ordered Dithering/Bayer-Matrix und Error Diffusion/Floyd–Steinberg). Wann Farbdithering hilft und wie du es online ausprobierst.',
           },
+          techArticle: {
+            headline: 'Was ist Dithering? Vollständiger Leitfaden zu Ordered Dithering & Error Diffusion',
+            description:
+              'Interaktiver Bildungsleitfaden zur Mathematik von Bild- und Video-Dithering mit über 30 Algorithmen, darunter Floyd-Steinberg, Bayer und Blue Noise.',
+            audienceType: 'Entwickler, Grafikdesigner, Pixel Artists',
+            aboutDithering: 'Dithering',
+            aboutFloydSteinberg: 'Floyd–Steinberg-Algorithmus',
+            aboutErrorDiffusion: 'Error Diffusion',
+            aboutOrderedDithering: 'Ordered Dithering',
+          },
 
           header: {
             title: 'Education',
