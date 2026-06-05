@@ -98,6 +98,20 @@ const Home: React.FC = () => {
             </section>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
 
+            {/* VIDEO DITHERING AUTHORITY */}
+            <section className="w-full max-w-5xl space-y-4 text-center">
+              <h2 className="font-anton text-xl tracking-tight sm:text-2xl">{t('videoAuthority.title')}</h2>
+              <p className="mx-auto max-w-3xl text-[11px] leading-relaxed text-gray-400 sm:text-[12px] md:text-[13px]">
+                {t('videoAuthority.body')}
+              </p>
+              <div>
+                <Link to={withLangPrefix('/Dithering/Video', activeLang)} className="clean-btn clean-btn-primary px-6 py-2 text-[11px]">
+                  {t('videoAuthority.cta')}
+                </Link>
+              </div>
+            </section>
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-800/70 to-transparent" />
+
             {/* FEATURE GRID */}
             <section className="w-full max-w-5xl space-y-10">
               <div className="space-y-2 text-center">

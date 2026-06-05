@@ -155,6 +155,25 @@ const Education: React.FC = () => {
     defaultValue: "Learn the dithering definition and the main methods (ordered dithering/Bayer matrix and error diffusion/Floyd–Steinberg). See when to use color dithering and try it online.",
   });
 
+  const techArticleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "What Is Dithering? Complete Guide to Ordered & Error Diffusion",
+    "description": "An interactive educational reference guide explaining digital image and video dithering math, covering 30+ algorithms including Floyd-Steinberg, Bayer, and Blue Noise.",
+    "inLanguage": i18n.language?.startsWith("en") ? "en" : i18n.language,
+    "about": [
+      { "@type": "Thing", "name": "Dithering" },
+      { "@type": "Thing", "name": "Floyd–Steinberg algorithm" },
+      { "@type": "Thing", "name": "Error diffusion" },
+      { "@type": "Thing", "name": "Ordered dithering" },
+    ],
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Developers, Graphic Designers, Pixel Artists",
+    },
+    "url": getCanonicalUrlWithLang(EDUCATION_PATH, i18n.language),
+  };
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -214,6 +233,7 @@ const Education: React.FC = () => {
 
         <link rel="canonical" href={getCanonicalUrlWithLang(EDUCATION_PATH, i18n.language)} />
         {generateHreflangTags(EDUCATION_PATH)}
+        <script type="application/ld+json">{JSON.stringify(techArticleJsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 

@@ -24,6 +24,7 @@ export interface AlgorithmDetail {
   implementationNotes?: string[];
   references?: string[];
   notes?: string[];
+  technicalSummary?: string;
 }
 
 export const algorithmDetails: AlgorithmDetail[] = [
@@ -60,6 +61,7 @@ export const algorithmDetails: AlgorithmDetail[] = [
 ];
 
 import { algorithms } from './algorithms';
+import { getAlgorithmTechnicalSummary } from './algorithmTechnicalSummaries';
 
 /**
  * Returns algorithm details in the same order as the runtime algorithm registry.
@@ -71,11 +73,13 @@ export function getOrderedAlgorithmDetails(): AlgorithmDetail[] {
   return algorithms.map((meta) => {
     const existing = byId.get(meta.id);
     if (existing) {
+      const technicalSummary = getAlgorithmTechnicalSummary(meta.id);
+      const merged = technicalSummary ? { ...existing, technicalSummary } : existing;
       // Ensure name/category stay consistent with the registry.
-      if (existing.name !== meta.name || existing.category !== meta.category) {
-        return { ...existing, name: meta.name, category: meta.category };
+      if (merged.name !== meta.name || merged.category !== meta.category) {
+        return { ...merged, name: meta.name, category: meta.category };
       }
-      return existing;
+      return merged;
     }
 
     // Fallback: registry algorithm exists but has no long-form info entry yet.

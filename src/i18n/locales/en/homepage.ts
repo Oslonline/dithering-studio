@@ -21,6 +21,11 @@ const homepage = {
     },
     algorithmTileTitle: 'View {{name}} details',
   },
+  videoAuthority: {
+    title: 'Client-Side Video Dithering — Frame by Frame in Your Browser',
+    body: 'Dithering Studio is a privacy-first web application designed to dither video files frame-by-frame entirely in your browser. Convert MP4 or WebM formats into retro 8-bit, vaporwave, or pixelized animations without uploading data to an external server.',
+    cta: 'Dither a video now',
+  },
   features: {
     title: 'Core Features',
     subtitle: 'Four anchors — the rest stays out of the way.',
