@@ -28,6 +28,7 @@ export interface SettingsContextValue {
   serpentinePattern: SerpentinePattern; setSerpentinePattern: React.Dispatch<React.SetStateAction<SerpentinePattern>>;
   errorDiffusionStrength: number; setErrorDiffusionStrength: React.Dispatch<React.SetStateAction<number>>;
   asciiRamp: string; setAsciiRamp: React.Dispatch<React.SetStateAction<string>>;
+  asciiCellSize: number; setAsciiCellSize: React.Dispatch<React.SetStateAction<number>>;
   showGrid: boolean; setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   gridSize: number; setGridSize: React.Dispatch<React.SetStateAction<number>>;
   focusMode: boolean; setFocusMode: React.Dispatch<React.SetStateAction<boolean>>;

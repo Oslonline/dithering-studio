@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaImage, FaExclamationTriangle, FaSpinner } from "react-icons/fa";
 import { useFileProcessor } from "../../hooks/useFileProcessor";
+import { MAX_TOOL_IMAGES } from "../../lib/tool/limits";
 
 interface DesktopImageUploaderProps { onImagesAdded: (items: { url: string; name?: string; file?: File }[]) => void; }
 
@@ -46,7 +47,7 @@ const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdd
   return (
     <div className="w-full space-y-2">
       <div
-        className={`drop-zone ${dragActive ? "drag" : ""} ${processing > 0 ? "opacity-60" : ""}`}
+        className={`drop-zone relative ${dragActive ? "drag" : ""} ${processing > 0 ? "opacity-60" : ""}`}
         onClick={handleClick}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -54,7 +55,7 @@ const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdd
         role="button"
         tabIndex={0}
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClick()}
-        aria-label={t('tool.ariaUploadImage')}
+        aria-label={t("tool.ariaUploadImage")}
       >
         {processing > 0 ? (
           <FaSpinner className="text-4xl text-blue-500 animate-spin" aria-hidden="true" />
@@ -65,7 +66,9 @@ const DesktopImageUploader: React.FC<DesktopImageUploaderProps> = ({ onImagesAdd
           {processing > 0 ? `Processing ${processing} file(s)...` : (dragActive ? t('tool.upload.dropToLoad') : t('tool.upload.clickOrDragImages'))}
         </p>
         <p className="text-[10px] text-gray-500">{t('tool.upload.imageFormats')}</p>
-        <p className="text-[9px] text-gray-600 mt-1">Max 50MB per file, up to 16384×16384px</p>
+        <p className="mt-1 text-[9px] text-gray-600">
+          {t('tool.upload.maxImages', { max: MAX_TOOL_IMAGES, defaultValue: `Up to ${MAX_TOOL_IMAGES} images at once` })} · Max 50MB per file
+        </p>
         <input
           ref={inputRef}
           id="file-upload-desktop"

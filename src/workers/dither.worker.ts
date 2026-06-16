@@ -76,7 +76,8 @@ function handleDither(request: WorkerRequest & { type: 'dither' }): void {
         serpentine: params.serpentine,
         isErrorDiffusion: algorithm.category === 'Error Diffusion',
         palette: params.palette,
-        asciiRamp: params.asciiRamp
+        asciiRamp: params.asciiRamp,
+        asciiCellSize: params.asciiCellSize
       }
     };
 
@@ -156,7 +157,8 @@ function handleOffscreenDither(request: WorkerRequest & { type: 'offscreen-dithe
         serpentine: params.serpentine,
         isErrorDiffusion: algorithm.category === 'Error Diffusion',
         palette: params.palette,
-        asciiRamp: params.asciiRamp
+        asciiRamp: params.asciiRamp,
+        asciiCellSize: params.asciiCellSize
       }
     };
 

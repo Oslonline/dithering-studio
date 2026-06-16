@@ -34,6 +34,7 @@ export interface DitherWorkerRequest {
       palette?: [number, number, number][];
       /** Optional ASCII ramp */
       asciiRamp?: string;
+      asciiCellSize?: number;
     };
   };
 }
@@ -64,6 +65,7 @@ export interface OffscreenDitherRequest {
       palette?: [number, number, number][];
       /** Optional ASCII ramp */
       asciiRamp?: string;
+      asciiCellSize?: number;
     };
   };
 }

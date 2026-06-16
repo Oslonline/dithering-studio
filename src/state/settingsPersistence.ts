@@ -17,6 +17,7 @@ export interface PersistedSettingsV1 {
   invert: boolean;
   serpentine: boolean;
   asciiRamp: string;
+  asciiCellSize: number;
   showGrid: boolean;
   gridSize: number;
 }
@@ -39,6 +40,7 @@ export const defaultSettings: PersistedSettingsV1 = {
   invert: false,
   serpentine: true,
   asciiRamp: '@%#*+=-:. ',
+  asciiCellSize: 10,
   showGrid: false,
   gridSize: 8,
 };
@@ -75,6 +77,7 @@ function readLegacy(): PersistedSettingsV1 | null {
       invert: localStorage.getItem('ds_invert') === '1',
       serpentine: localStorage.getItem('ds_serpentine') !== '0',
       asciiRamp: (() => { const v = localStorage.getItem('ds_asciiRamp'); return v && v.length >= 2 ? v : '@%#*+=-:. '; })(),
+      asciiCellSize: (() => { const v = +(localStorage.getItem('ds_asciiCellSize') || 10); return v >= 4 && v <= 24 ? v : 10; })(),
       showGrid: localStorage.getItem('ds_showGrid') === '1',
       gridSize: (() => { const v = +(localStorage.getItem('ds_gridSize') || 8); return [4,6,8,12,16].includes(v) ? v : 8; })(),
     };
@@ -107,6 +110,7 @@ export function loadSettings(): PersistedSettingsV1 {
             invert: coerceBool(parsed.invert, false),
             serpentine: coerceBool(parsed.serpentine, true),
             asciiRamp: typeof parsed.asciiRamp === 'string' && parsed.asciiRamp.length >= 2 ? parsed.asciiRamp : '@%#*+=-:. ',
+            asciiCellSize: (() => { const v = coerceNumber(parsed.asciiCellSize, 10); return Math.max(4, Math.min(24, Math.round(v))); })(),
             showGrid: coerceBool(parsed.showGrid, false),
             gridSize: (() => { const v = coerceNumber(parsed.gridSize, 8); return [4,6,8,12,16].includes(v) ? v : 8; })(),
         };
@@ -140,7 +144,7 @@ export function persistSettings(settings: PersistedSettingsV1, debounceMs = 250)
 
 // Optional utility to clear legacy keys after successful consolidation
 export function clearLegacyKeys() {
-  const legacy = ['ds_pattern','ds_threshold','ds_workingResolution','ds_paletteId','ds_customPalette','ds_invert','ds_serpentine','ds_asciiRamp','ds_showGrid','ds_gridSize','ds_activeImageId','ds_images'];
+  const legacy = ['ds_pattern','ds_threshold','ds_workingResolution','ds_paletteId','ds_customPalette','ds_invert','ds_serpentine','ds_asciiRamp','ds_asciiCellSize','ds_showGrid','ds_gridSize','ds_activeImageId','ds_images'];
   if (!canUseStorage()) return;
   try { legacy.forEach(k => localStorage.removeItem(k)); } catch {}
 }

@@ -5,19 +5,23 @@ import { useTranslation } from "react-i18next";
 import { useSettings } from "../state/SettingsContext";
 import { canvasToSVG, exportAtOriginalResolution, exportVideoFrameAtOriginalResolution } from "../utils/export";
 import { Link, useNavigate } from "../lib/nextRouterCompat";
-import ImageUploader from "../components/uploaders/ImageUploader";
+import ImageUploadSection from "../components/uploaders/ImageUploadSection";
+import ToolModeSwitch from "../components/uploaders/ToolModeSwitch";
 import VideoUploader from "../components/uploaders/VideoUploader";
-import ImagesPanel, { UploadedImage } from "../components/panels/ImagesPanel";
+import FloatingImagesStrip from "../components/panels/FloatingImagesStrip";
+import type { UploadedImage } from "../components/panels/ImagesPanel";
 import VideosPanel, { UploadedVideo } from "../components/panels/VideosPanel";
 import AlgorithmPanel from "../components/panels/AlgorithmPanel";
+import AsciiPanel from "../components/panels/AsciiPanel";
 import PalettePanel from "../components/panels/PalettePanel";
 import TonePanel from "../components/panels/TonePanel";
 import UploadIntro from "../components/uploaders/UploadIntro";
 import useDithering from "../hooks/useDithering";
 import useVideoDithering from "../hooks/useVideoDithering";
-import PerformanceOverlay from "../components/ui/PerformanceOverlay";
+import ToolCanvasHints from "../components/ui/ToolCanvasHints";
 import ProcessingOverlay from "../components/ui/ProcessingOverlay";
 import MediaComparison from "../components/ui/MediaComparison";
+import CompareToggleButton from "../components/ui/CompareToggleButton";
 import VideoControls from "../components/ui/VideoControls";
 import CanvasViewport from "../components/canvas/CanvasViewport";
 import ExportDialog from "../components/dialogs/ExportDialog";
@@ -43,6 +47,8 @@ import CustomKernelEditor from "../components/panels/CustomKernelEditor";
 import RandomizeButton from "../components/ui/RandomizeButton";
 import ResizableSidebar from "../components/ui/ResizableSidebar";
 import { normalizeLang, withLangPrefix } from "../utils/localePath";
+import { TOOL_SAMPLE_IMAGES } from "../lib/tool/sampleImages";
+import { MAX_TOOL_IMAGES } from "../lib/tool/limits";
 import { features } from "../lib/features";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
@@ -94,6 +100,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setErrorDiffusionStrength,
     asciiRamp,
     setAsciiRamp,
+    asciiCellSize,
+    setAsciiCellSize,
     showGrid,
     setShowGrid,
     gridSize,
@@ -116,22 +124,31 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const [localWebpChecked, setLocalWebpChecked] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [canvasDimensions, setCanvasDimensions] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
+  const [imageLimitNotice, setImageLimitNotice] = useState<string | null>(null);
 
-  // Define loadDemoImage early so it can be used in useApplyUrlParams
+  const loadSampleImage = useCallback(
+    (url: string, name: string) => {
+      setImages((prev: UploadedImage[]) => {
+        const id = `${Date.now()}-sample`;
+        const imgEl = new Image();
+        imgEl.onload = () => {
+          setImages((cur: UploadedImage[]) =>
+            cur.map((ci: UploadedImage) => (ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci)),
+          );
+        };
+        imgEl.src = url;
+        const newImage = { id, url, name };
+        setActiveImageId(id);
+        return [...prev, newImage];
+      });
+    },
+    [setImages, setActiveImageId],
+  );
+
   const loadDemoImage = useCallback(() => {
-    const url = '/base-sample.webp';
-    setImages((prev: UploadedImage[]) => {
-      const id = `${Date.now()}-demo`;
-      const imgEl = new Image();
-      imgEl.onload = () => {
-        setImages((cur: UploadedImage[]) => cur.map((ci: UploadedImage) => (ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci)));
-      };
-      imgEl.src = url;
-      const newImage = { id, url, name: 'base-sample.webp' };
-      setActiveImageId(id);
-      return [...prev, newImage];
-    });
-  }, [setImages, setActiveImageId]);
+    const first = TOOL_SAMPLE_IMAGES[0];
+    if (first) loadSampleImage(first.src, first.name);
+  }, [loadSampleImage]);
 
   useEffect(() => {
     if (initialMode === "video" && !videoMode) {
@@ -239,6 +256,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
     asciiRamp: isAscii ? asciiRamp : undefined,
+    asciiCellSize: isAscii ? asciiCellSize : undefined,
     contrast,
     midtones,
     highlights,
@@ -259,6 +277,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     paletteId: paletteSupported ? paletteId : null,
     paletteColors: activePaletteColors || undefined,
     asciiRamp: isAscii ? asciiRamp : undefined,
+    asciiCellSize: isAscii ? asciiCellSize : undefined,
     fps: videoFps,
     playing: videoPlaying,
     loop: true,
@@ -267,7 +286,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     highlights,
     blurRadius,
   });
-  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag, processedSizeBytes } = videoMode ? videoHook : imageHook;
+  const { canvasRef, processedCanvasRef, hasApplied, canvasUpdatedFlag } = videoMode ? videoHook : imageHook;
   const busy = !videoMode ? (imageHook as any).busy : false;
   const videoDuration = videoMode ? (videoHook as any).duration : 0;
   const videoCurrentTime = videoMode ? (videoHook as any).currentTime : 0;
@@ -285,12 +304,12 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
 
   const mediaActive = (!videoMode && !!image) || (videoMode && !!currentVideo);
 
-  const switchMode = () => {
-    if (videoMode) {
-      navigate(withLangPrefix("/Dithering/Image", activeLang));
-    } else {
-      navigate(withLangPrefix("/Dithering/Video", activeLang));
-    }
+  const goImageMode = () => {
+    if (videoMode) navigate(withLangPrefix("/Dithering/Image", activeLang));
+  };
+
+  const goVideoMode = () => {
+    if (!videoMode) navigate(withLangPrefix("/Dithering/Video", activeLang));
   };
 
   // Reset perf data when active image or video changes (fresh stats per media)
@@ -323,14 +342,29 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
 
   const addImages = (items: { url: string; name?: string; file?: File }[]) => {
     setImages((prev: UploadedImage[]) => {
+      const room = MAX_TOOL_IMAGES - prev.length;
+      if (room <= 0) {
+        setImageLimitNotice(t("tool.imagesPanel.maxReached", { max: MAX_TOOL_IMAGES, defaultValue: `Maximum ${MAX_TOOL_IMAGES} images at once.` }));
+        return prev;
+      }
+
+      const accepted = items.slice(0, room);
+      if (accepted.length < items.length) {
+        setImageLimitNotice(
+          t("tool.imagesPanel.maxTrimmed", {
+            max: MAX_TOOL_IMAGES,
+            defaultValue: `Only ${MAX_TOOL_IMAGES} images can be loaded at once. Extra files were skipped.`,
+          }),
+        );
+      }
+
       const next = [...prev];
-      items.forEach((it, idx) => {
+      accepted.forEach((it, idx) => {
         const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${idx}`;
         let meta: Partial<UploadedImage> = {};
         if (it.file) {
           meta.size = it.file.size;
         }
-        // try to get dimensions
         const imgEl = new Image();
         imgEl.onload = () => {
           setImages((cur: UploadedImage[]) => cur.map((ci: UploadedImage) => (ci.id === id ? { ...ci, width: imgEl.width, height: imgEl.height } : ci)));
@@ -340,27 +374,18 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
       });
       const hasValidActive = !!activeImageId && next.some((img) => img.id === activeImageId);
       if (!hasValidActive && next.length > 0) {
-        setActiveImageId(next[next.length - items.length]?.id ?? next[0].id);
+        setActiveImageId(next[next.length - accepted.length]?.id ?? next[0].id);
       }
       return next;
     });
   };
+
+  useEffect(() => {
+    if (!imageLimitNotice) return;
+    const timer = window.setTimeout(() => setImageLimitNotice(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [imageLimitNotice]);
   
-  const readAndAddFiles = (files: FileList) => {
-    const toRead = Array.from(files).filter((f) => f.type.startsWith("image/"));
-    if (!toRead.length) return;
-    const collected: { url: string; name?: string; file?: File }[] = [];
-    let remaining = toRead.length;
-    toRead.forEach((f) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        collected.push({ url: e.target?.result as string, name: f.name, file: f });
-        remaining--;
-        if (remaining === 0) addImages(collected);
-      };
-      reader.readAsDataURL(f);
-    });
-  };
   const removeImage = (id: string) => {
     setImages((prev: UploadedImage[]) => {
       const next = prev.filter((i: UploadedImage) => i.id !== id);
@@ -430,6 +455,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     setHighlights(0);
     setBlurRadius(0);
     setAsciiRamp("@%#*+=-:. ");
+    setAsciiCellSize(10);
     setContrast(0);
     setMidtones(1.0);
     setHighlights(0);
@@ -519,7 +545,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           errorDiffusionStrength,
           isErrorDiffusion: isErrorDiffusion(pattern),
           paletteColors: activePaletteColors,
-          asciiRamp,
+          asciiRamp: isAscii ? asciiRamp : undefined,
+          asciiCellSize: isAscii ? asciiCellSize : undefined,
           contrast,
           midtones,
           highlights,
@@ -573,7 +600,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           errorDiffusionStrength,
           isErrorDiffusion: isErrorDiffusion(pattern),
           paletteColors: activePaletteColors,
-          asciiRamp,
+          asciiRamp: isAscii ? asciiRamp : undefined,
+          asciiCellSize: isAscii ? asciiCellSize : undefined,
           contrast,
           midtones,
           highlights,
@@ -640,7 +668,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           errorDiffusionStrength,
           isErrorDiffusion: isErrorDiffusion(pattern),
           paletteColors: activePaletteColors,
-          asciiRamp,
+          asciiRamp: isAscii ? asciiRamp : undefined,
+          asciiCellSize: isAscii ? asciiCellSize : undefined,
           contrast,
           midtones,
           highlights,
@@ -686,7 +715,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           errorDiffusionStrength,
           isErrorDiffusion: isErrorDiffusion(pattern),
           paletteColors: activePaletteColors,
-          asciiRamp,
+          asciiRamp: isAscii ? asciiRamp : undefined,
+          asciiCellSize: isAscii ? asciiCellSize : undefined,
           contrast,
           midtones,
           highlights,
@@ -738,16 +768,131 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     <>
       <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? "focus-mode" : ""}`}>
         <div ref={headerRef as React.RefObject<HTMLDivElement>} className={focusMode ? "hidden" : ""}>
-          <Header activeNav="tool" videoMode={videoMode} onModeSwitch={switchMode} />
+          <Header activeNav="tool" />
         </div>
         <div id="main-content" className="flex flex-1 flex-col overflow-hidden md:flex-row">
+          <main className="relative order-1 flex flex-1 items-center justify-center overflow-auto">
+            {!mediaActive && (
+              <div className="w-full max-w-lg space-y-4 px-4 py-6">
+                {!videoMode && (
+                  <ImageUploadSection
+                    onImagesAdded={(items) => addImages(items)}
+                    onSampleSelect={loadSampleImage}
+                  />
+                )}
+                {videoMode && videos.length === 0 && <VideoUploader onVideosSelected={(items) => addVideos(items)} />}
+                <ToolModeSwitch videoMode={videoMode} onSelectImage={goImageMode} onSelectVideo={goVideoMode} />
+                <p className="text-center text-[10px] text-gray-500">{t('tool.selectMedia')}</p>
+                {imageLimitNotice && (
+                  <p className="text-center text-[10px] text-amber-300/90">{imageLimitNotice}</p>
+                )}
+              </div>
+            )}
+            {mediaActive && !videoMode && image && (
+              <div className="relative h-full w-full min-h-0 flex-1">
+              <CanvasViewport className="h-full w-full">
+                <div className="relative inline-block">
+                  <div className="relative">
+                  {/* Canvas always renders - this is the source of truth for the processed (dithered) image */}
+                  <canvas 
+                    ref={canvasRef} 
+                    className={`${isAscii ? 'ascii-canvas' : 'pixelated'} ${canvasUpdatedFlag ? "updated" : ""}`} 
+                    aria-label={t('tool.ariaDitheredImagePreview')} 
+                  />
+                  
+                  {/* Comparison overlay - reveals original image on the left side via slider */}
+                  {/* The right side is transparent, showing the canvas (processed image) underneath */}
+                  {showComparison && (
+                    <div className="absolute inset-0 pointer-events-auto">
+                      <MediaComparison
+                        beforeImage={image}
+                        width={canvasDimensions.width}
+                        height={canvasDimensions.height}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Grid overlay */}
+                  {showGrid && !showComparison && (
+                    <>
+                      <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
+                      <button
+                        onClick={() => {
+                          const order = [4, 6, 8, 12, 16];
+                          setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
+                        }}
+                        className="grid-size-badge"
+                        title={t('tool.cycleGridSize')}
+                      >
+                        {gridSize}px
+                      </button>
+                    </>
+                  )}
+                  </div>
+                  
+                  {/* Compare toggle — sits outside the image, top-right */}
+                  {hasApplied && (
+                    <CompareToggleButton
+                      active={showComparison}
+                      onToggle={() => {
+                        triggerHaptic("light");
+                        setShowComparison(!showComparison);
+                      }}
+                    />
+                  )}
+                </div>
+              </CanvasViewport>
+              <FloatingImagesStrip
+                images={images}
+                activeId={activeImageId}
+                onSelect={setActiveImageId}
+                onRemove={removeImage}
+              />
+              {imageLimitNotice && (
+                <p className="pointer-events-none absolute bottom-24 left-1/2 z-30 max-w-sm -translate-x-1/2 text-center text-[10px] text-amber-300/90">
+                  {imageLimitNotice}
+                </p>
+              )}
+              </div>
+            )}
+            {mediaActive && videoMode && currentVideo && (
+              <CanvasViewport>
+                <div className="relative inline-block">
+                  <div className="relative">
+                  <canvas ref={canvasRef} className={`${isAscii ? 'ascii-canvas' : 'pixelated'} ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
+                  
+                  {/* Comparison overlay for video - shows original video on left side */}
+                  {showComparison && (videoHook as any).videoElRef?.current && (
+                    <div className="absolute inset-0 pointer-events-auto">
+                      <MediaComparison
+                        beforeVideo={(videoHook as any).videoElRef.current}
+                        width={canvasDimensions.width}
+                        height={canvasDimensions.height}
+                      />
+                    </div>
+                  )}
+                  </div>
+                  
+                  {hasApplied && (
+                    <CompareToggleButton
+                      active={showComparison}
+                      onToggle={() => {
+                        triggerHaptic("light");
+                        setShowComparison(!showComparison);
+                      }}
+                    />
+                  )}
+                </div>
+              </CanvasViewport>
+            )}
+          </main>
           {!focusMode && (
             <ResizableSidebar
               defaultWidth={320}
               minWidth={280}
               maxWidth={500}
-              side="left"
-              className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:border-r md:border-b-0"
+              side="right"
+              className="order-2 flex w-full flex-shrink-0 flex-col border-t border-neutral-800 bg-[#0d0d0d] md:order-2 md:border-t-0 md:border-l"
             >
               <div className="flex flex-1 flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto" style={settingsHeight ? { maxHeight: settingsHeight } : undefined}>
@@ -760,15 +905,17 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                     <div className="px-4 pt-4 pb-6">
                       <div className="settings-stack space-y-6">
                         {videoMode && videos.length > 0 && (
-                          <div className="flex gap-2">
-                            <button onClick={clearAllVideos} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherVideo')}>
-                              <span className="text-[13px]">⬆</span>
-                              <span>{t('tool.changeVideo')}</span>
-                            </button>
-                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettings')}>
-                              <span className="text-[13px]">↺</span>
-                              <span>{t('tool.reset')}</span>
-                            </button>
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <button onClick={clearAllVideos} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherVideo')}>
+                                <span className="text-[13px]">⬆</span>
+                                <span>{t('tool.changeVideo')}</span>
+                              </button>
+                              <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettings')}>
+                                <span className="text-[13px]">↺</span>
+                                <span>{t('tool.reset')}</span>
+                              </button>
+                            </div>
                             <RandomizeButton
                               currentPattern={pattern}
                               setPattern={setPattern}
@@ -784,19 +931,22 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                               setSerpentine={setSerpentine}
                               title={t('tool.randomizeSettings')}
                               ariaLabel={t('tool.randomizeSettings')}
+                              label={t('tool.randomSettings', { defaultValue: 'Random settings' })}
                             />
                           </div>
                         )}
                         {!videoMode && images.length > 0 && (
-                          <div className="flex gap-2">
-                            <button onClick={clearAllImages} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherImage')}>
-                              <span className="text-[13px]">⬆</span>
-                              <span>{t('tool.changeImage')}</span>
-                            </button>
-                            <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettingsDefaults')}>
-                              <span className="text-[13px]">↺</span>
-                              <span>{t('tool.reset')}</span>
-                            </button>
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <button onClick={clearAllImages} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.chooseAnotherImage')}>
+                                <span className="text-[13px]">⬆</span>
+                                <span>{t('tool.changeImage')}</span>
+                              </button>
+                              <button onClick={resetSettings} className="clean-btn flex-1 justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide" title={t('tool.resetAllSettingsDefaults')}>
+                                <span className="text-[13px]">↺</span>
+                                <span>{t('tool.reset')}</span>
+                              </button>
+                            </div>
                             <RandomizeButton
                               currentPattern={pattern}
                               setPattern={setPattern}
@@ -812,6 +962,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                               setSerpentine={setSerpentine}
                               title={t('tool.randomizeSettings')}
                               ariaLabel={t('tool.randomizeSettings')}
+                              label={t('tool.randomSettings', { defaultValue: 'Random settings' })}
                             />
                           </div>
                         )}
@@ -825,16 +976,6 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             videoFps={videoFps}
                             setVideoFps={setVideoFps}
                             videoReady={videoReady}
-                          />
-                        )}
-                        {!videoMode && images.length > 1 && (
-                          <ImagesPanel
-                            images={images}
-                            activeId={activeImageId}
-                            setActiveId={setActiveImageId}
-                            removeImage={removeImage}
-                            addImages={readAndAddFiles}
-                            clearAll={clearAllImages}
                           />
                         )}
                         {videoMode && videos.length > 1 && (
@@ -852,7 +993,29 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             clearAll={clearAllVideos}
                           />
                         )}
-                        <AlgorithmPanel pattern={pattern} setPattern={setPattern} threshold={threshold} setThreshold={setThreshold} invert={invert} setInvert={setInvert} paletteId={paletteId} asciiRamp={asciiRamp} setAsciiRamp={setAsciiRamp} />
+                        {isAscii ? (
+                          <AsciiPanel
+                            pattern={pattern}
+                            setPattern={setPattern}
+                            threshold={threshold}
+                            setThreshold={setThreshold}
+                            invert={invert}
+                            setInvert={setInvert}
+                            asciiRamp={asciiRamp}
+                            setAsciiRamp={setAsciiRamp}
+                            asciiCellSize={asciiCellSize}
+                            setAsciiCellSize={setAsciiCellSize}
+                          />
+                        ) : (
+                          <AlgorithmPanel
+                            pattern={pattern}
+                            setPattern={setPattern}
+                            threshold={threshold}
+                            setThreshold={setThreshold}
+                            invert={invert}
+                            setInvert={setInvert}
+                          />
+                        )}
                         {pattern === 26 && <CustomKernelEditor inline={false} />}
                         <TonePanel 
                           contrast={contrast} 
@@ -877,15 +1040,56 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                         />
                         {paletteSupported && <PalettePanel binaryMode={isBinary} paletteId={paletteId} setPaletteId={setPaletteId} activePaletteColors={activePaletteColors} setActivePaletteColors={setActivePaletteColors} image={!videoMode ? image : undefined} videoCanvas={videoMode ? videoCanvasForPalette : undefined} isVideoMode={videoMode} />}
                         <PresetPanel
-                          current={{ params: { pattern, threshold, invert, serpentine, isErrorDiffusion: isErrorDiffusion(pattern), palette: activePaletteColors || undefined }, workingResolution, paletteId, activePaletteColors }}
-                          apply={(p) => {
-                            setPattern(p.pattern);
-                            setThreshold(p.threshold);
-                            setInvert(p.invert);
-                            setSerpentine(p.serpentine);
-                            setWorkingResolution(p.workingResolution);
-                            if (p.paletteId) setPaletteId(p.paletteId);
-                            if (p.activePaletteColors) setActivePaletteColors(p.activePaletteColors);
+                          lang={activeLang}
+                          current={{
+                            pattern,
+                            threshold,
+                            workingResolution,
+                            contrast,
+                            midtones,
+                            highlights,
+                            blurRadius,
+                            paletteId,
+                            activePaletteColors,
+                            invert,
+                            serpentine,
+                            serpentinePattern,
+                            errorDiffusionStrength,
+                            asciiRamp,
+                            asciiCellSize,
+                            showGrid,
+                            gridSize,
+                            videoMode,
+                          }}
+                          applySettings={(settings) => {
+                            setPattern(settings.pattern);
+                            setThreshold(settings.threshold);
+                            setWorkingResolution(settings.workingResolution);
+                            setContrast(settings.contrast);
+                            setMidtones(settings.midtones);
+                            setHighlights(settings.highlights);
+                            setBlurRadius(settings.blurRadius);
+                            setInvert(settings.invert);
+                            setSerpentine(settings.serpentine);
+                            setSerpentinePattern(settings.serpentinePattern);
+                            setErrorDiffusionStrength(settings.errorDiffusionStrength);
+                            setShowGrid(settings.showGrid);
+                            setGridSize(settings.gridSize);
+                            if (settings.paletteId) {
+                              setPaletteId(settings.paletteId);
+                              if (settings.paletteId === "__custom" && settings.customPalette?.length) {
+                                setActivePaletteColors(settings.customPalette);
+                              } else if (settings.customPalette?.length) {
+                                setActivePaletteColors(settings.customPalette);
+                              }
+                            } else {
+                              setPaletteId(null);
+                              setActivePaletteColors(null);
+                            }
+                            if (isAscii && settings.asciiRamp.trim().length >= 2) {
+                              setAsciiRamp(settings.asciiRamp);
+                            }
+                            setAsciiCellSize(settings.asciiCellSize);
                           }}
                         />
                       </div>
@@ -925,116 +1129,6 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
               </div>
             </ResizableSidebar>
           )}
-          <main className="flex flex-1 items-center justify-center overflow-auto">
-            {!mediaActive && (
-              <div className="w-full max-w-lg space-y-4">
-                {!videoMode && <ImageUploader onImagesAdded={(items) => addImages(items)} />}
-                {videoMode && videos.length === 0 && <VideoUploader onVideosSelected={(items) => addVideos(items)} />}
-                {!videoMode && (
-                  <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>
-                    {t('tool.switchToVideoMode')}
-                  </button>
-                )}
-                {videoMode && (
-                  <button type="button" className="clean-btn w-full justify-center text-[11px]" onClick={switchMode}>
-                    {t('tool.switchToImageMode')}
-                  </button>
-                )}
-                <p className="text-center text-[10px] text-gray-500">{t('tool.selectMedia')}</p>
-              </div>
-            )}
-            {mediaActive && !videoMode && image && (
-              <CanvasViewport>
-                <div className="relative inline-block">
-                  {/* Canvas always renders - this is the source of truth for the processed (dithered) image */}
-                  <canvas 
-                    ref={canvasRef} 
-                    className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} 
-                    aria-label={t('tool.ariaDitheredImagePreview')} 
-                  />
-                  
-                  {/* Comparison overlay - reveals original image on the left side via slider */}
-                  {/* The right side is transparent, showing the canvas (processed image) underneath */}
-                  {showComparison && (
-                    <div className="absolute inset-0 pointer-events-auto">
-                      <MediaComparison
-                        beforeImage={image}
-                        beforeLabel={t('tool.imageComparison.original')}
-                        afterLabel={t('tool.imageComparison.dithered')}
-                        width={canvasDimensions.width}
-                        height={canvasDimensions.height}
-                      />
-                    </div>
-                  )}
-                  
-                  {/* Grid overlay */}
-                  {showGrid && !showComparison && (
-                    <>
-                      <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
-                      <button
-                        onClick={() => {
-                          const order = [4, 6, 8, 12, 16];
-                          setGridSize((gs: number) => order[(order.indexOf(gs) + 1) % order.length]);
-                        }}
-                        className="grid-size-badge"
-                        title={t('tool.cycleGridSize')}
-                      >
-                        {gridSize}px
-                      </button>
-                    </>
-                  )}
-                  
-                  {/* Compare toggle button */}
-                  {hasApplied && (
-                    <button
-                      onClick={() => {
-                        triggerHaptic('light');
-                        setShowComparison(!showComparison);
-                      }}
-                      className="absolute top-2 right-2 clean-btn text-[10px] px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800/90 z-10"
-                      title={showComparison ? t('tool.showDitheredOnly') : t('tool.compareBeforeAfter')}
-                    >
-                      {showComparison ? t('tool.hideComparison') : t('tool.compare')}
-                    </button>
-                  )}
-                </div>
-              </CanvasViewport>
-            )}
-            {mediaActive && videoMode && currentVideo && (
-              <CanvasViewport>
-                <div className="relative inline-block">
-                  <canvas ref={canvasRef} className={`pixelated ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
-                  
-                  {/* Comparison overlay for video - shows original video on left side */}
-                  {showComparison && (videoHook as any).videoElRef?.current && (
-                    <div className="absolute inset-0 pointer-events-auto">
-                      <MediaComparison
-                        beforeVideo={(videoHook as any).videoElRef.current}
-                        beforeLabel={t('tool.imageComparison.original')}
-                        afterLabel={t('tool.imageComparison.dithered')}
-                        width={canvasDimensions.width}
-                        height={canvasDimensions.height}
-                      />
-                    </div>
-                  )}
-                  
-                  {/* Compare toggle button */}
-                  {hasApplied && (
-                    <button
-                      onClick={() => {
-                        triggerHaptic('light');
-                        setShowComparison(!showComparison);
-                      }}
-                      className="absolute top-2 right-2 clean-btn text-[10px] px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800/90 z-10"
-                      title={showComparison ? t('tool.showDitheredOnly') : t('tool.compareBeforeAfter')}
-                    >
-                      {showComparison ? t('tool.hideComparison') : t('tool.compare')}
-                    </button>
-                  )}
-                </div>
-              </CanvasViewport>
-            )}
-          </main>
         </div>
         <ExportDialog
           open={showDownload}
@@ -1062,6 +1156,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           recordingMimeType={recordingMimeRef.current}
           setRecordedBlobUrl={setRecordedBlobUrl}
           onVideoDownload={handleVideoDownloaded}
+          isAscii={isAscii}
         />
         <PostDownloadShareDialog
           open={showPostShare}
@@ -1107,7 +1202,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
             }}
           />
         )}
-        <PerformanceOverlay hasImage={!!image || !!currentVideo} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : currentVideo?.size || null} processedBytes={processedSizeBytes} />
+        <ToolCanvasHints mediaActive={mediaActive} />
         <ProcessingOverlay 
           isProcessing={busy || isExporting || false} 
           operation={isExporting ? "Exporting at full resolution" : (videoMode ? "Processing video frame" : "Dithering image")} 

@@ -17,6 +17,7 @@ interface RandomizeButtonProps {
   setSerpentine: (s: boolean) => void;
   title?: string;
   ariaLabel?: string;
+  label?: string;
   className?: string;
 }
 
@@ -35,7 +36,8 @@ const RandomizeButton: React.FC<RandomizeButtonProps> = ({
   setSerpentine,
   title = 'Randomize algorithm and settings',
   ariaLabel = 'Randomize algorithm and settings',
-  className = 'clean-btn px-3 py-2 text-[16px]',
+  label = 'Random settings',
+  className = 'clean-btn w-full justify-center gap-2 px-3 py-2 text-[11px] font-medium tracking-wide',
 }) => {
   
   const randomInRange = (min: number, max: number): number => {
@@ -89,7 +91,7 @@ const RandomizeButton: React.FC<RandomizeButtonProps> = ({
       title={title}
       aria-label={ariaLabel}
     >
-      🎲
+      {label}
     </button>
   );
 };

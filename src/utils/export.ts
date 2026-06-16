@@ -1,6 +1,6 @@
 // Canvas export helpers (SVG run-length rectangles)
 
-import { findAlgorithm } from './algorithms';
+import { findAlgorithm, ASCII_MOSAIC_PATTERN } from './algorithms';
 import { applyLuminancePreprocess } from './preprocess';
 import type { SerpentinePattern } from '../types/serpentinePatterns';
 
@@ -15,6 +15,7 @@ export interface ExportAtOriginalResolutionParams {
   isErrorDiffusion: boolean;
   paletteColors?: [number, number, number][] | null;
   asciiRamp?: string;
+  asciiCellSize?: number;
   contrast?: number;
   midtones?: number;
   highlights?: number;
@@ -29,7 +30,7 @@ export interface ExportAtOriginalResolutionParams {
  * created by workingResolution. This works by:
  * 1. Processing at workingResolution (same as preview)
  * 2. Upscaling to original size with nearest-neighbor interpolation
- * This preserves the "chunky pixel" aesthetic while outputting a high-res file.
+ * ASCII Mosaic exports at the supersampled working buffer (sharp glyphs, modest file size).
  */
 export async function exportAtOriginalResolution(params: ExportAtOriginalResolutionParams): Promise<HTMLCanvasElement> {
   const {
@@ -43,6 +44,7 @@ export async function exportAtOriginalResolution(params: ExportAtOriginalResolut
     isErrorDiffusion,
     paletteColors,
     asciiRamp,
+    asciiCellSize,
     contrast = 0,
     midtones = 1.0,
     highlights = 0,
@@ -120,6 +122,7 @@ export async function exportAtOriginalResolution(params: ExportAtOriginalResolut
         isErrorDiffusion,
         palette: palette || undefined,
         asciiRamp,
+        asciiCellSize,
         customKernel,
         customKernelDivisor
       } as any
@@ -135,12 +138,19 @@ export async function exportAtOriginalResolution(params: ExportAtOriginalResolut
     out = imageData;
   }
 
-  // Put dithered result on working canvas
   if (out) {
-    workingCtx.putImageData(out, 0, 0);
+    return finalizeExportCanvas(
+      out,
+      workingWidth,
+      workingHeight,
+      originalWidth,
+      originalHeight,
+      pattern,
+      workingCanvas,
+      workingCtx
+    );
   }
 
-  // Upscale to original resolution using pixel-perfect nearest-neighbor
   return upscaleCanvasNearestNeighbor(workingCanvas, originalWidth, originalHeight);
 }
 
@@ -155,6 +165,7 @@ export interface ExportVideoFrameParams {
   isErrorDiffusion: boolean;
   paletteColors?: [number, number, number][] | null;
   asciiRamp?: string;
+  asciiCellSize?: number;
   contrast?: number;
   midtones?: number;
   highlights?: number;
@@ -181,6 +192,7 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
     isErrorDiffusion,
     paletteColors,
     asciiRamp,
+    asciiCellSize,
     contrast = 0,
     midtones = 1.0,
     highlights = 0,
@@ -251,7 +263,8 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
         errorDiffusionStrength,
         isErrorDiffusion,
         palette: palette || undefined,
-        asciiRamp
+        asciiRamp,
+        asciiCellSize
       } as any
     });
     
@@ -265,12 +278,48 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
     out = imageData;
   }
 
-  // Put dithered result on working canvas
   if (out) {
-    workingCtx.putImageData(out, 0, 0);
+    return finalizeExportCanvas(
+      out,
+      workingWidth,
+      workingHeight,
+      originalWidth,
+      originalHeight,
+      pattern,
+      workingCanvas,
+      workingCtx
+    );
   }
 
-  // Upscale to original resolution using pixel-perfect nearest-neighbor
+  return upscaleCanvasNearestNeighbor(workingCanvas, originalWidth, originalHeight);
+}
+
+function finalizeExportCanvas(
+  out: ImageData,
+  workingWidth: number,
+  workingHeight: number,
+  originalWidth: number,
+  originalHeight: number,
+  pattern: number,
+  workingCanvas: HTMLCanvasElement,
+  workingCtx: CanvasRenderingContext2D
+): HTMLCanvasElement {
+  const isAsciiHiRes =
+    pattern === ASCII_MOSAIC_PATTERN &&
+    (out.width !== workingWidth || out.height !== workingHeight);
+
+  if (isAsciiHiRes) {
+    const hiCanvas = document.createElement('canvas');
+    hiCanvas.width = out.width;
+    hiCanvas.height = out.height;
+    const hiCtx = hiCanvas.getContext('2d');
+    if (!hiCtx) throw new Error('Cannot get canvas context');
+    hiCtx.putImageData(out, 0, 0);
+    // Keep the supersampled buffer 1:1 — same pixels as the sharp preview canvas.
+    return hiCanvas;
+  }
+
+  workingCtx.putImageData(out, 0, 0);
   return upscaleCanvasNearestNeighbor(workingCanvas, originalWidth, originalHeight);
 }
 

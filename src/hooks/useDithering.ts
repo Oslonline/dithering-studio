@@ -2,13 +2,13 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { perf } from "../utils/perf";
 import { findPalette } from "../utils/palettes";
 import { applyLuminancePreprocess } from "../utils/preprocess";
-import { findAlgorithm } from "../utils/algorithms";
+import { findAlgorithm, ASCII_MOSAIC_PATTERN } from "../utils/algorithms";
 import { useDitheringWorker } from "./useDitheringWorker";
 import { processImageProgressively, getDefaultTileConfig } from "../utils/progressiveRendering";
 import type { Tile } from "../utils/progressiveRendering";
 import type { SerpentinePattern } from "../types/serpentinePatterns";
 
-interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; serpentinePattern: SerpentinePattern; errorDiffusionStrength: number; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; customKernel?: number[][] | null; customKernelDivisor?: number; }
+interface Params { image: string | null; pattern: number; threshold: number; workingResolution: number; invert: boolean; serpentine: boolean; serpentinePattern: SerpentinePattern; errorDiffusionStrength: number; isErrorDiffusion: boolean; paletteId?: string | null; paletteColors?: [number, number, number][]; asciiRamp?: string; asciiCellSize?: number; contrast?: number; midtones?: number; highlights?: number; blurRadius?: number; customKernel?: number[][] | null; customKernelDivisor?: number; }
 
 function useDebouncedValue<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -64,7 +64,7 @@ function useDebouncedValue<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0, customKernel, customKernelDivisor }: Params) => {
+const useDithering = ({ image, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, asciiCellSize, contrast = 0, midtones = 1.0, highlights = 0, blurRadius = 0, customKernel, customKernelDivisor }: Params) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const originalDimensions = useRef({ width: 0, height: 0 });
@@ -216,7 +216,8 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
                     serpentinePattern,
                     errorDiffusionStrength,
                     palette: palette || undefined,
-                    asciiRamp
+                    asciiRamp,
+                    asciiCellSize
                   }
                 });
                 return result || tileImageData;
@@ -243,20 +244,21 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
                 serpentinePattern,
                 errorDiffusionStrength,
                 palette: palette || undefined,
-                asciiRamp
+                asciiRamp,
+                asciiCellSize
               }
             });
           }
         } catch (error) {
           console.error('[Dithering] Worker processing failed, falling back to main thread:', error);
           if (algorithm) {
-            const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
+            const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp, asciiCellSize, customKernel, customKernelDivisor } as any });
             if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
           }
         }
       } else {
         if (algorithm) {
-          const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp, customKernel, customKernelDivisor } as any });
+          const res = algorithm.run({ srcData, width, height, params: { pattern, threshold: debouncedThreshold, invert: palette ? false : invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, palette: palette || undefined, asciiRamp, asciiCellSize, customKernel, customKernelDivisor } as any });
           if (res instanceof ImageData) { out = res; } else { out = new ImageData(width, height); out.data.set(res); }
         } else {
           out = new ImageData(width, height); out.data.set(srcData);
@@ -269,29 +271,45 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
 
       perf.phaseStart('present');
       if (out) {
+        if (displayCanvas.width !== out.width || displayCanvas.height !== out.height) {
+          displayCanvas.width = out.width;
+          displayCanvas.height = out.height;
+        }
         displayCtx.putImageData(out, 0, 0);
+        if (procCanvas.width !== out.width || procCanvas.height !== out.height) {
+          procCanvas.width = out.width;
+          procCanvas.height = out.height;
+        }
         procCtx.putImageData(out, 0, 0);
       } else {
         displayCtx.drawImage(img, 0, 0, width, height);
         procCtx.drawImage(img, 0, 0, width, height);
       }
       perf.phaseEnd('present');
-      displayCanvas.classList.add("pixelated");
+      const isAsciiOutput = pattern === ASCII_MOSAIC_PATTERN;
+      displayCanvas.classList.toggle('pixelated', !isAsciiOutput);
+      displayCanvas.classList.toggle('ascii-canvas', isAsciiOutput);
 
       const ow = originalDimensions.current.width || width;
       const oh = originalDimensions.current.height || height;
       if (ow && oh) {
-        const aside = document.querySelector('aside');
-        const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
-        const viewportW = window.innerWidth;
-        const viewportH = window.innerHeight;
-        const maxW = Math.min(viewportW - sidebarWidth - 40, 1280);
-        const maxH = viewportH - 140;
-        let dispW = Math.min(maxW, maxH * (ow / oh));
-        if (dispW < 120) dispW = 120;
-        const dispH = dispW * (oh / ow);
-        displayCanvas.style.width = dispW + 'px';
-        displayCanvas.style.height = dispH + 'px';
+        if (isAsciiOutput) {
+          // 1:1 buffer-to-CSS pixels — viewport zoom handles scaling without pixelated blur
+          displayCanvas.style.width = `${width}px`;
+          displayCanvas.style.height = `${height}px`;
+        } else {
+          const aside = document.querySelector('aside');
+          const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
+          const viewportW = window.innerWidth;
+          const viewportH = window.innerHeight;
+          const maxW = Math.min(viewportW - sidebarWidth - 40, 1280);
+          const maxH = viewportH - 140;
+          let dispW = Math.min(maxW, maxH * (ow / oh));
+          if (dispW < 120) dispW = 120;
+          const dispH = dispW * (oh / ow);
+          displayCanvas.style.width = dispW + 'px';
+          displayCanvas.style.height = dispH + 'px';
+        }
       }
 
       if (out) {
@@ -315,7 +333,7 @@ const useDithering = ({ image, pattern, threshold, workingResolution, invert, se
     return () => {
       cancelled = true;
     };
-  }, [pattern, debouncedThreshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp, debouncedContrast, debouncedMidtones, debouncedHighlights, debouncedBlurRadius, submitJob, useWorkers]);
+  }, [pattern, debouncedThreshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, renderBump, paletteId, layoutTick, paletteColors, asciiRamp, asciiCellSize, debouncedContrast, debouncedMidtones, debouncedHighlights, debouncedBlurRadius, submitJob, useWorkers]);
 
   const resetCanvas = () => {
     const c = canvasRef.current;

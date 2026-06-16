@@ -16,6 +16,7 @@ export interface DitherWorkerRequest {
       errorDiffusionStrength?: number;
       palette?: [number, number, number][];
       asciiRamp?: string;
+      asciiCellSize?: number;
     };
   };
 }
@@ -34,6 +35,7 @@ export interface OffscreenDitherRequest {
       errorDiffusionStrength?: number;
       palette?: [number, number, number][];
       asciiRamp?: string;
+      asciiCellSize?: number;
     };
   };
 }

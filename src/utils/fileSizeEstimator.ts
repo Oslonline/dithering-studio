@@ -1,44 +1,76 @@
 // Estimate PNG file size from canvas
 
-export const estimatePNGSize = (canvas: HTMLCanvasElement): number => {
+export interface FormatSizeEstimateOptions {
+  /** ASCII mosaic compresses far better than photo-like dither output */
+  isAscii?: boolean;
+}
+
+export const estimatePNGSize = (
+  canvas: HTMLCanvasElement,
+  options?: FormatSizeEstimateOptions
+): number => {
   const width = canvas.width;
   const height = canvas.height;
   const pixels = width * height;
 
   const uncompressedSize = pixels * 4;
 
-  const estimatedSize = uncompressedSize * 0.5;
+  // ASCII: sparse glyphs on flat backgrounds — PNG DEFLATE shrinks ~30–50× more than photo dither
+  const compressionRatio = options?.isAscii ? 0.018 : 0.5;
+
+  const estimatedSize = uncompressedSize * compressionRatio;
 
   return Math.round(estimatedSize + 8192);
 };
 
 
 // Estimate JPEG file size from canvas
-export const estimateJPEGSize = (canvas: HTMLCanvasElement, quality = 0.92): number => {
+export const estimateJPEGSize = (
+  canvas: HTMLCanvasElement,
+  quality = 0.92,
+  options?: FormatSizeEstimateOptions
+): number => {
   const width = canvas.width;
   const height = canvas.height;
   const pixels = width * height;
 
   const baseSize = pixels * 4;
-  const compressionRatio = 0.1 - (quality * 0.05); // Lower quality = smaller
+  if (options?.isAscii) {
+    return Math.round(baseSize * 0.009 + 4096);
+  }
+  const compressionRatio = 0.1 - quality * 0.05;
   const estimatedSize = baseSize * compressionRatio;
 
   return Math.round(estimatedSize);
 };
 
 // Estimate WebP file size from canvas
-export const estimateWebPSize = (canvas: HTMLCanvasElement): number => {
-  const pngSize = estimatePNGSize(canvas);
-
+export const estimateWebPSize = (
+  canvas: HTMLCanvasElement,
+  options?: FormatSizeEstimateOptions
+): number => {
+  const pngSize = estimatePNGSize(canvas, options);
+  if (options?.isAscii) {
+    return Math.round(pngSize * 0.85);
+  }
   return Math.round(pngSize * 0.7);
 };
 
 
 // Estimate SVG file size from canvas
-export const estimateSVGSize = (canvas: HTMLCanvasElement): number => {
+export const estimateSVGSize = (
+  canvas: HTMLCanvasElement,
+  options?: FormatSizeEstimateOptions
+): number => {
   const width = canvas.width;
   const height = canvas.height;
   const pixels = width * height;
+
+  if (options?.isAscii) {
+    // Rasterized rect-per-run export at supersampled resolution — still very large
+    const estimatedRects = pixels * 0.35;
+    return Math.round(estimatedRects * 90);
+  }
 
   // SVG creates a rect for each unique color region
   const estimatedRects = pixels * 0.1;
@@ -82,7 +114,10 @@ export const formatBytes = (bytes: number, decimals = 1): string => {
   return `${value.toFixed(decimals)} ${sizes[i]}`;
 };
 
-export const getAllFormatSizes = (canvas: HTMLCanvasElement | null) => {
+export const getAllFormatSizes = (
+  canvas: HTMLCanvasElement | null,
+  options?: FormatSizeEstimateOptions
+) => {
   if (!canvas) {
     return {
       png: null,
@@ -93,9 +128,9 @@ export const getAllFormatSizes = (canvas: HTMLCanvasElement | null) => {
   }
 
   return {
-    png: estimatePNGSize(canvas),
-    jpeg: estimateJPEGSize(canvas),
-    webp: estimateWebPSize(canvas),
-    svg: estimateSVGSize(canvas),
+    png: estimatePNGSize(canvas, options),
+    jpeg: estimateJPEGSize(canvas, 0.92, options),
+    webp: estimateWebPSize(canvas, options),
+    svg: estimateSVGSize(canvas, options),
   };
 };

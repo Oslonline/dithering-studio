@@ -11,8 +11,6 @@ export type HeaderActiveNav = "home" | "tool" | "education" | "algorithms" | "ga
 interface HeaderProps {
   /** Current section — its nav link is hidden in the center bar. */
   activeNav?: HeaderActiveNav;
-  videoMode?: boolean;
-  onModeSwitch?: () => void;
 }
 
 type NavItem = {
@@ -23,7 +21,7 @@ type NavItem = {
   prefetch?: () => void;
 };
 
-const Header: React.FC<HeaderProps> = ({ activeNav, videoMode, onModeSwitch }) => {
+const Header: React.FC<HeaderProps> = ({ activeNav }) => {
   const { t, i18n } = useTranslation();
   const activeLang = normalizeLang(i18n.language);
 
@@ -72,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ activeNav, videoMode, onModeSwitch }) =
   const linkClass = "header-nav-link !text-[12px] lg:!text-[14px] font-mono text-gray-100";
   return (
     <header className="site-header shrink-0 border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3">
-      <div className="mx-auto w-full max-w-6xl">
+      <div className="mx-auto w-full max-w-4/5">
         <div className="flex items-center justify-between md:grid md:grid-cols-3 md:items-center">
           <div className="flex items-center md:justify-start">
             <Link
@@ -100,28 +98,6 @@ const Header: React.FC<HeaderProps> = ({ activeNav, videoMode, onModeSwitch }) =
           </nav>
 
           <div className="flex items-center justify-end gap-2 sm:gap-3">
-            {onModeSwitch && (
-              <div className="flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-900/40 p-0.5">
-                <button
-                  type="button"
-                  onClick={onModeSwitch}
-                  className={`rounded px-2.5 py-1.5 text-[10px] font-medium tracking-wide transition-all sm:px-3 ${!videoMode ? "bg-blue-600/90 text-white" : "text-gray-400 hover:text-gray-200"}`}
-                  aria-label={t("tool.switchToImages")}
-                  aria-pressed={!videoMode}
-                >
-                  {t("tool.imageMode")}
-                </button>
-                <button
-                  type="button"
-                  onClick={onModeSwitch}
-                  className={`rounded px-2.5 py-1.5 text-[10px] font-medium tracking-wide transition-all sm:px-3 ${videoMode ? "bg-blue-600/90 text-white" : "text-gray-400 hover:text-gray-200"}`}
-                  aria-label={t("tool.switchToVideo")}
-                  aria-pressed={videoMode}
-                >
-                  {t("tool.videoMode")}
-                </button>
-              </div>
-            )}
             {features.accounts && (
               <HeaderAccountLink lang={activeLang} isActive={activeNav === "account"} />
             )}

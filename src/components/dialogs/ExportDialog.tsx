@@ -30,6 +30,7 @@ interface ExportDialogProps {
   recordingMimeType: string;
   setRecordedBlobUrl: React.Dispatch<React.SetStateAction<string | null>>;
   onVideoDownload?: (format: string) => void;
+  isAscii?: boolean;
 }
 
 const ExportDialog: React.FC<ExportDialogProps> = ({
@@ -57,7 +58,8 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
   videoFormatNote,
   recordingMimeType,
   setRecordedBlobUrl,
-  onVideoDownload
+  onVideoDownload,
+  isAscii = false
 }) => {
   const { t } = useTranslation();
   const downloadRef = useRef<HTMLDivElement | null>(null);
@@ -67,8 +69,8 @@ const ExportDialog: React.FC<ExportDialogProps> = ({
   // For image mode: processedCanvasRef has dithered result
   const fileSizes = useMemo(() => {
     const canvas = videoMode ? canvasRef.current : (processedCanvasRef.current || canvasRef.current);
-    return getAllFormatSizes(canvas);
-  }, [processedCanvasRef, canvasRef, open, videoMode]);
+    return getAllFormatSizes(canvas, { isAscii });
+  }, [processedCanvasRef, canvasRef, open, videoMode, isAscii]);
 
   // Outside click & ESC close
   useEffect(() => {

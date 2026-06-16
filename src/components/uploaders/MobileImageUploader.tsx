@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaImage, FaExclamationTriangle } from "react-icons/fa";
 import { validateImage } from "../../utils/validation";
+import { MAX_TOOL_IMAGES } from "../../lib/tool/limits";
 import { useErrorTracking } from "../../hooks/useErrorTracking";
 
 interface MobileImageUploaderProps { onImagesAdded: (items: { url: string; name?: string; file?: File }[]) => void; }
@@ -82,7 +83,9 @@ const MobileImageUploader: React.FC<MobileImageUploaderProps> = ({ onImagesAdded
         <FaImage className="text-5xl text-blue-500" aria-hidden="true" />
   <span className="font-mono text-xs tracking-wide text-gray-200">{t('tool.upload.tapToChoose')}</span>
   <span className="text-[10px] text-gray-500">{t('tool.upload.imageFormats')}</span>
-  <span className="text-[9px] text-gray-600 mt-1">Max 50MB per file, up to 16384×16384px</span>
+  <span className="mt-1 text-[9px] text-gray-600">
+    {t('tool.upload.maxImages', { max: MAX_TOOL_IMAGES, defaultValue: `Up to ${MAX_TOOL_IMAGES} images at once` })}
+  </span>
       </button>
       <input
         ref={inputRef}

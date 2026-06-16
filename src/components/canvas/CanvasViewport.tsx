@@ -29,7 +29,6 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
   const MAX_SCALE = 32;
   const ZOOM_STEP = 0.1;
 
-  // Fit content to viewport
   const fitToScreen = useCallback(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -51,7 +50,6 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
     setTransform({ x, y, scale: newScale });
   }, [transform.scale]);
 
-  // Zoom in/out
   const zoomIn = useCallback(() => {
     setTransform(prev => ({
       ...prev,
@@ -70,9 +68,8 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
     setTransform({ x: 0, y: 0, scale: 1 });
   }, []);
 
-  // Mouse drag to pan
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button !== 0) return; // Left click only
+    if (e.button !== 0) return;
     setIsDragging(true);
     dragStartRef.current = {
       x: e.clientX,
@@ -99,7 +96,6 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
     setIsDragging(false);
   }, []);
 
-  // Scroll wheel to zoom
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
 
@@ -120,7 +116,6 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
     }));
   }, [transform.scale]);
 
-  // Event listeners
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -163,7 +158,6 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [fitToScreen, resetZoom, zoomIn, zoomOut]);
 
-  // Fit to screen on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       fitToScreen();
@@ -174,52 +168,44 @@ const CanvasViewport: React.FC<CanvasViewportProps> = ({ children, className = '
   const zoomPercentage = Math.round(transform.scale * 100);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Viewport Controls */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={zoomOut}
-            className="clean-btn p-2 bg-neutral-900/90 hover:bg-neutral-800/90"
-            title={t('tool.canvasViewport.zoomOutShortcut')}
-            aria-label={t('tool.canvasViewport.zoomOut')}
-          >
-            <FiZoomOut size={14} />
-          </button>
-          
-          <div className="clean-btn p-2 bg-neutral-900/90 cursor-default font-mono text-[10px] min-w-[60px] text-center">
-            {zoomPercentage}%
-          </div>
-          
-          <button
-            onClick={zoomIn}
-            className="clean-btn p-2 bg-neutral-900/90 hover:bg-neutral-800/90"
-            title={t('tool.canvasViewport.zoomInShortcut')}
-            aria-label={t('tool.canvasViewport.zoomIn')}
-          >
-            <FiZoomIn size={14} />
-          </button>
-          
-          <button
-            onClick={fitToScreen}
-            className="clean-btn p-2 bg-neutral-900/90 hover:bg-neutral-800/90"
-            title={t('tool.canvasViewport.fitToScreenShortcut')}
-            aria-label={t('tool.canvasViewport.fitToScreen')}
-          >
-            <FiMaximize2 size={14} />
-          </button>
-        </div>
-        
-        {/* Keyboard shortcuts hint - only show on desktop */}
-        <div className="hidden md:block pointer-events-none select-none rounded bg-neutral-900/70 px-3 py-1 font-mono text-[10px] tracking-wide text-gray-300">
-          {t('tool.canvasViewport.keyboardHint')}
-        </div>
+    <div className={`relative h-full w-full overflow-hidden ${className}`}>
+      <div className="absolute right-3 top-3 z-10 flex flex-col items-center gap-1.5">
+        <button
+          type="button"
+          onClick={zoomIn}
+          className="clean-btn bg-neutral-900/90 p-2 hover:bg-neutral-800/90"
+          title={t('tool.canvasViewport.zoomInShortcut')}
+          aria-label={t('tool.canvasViewport.zoomIn')}
+        >
+          <FiZoomIn size={14} />
+        </button>
+
+        <span className="font-mono text-[10px] tabular-nums text-gray-500">{zoomPercentage}%</span>
+
+        <button
+          type="button"
+          onClick={zoomOut}
+          className="clean-btn bg-neutral-900/90 p-2 hover:bg-neutral-800/90"
+          title={t('tool.canvasViewport.zoomOutShortcut')}
+          aria-label={t('tool.canvasViewport.zoomOut')}
+        >
+          <FiZoomOut size={14} />
+        </button>
+
+        <button
+          type="button"
+          onClick={fitToScreen}
+          className="clean-btn mt-1 bg-neutral-900/90 p-2 hover:bg-neutral-800/90"
+          title={t('tool.canvasViewport.fitToScreenShortcut')}
+          aria-label={t('tool.canvasViewport.fitToScreen')}
+        >
+          <FiMaximize2 size={14} />
+        </button>
       </div>
 
-      {/* Canvas Container */}
       <div
         ref={containerRef}
-        className="w-full h-full bg-neutral-950"
+        className="h-full w-full bg-neutral-950"
         onMouseDown={handleMouseDown}
         style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
       >

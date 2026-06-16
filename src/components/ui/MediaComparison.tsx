@@ -27,8 +27,8 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
   // Use translations as defaults if not provided
-  const beforeLabelText = beforeLabel || t('tool.imageComparison.original');
-  const afterLabelText = afterLabel || t('tool.imageComparison.dithered');
+  const beforeLabelText = beforeLabel ?? '';
+  const afterLabelText = afterLabel ?? '';
 
   const handleMove = (clientX: number) => {
     if (!containerRef.current) return;
@@ -147,7 +147,7 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
         {beforeImage && (
           <img
             src={beforeImage}
-            alt={beforeLabelText}
+            alt={beforeLabelText || t('tool.imageComparison.original')}
             className="block h-full w-full pixelated object-fill"
             draggable={false}
           />
@@ -158,15 +158,18 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
             className="w-full h-full"
           />
         )}
-        <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white border border-white/20 pointer-events-none">
-          {beforeLabelText}
-        </div>
+        {beforeLabelText && (
+          <div className="pointer-events-none absolute left-2 top-2 rounded border border-white/20 bg-black/70 px-2 py-1 font-mono text-xs text-white backdrop-blur-sm">
+            {beforeLabelText}
+          </div>
+        )}
       </div>
 
-      {/* Dithered label (always visible on the right side) */}
-      <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-mono text-white border border-white/20 pointer-events-none">
-        {afterLabelText}
-      </div>
+      {afterLabelText && (
+        <div className="pointer-events-none absolute right-2 top-2 rounded border border-white/20 bg-black/70 px-2 py-1 font-mono text-xs text-white backdrop-blur-sm">
+          {afterLabelText}
+        </div>
+      )}
 
       {/* Slider */}
       <div

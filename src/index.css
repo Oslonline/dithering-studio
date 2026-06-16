@@ -198,6 +198,12 @@ html, body {
 
 .pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
 
+/* Vector-like ASCII glyphs — hi-res buffer displayed at logical size */
+.ascii-canvas {
+  image-rendering: auto;
+  image-rendering: -webkit-optimize-contrast;
+}
+
 .canvas-frame.updated { box-shadow:none; }
 
 .download-format-select {

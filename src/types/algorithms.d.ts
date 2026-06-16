@@ -36,6 +36,7 @@ export interface AlgorithmParams {
   palette?: [number, number, number][];
   /** Optional ASCII ramp for ASCII art dithering */
   asciiRamp?: string;
+  asciiCellSize?: number;
 }
 
 /**

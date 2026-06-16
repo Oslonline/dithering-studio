@@ -27,6 +27,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [serpentinePattern, setSerpentinePattern] = useState<SerpentinePattern>('standard');
   const [errorDiffusionStrength, setErrorDiffusionStrength] = useState<number>(100);
   const [asciiRamp, setAsciiRamp] = useState<string>(() => defaultSettings.asciiRamp);
+  const [asciiCellSize, setAsciiCellSize] = useState<number>(() => defaultSettings.asciiCellSize);
   const [showGrid, setShowGrid] = useState<boolean>(() => defaultSettings.showGrid);
   const [gridSize, setGridSize] = useState<number>(() => defaultSettings.gridSize);
   const [focusMode, setFocusMode] = useState(false);
@@ -55,6 +56,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setInvert(initial.invert);
     setSerpentine(initial.serpentine);
     setAsciiRamp(initial.asciiRamp);
+    setAsciiCellSize(initial.asciiCellSize);
     setShowGrid(initial.showGrid);
     setGridSize(initial.gridSize);
     setStorageReady(true);
@@ -78,10 +80,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       invert,
       serpentine,
       asciiRamp,
+      asciiCellSize,
       showGrid,
       gridSize,
     });
-  }, [storageReady, images, activeImageId, pattern, threshold, workingResolution, contrast, midtones, highlights, blurRadius, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize]);
+  }, [storageReady, images, activeImageId, pattern, threshold, workingResolution, contrast, midtones, highlights, blurRadius, paletteId, activePaletteColors, invert, serpentine, asciiRamp, asciiCellSize, showGrid, gridSize]);
 
   const value = useMemo(() => ({
     images, setImages,
@@ -104,6 +107,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     serpentinePattern, setSerpentinePattern,
     errorDiffusionStrength, setErrorDiffusionStrength,
     asciiRamp, setAsciiRamp,
+    asciiCellSize, setAsciiCellSize,
     showGrid, setShowGrid,
     gridSize, setGridSize,
     focusMode, setFocusMode,
@@ -114,7 +118,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     videoPlaying, setVideoPlaying,
     videoFps, setVideoFps,
     showDownload, setShowDownload,
-  }), [images, activeImageId, videos, activeVideoId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, serpentinePattern, errorDiffusionStrength, asciiRamp, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
+  }), [images, activeImageId, videos, activeVideoId, pattern, threshold, workingResolution, workingResInput, contrast, midtones, highlights, blurRadius, webpSupported, paletteId, activePaletteColors, invert, serpentine, serpentinePattern, errorDiffusionStrength, asciiRamp, asciiCellSize, showGrid, gridSize, focusMode, customKernel, customKernelDivisor, videoMode, videoItem, videoPlaying, videoFps, showDownload]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

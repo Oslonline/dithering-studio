@@ -10,6 +10,7 @@ export interface DitherParams {
   isErrorDiffusion: boolean;
   palette?: [number, number, number][];
   asciiRamp?: string;
+  asciiCellSize?: number;
 }
 
 export interface AlgorithmRunContext {
