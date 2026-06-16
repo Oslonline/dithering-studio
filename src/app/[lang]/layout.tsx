@@ -15,7 +15,7 @@ export default async function LangLayout({
   const { lang } = await params;
   const normalized = normalizeLang(lang);
   if (!SUPPORTED_LANGS.has(lang.toLowerCase())) {
-    redirect(`/${normalized}/`);
+    redirect(`/${normalized}`);
   }
 
   return (

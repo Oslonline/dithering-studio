@@ -136,10 +136,27 @@ Optional account/gallery features (when enabled) use Supabase and only store dat
 
 Copy `.env.example` to `.env.local`. The tool runs without these.
 
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `NEXT_PUBLIC_ENABLE_ACCOUNTS=true` — sign-in, profiles, gallery publish flow
-- `NEXT_PUBLIC_ENABLE_GALLERY=true` — gallery routes and homepage teaser
-- `SUPABASE_SERVICE_ROLE_KEY` and `GALLERY_RATE_LIMIT_SECRET` — server-only; see `.env.example`
+| Variable | Scope | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Client + server | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Client + server | Supabase anon/publishable key |
+| `NEXT_PUBLIC_ENABLE_ACCOUNTS` | Client | `true` to show sign-in / account UI (default: `true`) |
+| `NEXT_PUBLIC_ENABLE_GALLERY` | Client | `true` to enable gallery routes and homepage teaser |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only | Account deletion, gallery moderation, publish API |
+| `GALLERY_RATE_LIMIT_SECRET` | Server only | Salt for gallery publish rate-limit hashing |
+
+### Vercel (preview / production)
+
+The app is **Next.js** — not Vite. If a deployment still runs `vite build`, clear the old override in the Vercel dashboard:
+
+1. **Project → Settings → General → Framework Preset** → **Next.js**
+2. **Build & Development Settings** → **Build Command** → leave empty (uses `npm run build` / `next build`)
+3. **Output Directory** → leave empty (default `.next`)
+4. **Environment Variables** → add the table above for **Preview** (and **Production** when promoting `v2`)
+
+For auth on preview URLs, add your Vercel preview domain to **Supabase → Authentication → URL configuration** (site URL + redirect URLs, including `https://<preview>/auth/callback`).
+
+Push again after fixing project settings; `vercel.json` SPA rewrites from the Vite era were removed so Next.js routing can work.
 
 ## Contributing
 

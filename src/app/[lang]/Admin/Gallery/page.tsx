@@ -23,7 +23,7 @@ export async function generateMetadata({
 export default async function AdminGalleryPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!(await isCurrentUserAdmin())) {
-    redirect(`/${lang}/`);
+    redirect(`/${lang}`);
   }
 
   const [pendingItems, recentItems] = await Promise.all([
