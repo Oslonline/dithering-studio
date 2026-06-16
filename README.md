@@ -6,9 +6,9 @@
 
 ## Live app
 
-Use it in your browser: https://ditheringstudio.com/
+https://ditheringstudio.com/
 
-No uploads, no account. Everything runs locally in the tab.
+The tool needs no account — processing stays in the browser. Optional sign-in unlocks gallery publishing and a public profile when backend env vars are set (see Development).
 
 ## Highlights
 
@@ -17,6 +17,8 @@ No uploads, no account. Everything runs locally in the tab.
 - Built‑in palettes (Game Boy, PICO‑8, DB16/32, CGA/EGA, etc.) with live swatch toggling.
 - Presets you can save, rename, import/export as tokens, and re‑apply.
 - Shareable URLs for algorithm/threshold/resolution/palette/serpentine/invert/ASCII ramp.
+- Education hub: basics, practice, and algorithm reference (EN, FR, ES, DE, ZH, RU, HI).
+- Optional community gallery — publish a preview and share dither settings as templates.
 - Keyboard shortcuts and grid overlay for precise inspection.
 
 \*MP4 availability depends on your browser/OS codecs; WebM is widely supported. WEBP export falls back to PNG if unsupported.
@@ -128,23 +130,20 @@ Optional account/gallery features (when enabled) use Supabase and only store dat
 ## Development
 
 - Scripts: `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`
-- Stack: Next.js • React • TypeScript • Tailwind • Canvas API
+- Stack: Next.js App Router • React • TypeScript • Tailwind • Canvas API
 
-### Optional account setup (Supabase)
+### Optional community features
 
-Copy `.env.example` to `.env.local` and set:
+Copy `.env.example` to `.env.local`. The tool runs without these.
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `NEXT_PUBLIC_ENABLE_ACCOUNTS=true`
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_ENABLE_ACCOUNTS=true` — sign-in, profiles, gallery publish flow
+- `NEXT_PUBLIC_ENABLE_GALLERY=true` — gallery routes and homepage teaser
+- `SUPABASE_SERVICE_ROLE_KEY` and `GALLERY_RATE_LIMIT_SECRET` — server-only; see `.env.example`
 
 ## Contributing
 
 Small, focused PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-## V2 planning docs
-
-V2 planning and research documents live in [`docs/v2`](./docs/v2/README.md).
 
 ## License
 
