@@ -13,7 +13,7 @@ export default function ValuePillars() {
       title: t("home.learnBuiltIn.title", { defaultValue: "Learn built in" }),
       body: t("home.learnBuiltIn.body", {
         defaultValue:
-          "Basics, practice recipes, and per-algorithm reference live inside the app — understand the pattern before you export.",
+          "A two-part guide and per-algorithm reference live inside the app — understand the pattern before you export.",
       }),
     },
   ];

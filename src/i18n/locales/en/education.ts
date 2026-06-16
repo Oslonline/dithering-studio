@@ -1,9 +1,9 @@
 const education = {
   education: {
     seo: {
-      title: 'What Is Dithering? Complete Guide to Ordered & Error Diffusion',
+      title: 'What Is Dithering? A Visual Guide to Ordered & Error Diffusion',
       description:
-        'Learn what dithering is, when to use it, and how Bayer ordered dithering compares to Floyd-Steinberg error diffusion. Practical guide with examples and tool links.',
+        'Learn how dithering fakes extra gray levels, how Bayer threshold maps work, and when to use ordered vs error diffusion — with examples you can try in the tool.',
     },
     techArticle: {
       headline: 'What Is Dithering? Complete Guide to Ordered & Error Diffusion',
@@ -26,6 +26,106 @@ const education = {
 
     title: 'Dithering Education',
     heroImageAlt: 'Dithering education hero',
+
+    guide: {
+      kicker: 'Education',
+      pageTitle: 'Understanding dithering',
+      pageLead:
+        'Two short chapters on how dithering fakes extra tones, how ordered threshold maps work, and where to experiment in Dithering Studio.',
+      hub: {
+        back: '← Education hub',
+        readPart: 'Read chapter',
+        part1Teaser: 'How dot density fakes extra gray, and why a flat threshold loses detail.',
+        part2Teaser: 'Bayer matrices, threshold maps, and how they differ from error diffusion.',
+      },
+      part1: {
+        kicker: 'Part 1',
+        title: 'What dithering does',
+        lead: 'The same story as Damar’s visual essay on dithering, told here in plain text so you can read and experiment side by side.',
+        nextCta: 'Continue to Part 2 →',
+        seo: {
+          title: 'What Dithering Does — Part 1',
+          description: 'Learn how dithering simulates extra gray levels with patterns of black and white pixels.',
+        },
+        blocks: {
+          charm: {
+            title: 'More shades than you actually have',
+            p1: 'Dithering is the trick of simulating extra gray levels (or colors) using only a small set of outputs. Up close you see individual dots or pixels; step back and your eye blends them into smooth tones.',
+            p2: 'That is why retro game screens, newspaper print, and lo-fi art all feel related: they make the most of a limited palette by placing light and dark elements deliberately.',
+          },
+          threshold: {
+            title: 'Why a plain threshold looks harsh',
+            p1: 'Suppose a display can only show pure black or pure white. The naive approach is to compare each pixel to a single cutoff: darker than middle gray becomes black, lighter becomes white.',
+            p2: 'That preserves sharp edges but destroys subtle shadows and highlights. Large areas collapse to flat black or flat white, and gradients turn into ugly stair-steps.',
+          },
+          pattern: {
+            title: 'Patterns instead of flat fills',
+            p1: 'Dithering fixes this by nudging some pixels toward the opposite color. A light gray pixel might still become a black dot, but only where the pattern needs more density. Dark areas get more black dots; bright areas get more white ones.',
+            p2: 'The average density in each region mimics the original brightness — that is the whole illusion. Drag the slider on the live preview below to see a random algorithm turn a photo into a field of dots while keeping the overall image readable.',
+          },
+        },
+        visualRambling: {
+          kicker: 'Interactive essay',
+          title: 'Dithering — Part 1 on visualrambling.space',
+          body: 'Damar’s scroll-driven piece covers the same foundations with WebGL visuals. We summarize the ideas below in text; open his article when you want the animated walkthrough.',
+          credit: 'By Damar · visualrambling.space',
+          link: 'Open Part 1 (new tab)',
+        },
+      },
+      part2: {
+        kicker: 'Part 2',
+        title: 'Ordered dithering & threshold maps',
+        lead: 'How repeating threshold grids create Bayer cross-hatches, why tile size matters, and where error diffusion fits in.',
+        prevLink: '← Part 1',
+        toolCta: 'Open the tool',
+        seo: {
+          title: 'Ordered Dithering & Threshold Maps — Part 2',
+          description: 'How Bayer matrices and threshold maps create ordered dither patterns.',
+        },
+        blocks: {
+          quantize: {
+            title: 'Quantization: fewer colors on purpose',
+            p1: 'Ordered dithering starts with quantization — mapping many gray levels down to just black and white. One global threshold splits the image in half; multiple thresholds at once produce mixed black and white in a single tone region.',
+          },
+          map: {
+            title: 'Threshold maps tile across the image',
+            p1: 'A threshold map is a small grid of values from dark to light. For each pixel you compare its brightness to the value in the matching cell. Brighter than the threshold → white; otherwise → black.',
+            p2: 'Repeat that grid across the whole image and you get a dithered result. But if the map is a simple row of thresholds, the output shows ugly stripes — the pattern layout matters as much as the numbers.',
+          },
+          bayer: {
+            title: 'Bayer matrices break up the stripes',
+            p1: 'The classic Bayer arrangement scatters thresholds in a cross-hatch order. A 2×2 map gives four distinct patterns; 4×4 gives sixteen, so transitions between shadows and highlights look smoother.',
+            p2: 'Larger Bayer sizes (8×8, 16×16…) add even more pattern variants. The look stays crisp and grid-like — perfect for pixel art and UI — but never perfectly photo-smooth.',
+          },
+          beyond: {
+            title: 'Other maps, other textures',
+            p1: 'Cluster-dot matrices lean toward round blobs (think newsprint). Void-and-cluster / blue-noise maps spread points more evenly for a finer, less grid-like grain. Same idea — vary density to fake gray — different character.',
+            p2: 'Error diffusion (Floyd–Steinberg and friends) skips the repeating map entirely and spreads rounding error to neighbors. That family is covered in our algorithm reference when you want implementation detail.',
+          },
+        },
+        bayerDemo: {
+          caption: '4×4 Bayer threshold map (values 0–15)',
+          hint: 'Each cell is a threshold. Brighter input pixels turn white when they exceed their cell’s value.',
+        },
+        compare: {
+          title: 'Ordered vs error diffusion',
+          body: 'Ordered methods repeat a matrix; error diffusion propagates mistakes outward. Neither is “better” — they suit different aesthetics.',
+        },
+        visualRambling: {
+          kicker: 'Interactive essay',
+          title: 'Dithering — Part 2 on visualrambling.space',
+          body: 'The second essay explains threshold maps and Bayer matrices visually. Read it alongside the section below !',
+          credit: 'By Damar · visualrambling.space',
+          link: 'Open Part 2 (new tab)',
+        },
+      },
+      continue: {
+        title: 'Go deeper in the tool',
+        body: 'Load any image or video clip, pick an algorithm, and export. When you need kernels, complexity notes, or per-algorithm history, use the reference explorer.',
+        algorithms: 'Algorithm reference',
+        tool: 'Open the image tool',
+      },
+    },
 
     strong: {
       dithering: 'Dithering',
@@ -57,9 +157,14 @@ const education = {
       kicker: 'Learn dithering',
       subtitle:
         'Understand ordered matrices, error diffusion, and palettes—then apply what you learn in the tool with companion examples.',
-      ctaBasics: 'Start with Basics',
+      ctaPart1: 'Start with Part 1',
       ctaAlgorithms: 'Explore algorithms',
       ctaTool: 'Open the tool',
+    },
+
+    hubCta: {
+      title: 'Ready to try it?',
+      body: 'Load an image, pick an algorithm, and export — or keep reading with Part 1.',
     },
 
     paths: {

@@ -59,7 +59,7 @@ const homepage = {
     },
     learnBuiltIn: {
       title: 'Learn built in',
-      body: 'Basics, practice recipes, and per-algorithm reference live inside the app — understand the pattern before you export.',
+      body: 'A two-part guide on how dithering works, plus per-algorithm reference — read first, then try settings in the tool.',
     },
     gallery: {
       title: 'Community gallery',
@@ -69,20 +69,20 @@ const homepage = {
     },
     learn: {
       title: 'Learning path',
-      subtitle: 'Start with concepts, practice with recipes, then dive into algorithm reference.',
-      basics: {
-        title: 'Basics',
-        body: 'Definitions, ordered vs error diffusion, and when dithering helps.',
+      subtitle: 'Read the two-part guide, then explore algorithms or jump straight into the tool.',
+      part1: {
+        title: 'Part 1 — Foundations',
+        body: 'What dithering does, why flat thresholds fail, and how dot density fakes gray.',
       },
-      practice: {
-        title: 'Practice',
-        body: 'Threshold, serpentine, palettes, and fixes for common artifacts.',
+      part2: {
+        title: 'Part 2 — Ordered dithering',
+        body: 'Threshold maps, Bayer matrices, and how pattern layout changes the look.',
       },
       reference: {
-        title: 'Algorithms',
-        body: 'Per-algorithm notes, history snapshots, and deep links into the tool.',
+        title: 'Algorithm reference',
+        body: 'Per-algorithm notes, kernels, and deep links into the tool.',
       },
-      cta: 'Open section',
+      read: 'Read section',
       hub: 'Full education hub',
     },
     ctaBand: {
