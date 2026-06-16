@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 
-const InfiniteImageScroll: React.FC = () => {
+interface InfiniteImageScrollProps {
+  variant?: "default" | "hero";
+}
+
+const InfiniteImageScroll: React.FC<InfiniteImageScrollProps> = ({ variant = "default" }) => {
   const NUM_IMAGES = 12;
   const [images, setImages] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -32,14 +36,19 @@ const InfiniteImageScroll: React.FC = () => {
     return () => clearInterval(scrollInterval);
   }, []);
 
+  const imgClass =
+    variant === "hero"
+      ? "h-full w-auto shrink-0 object-cover"
+      : "h-40 w-auto shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52";
+
   return (
-    <div className="w-full overflow-hidden" ref={containerRef}>
-      <div className="flex space-x-3 sm:space-x-4">
+    <div ref={containerRef} className="h-full w-full overflow-hidden">
+      <div className="flex h-full items-stretch gap-3 sm:gap-4">
         {images.map((src, index) => (
-          <img key={index} src={src} alt="" role="presentation" className="h-40 w-auto flex-shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52" loading="lazy" />
+          <img key={index} src={src} alt="" role="presentation" className={imgClass} loading="lazy" />
         ))}
         {images.map((src, index) => (
-          <img key={`repeat-${index}`} src={src} alt="" role="presentation" className="h-40 w-auto flex-shrink-0 object-cover sm:h-44 md:h-48 xl:h-52 2xl:h-52" loading="lazy" />
+          <img key={`repeat-${index}`} src={src} alt="" role="presentation" className={imgClass} loading="lazy" />
         ))}
       </div>
     </div>

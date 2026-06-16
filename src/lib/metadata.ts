@@ -9,12 +9,9 @@ import hi from "../i18n/locales/hi/index";
 import ru from "../i18n/locales/ru/index";
 import zh from "../i18n/locales/zh/index";
 import { normalizeLang } from "../utils/localePath";
+import { SITE_URL, absoluteUrl, buildLanguageAlternates, type SupportedLang } from "./seo/site";
 
-const SITE_URL = "https://ditheringstudio.com";
 const SOCIAL_IMAGE = `${SITE_URL}/socials-img.png`;
-const SUPPORTED_LANGS = ["en", "fr", "es", "de", "zh", "ru", "hi"] as const;
-
-type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 
 const dictionaries: Record<SupportedLang, Record<string, unknown>> = {
   en: en as Record<string, unknown>,
@@ -39,26 +36,10 @@ export function t(lang: string, path: string, fallback: string): string {
   return typeof value === "string" ? value : fallback;
 }
 
-function localizedPath(lang: string, path: string): string {
-  const normalized = normalizeLang(lang);
-  if (path === "/") return `/${normalized}/`;
-  return `/${normalized}${path}`;
-}
-
-function absolute(path: string): string {
-  return `${SITE_URL}${path}`;
-}
-
 export function buildAlternates(path: string): Metadata["alternates"] {
-  const languages = Object.fromEntries(
-    SUPPORTED_LANGS.map((lang) => [lang, absolute(localizedPath(lang, path))]),
-  );
   return {
-    canonical: absolute(localizedPath("en", path)),
-    languages: {
-      ...languages,
-      "x-default": absolute(localizedPath("en", path)),
-    },
+    canonical: absoluteUrl("en", path),
+    languages: buildLanguageAlternates(path),
   };
 }
 
@@ -75,7 +56,7 @@ export function baseMetadata({
   description: string;
   noindex?: boolean;
 }): Metadata {
-  const url = absolute(localizedPath(lang, path));
+  const url = absoluteUrl(lang, path);
   return {
     title,
     description,
@@ -113,6 +94,9 @@ export function algorithmMetadata(lang: string, slug: string): Metadata {
   }
 
   const algo = getAlgorithmDetail(id);
+  const technicalSummary = algo?.technicalSummary
+    ? t(lang, `algoData.${id}.technicalSummary`, algo.technicalSummary)
+    : undefined;
   const overview = t(lang, `algoData.${id}.overview`, algo?.overview ?? "Algorithm details");
   const explorerTitle = t(lang, "explorer.seo.title", "Dithering Algorithms Reference");
 
@@ -120,6 +104,6 @@ export function algorithmMetadata(lang: string, slug: string): Metadata {
     lang,
     path: `/Education/Algorithms/${slug}`,
     title: `${algo?.name ?? "Algorithm"} - ${explorerTitle}`,
-    description: overview,
+    description: technicalSummary ?? overview,
   });
 }

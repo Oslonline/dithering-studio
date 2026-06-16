@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import JsonLd from "../../../components/seo/JsonLd";
 import Education from "../../../views/Education";
 import { baseMetadata, t } from "../../../lib/metadata";
+import { educationFaqJsonLd, educationTechArticleJsonLd } from "../../../lib/seo/structuredData";
+import { type SupportedLang } from "../../../lib/seo/site";
+import { normalizeLang } from "../../../utils/localePath";
 
 export async function generateMetadata({
   params,
@@ -24,6 +28,14 @@ export async function generateMetadata({
   });
 }
 
-export default function EducationPage() {
-  return <Education />;
+export default async function EducationPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  const normalized = normalizeLang(lang) as SupportedLang;
+  return (
+    <>
+      <JsonLd data={educationTechArticleJsonLd(normalized)} />
+      <JsonLd data={educationFaqJsonLd(normalized)} />
+      <Education />
+    </>
+  );
 }

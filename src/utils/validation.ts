@@ -22,6 +22,22 @@ export interface VideoValidationOptions {
   allowedFormats?: string[];
 }
 
+const VIDEO_EXTENSIONS = /\.(mp4|m4v|webm|mov)$/i;
+
+export function isVideoFile(file: File): boolean {
+  if (file.type.startsWith("video/")) return true;
+  return VIDEO_EXTENSIONS.test(file.name);
+}
+
+export function resolveVideoMimeType(file: File): string {
+  if (file.type && file.type !== "application/octet-stream") return file.type;
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  if (ext === "mp4" || ext === "m4v") return "video/mp4";
+  if (ext === "webm") return "video/webm";
+  if (ext === "mov") return "video/quicktime";
+  return file.type;
+}
+
 /**
  * Validate image file and dimensions
  */
@@ -110,16 +126,24 @@ export async function validateVideo(
   options: VideoValidationOptions = {}
 ): Promise<ValidationResult> {
   const {
-    maxDuration = 5 * 60 * 1000, // 5 minutes default
+    maxDuration = 5 * 60, // 5 minutes
     maxFileSize = 100 * 1024 * 1024, // 100MB default
-    allowedFormats = ['video/mp4', 'video/webm', 'video/quicktime']
+    allowedFormats = ["video/mp4", "video/webm", "video/quicktime", "video/x-m4v"],
   } = options;
 
-  // Check file type
-  if (!allowedFormats.includes(file.type)) {
+  const mimeType = resolveVideoMimeType(file);
+
+  if (!isVideoFile(file)) {
     return {
       valid: false,
-      error: `Unsupported video format: ${file.type}. Supported formats: MP4, WebM, MOV`
+      error: `Unsupported video format${file.type ? `: ${file.type}` : ""}. Supported formats: MP4, WebM, MOV`,
+    };
+  }
+
+  if (mimeType && !allowedFormats.includes(mimeType)) {
+    return {
+      valid: false,
+      error: `Unsupported video format: ${mimeType}. Supported formats: MP4, WebM, MOV`,
     };
   }
 
@@ -151,10 +175,11 @@ export async function validateVideo(
     }
 
     return { valid: true };
-  } catch (error) {
+  } catch {
+    // Metadata can fail for some codecs even when playback works in a <video> element.
     return {
-      valid: false,
-      error: `Failed to load video: ${error instanceof Error ? error.message : 'Unknown error'}. The file may be corrupted or use an unsupported codec.`
+      valid: true,
+      warning: "Could not read video metadata. If playback fails, try re-encoding as H.264 MP4.",
     };
   }
 }
@@ -164,24 +189,40 @@ export async function validateVideo(
  */
 function getVideoMetadata(file: File): Promise<{ duration: number; width: number; height: number }> {
   return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
+    const video = document.createElement("video");
     const url = URL.createObjectURL(file);
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Timed out reading video metadata"));
+    }, 15000);
+
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      URL.revokeObjectURL(url);
+      video.removeAttribute("src");
+      video.load();
+    };
+
+    video.preload = "metadata";
+    video.muted = true;
+    video.playsInline = true;
 
     video.onloadedmetadata = () => {
-      URL.revokeObjectURL(url);
+      cleanup();
       resolve({
         duration: video.duration,
         width: video.videoWidth,
-        height: video.videoHeight
+        height: video.videoHeight,
       });
     };
 
     video.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to load video metadata'));
+      cleanup();
+      reject(new Error("Failed to load video metadata"));
     };
 
     video.src = url;
+    video.load();
   });
 }
 

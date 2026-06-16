@@ -1,23 +1,26 @@
 # Dithering Studio
 
-> Free, privacy-first online image and video dithering. 30+ algorithms (Floyd–Steinberg, Bayer, Atkinson, Sierra, blue noise, ASCII mosaic, and more), custom palettes, presets, and education pages — 100% client-side in the browser. No account, no server uploads.
+> Free, privacy-first online image and video dithering. 30+ algorithms (Floyd–Steinberg, Bayer, Atkinson, Sierra, blue noise, ASCII mosaic, and more), custom palettes, presets, optional community gallery, and education pages — core processing is 100% client-side in the browser.
 
 Canonical: https://ditheringstudio.com/en/
-Lang: en
+Lang: en (also fr, es, de, zh, ru, hi)
 License: Apache-2.0
 Open source: https://github.com/Oslonline/dithering-studio
+Analytics: Vercel Web Analytics only (privacy-oriented, no ad cookies)
 
-Dithering Studio is a web app for artists, developers, and retro-aesthetic creators who need fast dithering without sending files to a server. Processing runs in Web Workers; exports stay on the user's device.
+Dithering Studio is for artists, developers, and retro-aesthetic creators who need fast dithering without sending files to a server. Processing runs in Web Workers; exports stay on the user's device unless they explicitly publish to the gallery.
 
 ## Primary pages
 
 - [Home](https://ditheringstudio.com/en/): Overview, features, algorithm tiles, links to tool and education
 - [Image dithering tool](https://ditheringstudio.com/en/Dithering/Image): Upload images, pick algorithms, palettes, export PNG/JPEG/WEBP/SVG
 - [Video dithering tool](https://ditheringstudio.com/en/Dithering/Video): Dither video with preview; export WebM, MP4, GIF
-- [Education hub](https://ditheringstudio.com/en/Education): Learn dithering concepts and history
+- [Education hub](https://ditheringstudio.com/en/Education): Learn dithering concepts (FAQ structured data on page)
 - [Education — Basics](https://ditheringstudio.com/en/Education/Basics): Foundational dithering concepts
 - [Education — Practice](https://ditheringstudio.com/en/Education/Practice): Hands-on guidance
 - [Algorithm reference](https://ditheringstudio.com/en/Education/Algorithms): Browse all algorithms with live examples
+- [Community gallery](https://ditheringstudio.com/en/Gallery): Browse community posts; reuse settings via template links (optional feature)
+- [Terms](https://ditheringstudio.com/en/Terms) · [Privacy](https://ditheringstudio.com/en/Privacy) · [Cookies](https://ditheringstudio.com/en/Cookies)
 
 ## Languages
 
@@ -25,42 +28,39 @@ Localized UI and SEO for: English (`/en/`), French (`/fr/`), Spanish (`/es/`), G
 
 ## Tool capabilities
 
-- **Media**: Static images (PNG, JPEG, WEBP, GIF, BMP) and video (MP4, WebM, MOV; practical limit ~30s for smooth processing)
-- **Algorithms (30)**: Error diffusion (Floyd–Steinberg, False FS, Atkinson, Sierra family, Burkes, Stucki, JJN, Stevenson–Arce, Ostromoukhov, Adaptive FS 3×3/7×7, Sierra 2-4A, Custom Kernel, Riemersma); ordered (Bayer 2×2–32×32, Blue Noise 64×64); other (binary/random threshold, halftone, dot diffusion, ASCII mosaic, posterize, woodcut, stipple)
-- **Controls**: Threshold, resolution scaling, serpentine traversal (where supported), invert, custom palettes (Game Boy, PICO-8, DawnBringer, CGA/EGA, etc.)
-- **Presets**: Save, rename, import/export shareable tokens; deep links via URL query params
-- **Export**: Images — PNG, JPEG, WEBP, SVG, clipboard; video — WebM, MP4 (codec-dependent), GIF; frame grab while paused
-- **Privacy**: Fully client-side; files never uploaded to Dithering Studio servers
+- **Media**: Static images (PNG, JPEG, WEBP, GIF, BMP) and video (MP4, WebM, MOV)
+- **Algorithms (30)**: Error diffusion (Floyd–Steinberg, False FS, Atkinson, Sierra family, Burkes, Stucki, JJN, Stevenson–Arce, Ostromoukhov, Adaptive FS, Custom Kernel, Riemersma); ordered (Bayer 2×2–32×32, Blue Noise 64×64); other (binary/random threshold, halftone, dot diffusion, ASCII mosaic, posterize, woodcut, stipple)
+- **Controls**: Threshold, resolution scaling, serpentine traversal, invert, custom palettes (Game Boy, PICO-8, DawnBringer, CGA/EGA, etc.)
+- **Presets**: Save, rename, import/export shareable tokens; deep links via URL query params on tool routes
+- **Privacy**: Core tool is client-side; gallery publish uploads only preview assets you choose
+- **Accounts**: Optional OAuth (Google/GitHub) for gallery and public profile
 
 ## Algorithm detail pages
 
-Each algorithm has a dedicated reference URL under `/Education/Algorithms/{slug}`:
+Each algorithm has a dedicated reference URL under `/Education/Algorithms/{slug}` with breadcrumb structured data:
 
 - [Floyd–Steinberg](https://ditheringstudio.com/en/Education/Algorithms/floyd-steinberg)
 - [Bayer 4×4](https://ditheringstudio.com/en/Education/Algorithms/bayer-4x4)
 - [Atkinson](https://ditheringstudio.com/en/Education/Algorithms/atkinson)
 - [Blue Noise 64×64](https://ditheringstudio.com/en/Education/Algorithms/blue-noise-64x64)
 - [ASCII Mosaic](https://ditheringstudio.com/en/Education/Algorithms/ascii-mosaic)
-- [Full list in sitemap](https://ditheringstudio.com/sitemap.xml): 30 algorithm slugs (see `algorithm-slugs.json` in the repo)
+- Full list: see [sitemap.xml](https://ditheringstudio.com/sitemap.xml) (30 slugs)
 
 ## Keywords and topics (for retrieval)
 
-image dithering, video dithering, online dithering tool, Floyd–Steinberg, Atkinson dithering, Bayer matrix, ordered dithering, error diffusion, blue noise dithering, retro pixel art, 8-bit effect, halftone, stipple, vaporwave / lofi aesthetic, gradient banding reduction, client-side image processing, free dithering, no upload
+image dithering, video dithering, online dithering tool, Floyd–Steinberg, Atkinson dithering, Bayer matrix, ordered dithering, error diffusion, blue noise dithering, retro pixel art, 8-bit effect, halftone, stipple, gradient banding reduction, client-side image processing, free dithering, no upload, dithering template, community gallery
 
-## Technical / SEO
+## Technical / SEO / LLM discovery
 
-- [Sitemap](https://ditheringstudio.com/sitemap.xml): Indexable routes with hreflang alternates (English `loc`, 7 languages)
-- [robots.txt](https://ditheringstudio.com/robots.txt): Allows all crawlers
-- Prerendered HTML at build time for major routes (Puppeteer); SPA fallback otherwise
-- Shareable preview URLs use `?demo=` on the tool (marked `noindex`); algorithm explorer filter `?algo=` is `noindex`
+- [Sitemap](https://ditheringstudio.com/sitemap.xml): Generated by Next.js; hreflang alternates per URL
+- [robots.txt](https://ditheringstudio.com/robots.txt): Allows crawlers; disallows `/api/` and `/auth/`
+- [llms.txt](https://ditheringstudio.com/llms.txt): This file (llmstxt.org convention for AI systems)
+- Alias: `/llm.txt` → `/llms.txt` (301)
+- JSON-LD: WebApplication on home, FAQPage on education hub, BreadcrumbList on algorithm pages
+- Noindex: tool URLs with query params, account page, gallery publish flow, admin routes
 
 ## Contact and attribution
 
 - Creator: [Oslo418 on X](https://x.com/Oslo418)
 - Source code: [github.com/Oslonline/dithering-studio](https://github.com/Oslonline/dithering-studio)
 - Live app: [ditheringstudio.com](https://ditheringstudio.com/)
-
-## Optional
-
-- [This file (llms.txt)](https://ditheringstudio.com/llms.txt): Machine-readable site summary for AI systems and coding agents
-- Alias: `/llm.txt` redirects here (301)

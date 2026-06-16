@@ -76,3 +76,11 @@ export function getAlgorithmsByCategory() {
 }
 
 export function findAlgorithm(id: number): AlgorithmMeta | undefined { return algorithms.find(a => a.id === id); }
+
+export const ASCII_MOSAIC_PATTERN = 25;
+
+export function isAsciiAlgorithm(pattern: number): boolean {
+  if (pattern === ASCII_MOSAIC_PATTERN) return true;
+  const algo = findAlgorithm(pattern);
+  return algo?.name.toLowerCase().includes("ascii") ?? false;
+}

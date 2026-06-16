@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaFilm, FaExclamationTriangle } from "react-icons/fa";
-import { validateVideo } from "../../utils/validation";
+import { isVideoFile, validateVideo } from "../../utils/validation";
 import { useErrorTracking } from "../../hooks/useErrorTracking";
 
 interface MobileVideoUploaderProps { onVideosSelected: (items: { url: string; name?: string; file?: File }[]) => void; }
@@ -26,7 +26,7 @@ const MobileVideoUploader: React.FC<MobileVideoUploaderProps> = ({ onVideosSelec
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
-      if (!file.type.startsWith('video/')) {
+      if (!isVideoFile(file)) {
         errors.push(`${file.name}: Not a video file`);
         continue;
       }

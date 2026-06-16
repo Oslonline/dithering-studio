@@ -168,6 +168,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       if (token !== tokenRef.current || !active) return false;
       perf.phaseStart('present');
       ctx.putImageData(out, 0, 0);
+      procCtx.putImageData(out, 0, 0);
       perf.phaseEnd('present');
 
       if (needResizeRef.current) {

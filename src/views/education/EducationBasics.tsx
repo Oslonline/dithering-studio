@@ -12,7 +12,7 @@ const EducationBasics: React.FC = () => {
   return (
     <>
       <div className="flex h-screen w-full flex-col overflow-hidden">
-        <Header page="education" />
+        <Header activeNav="education" />
 
         <main id="main-content" className="flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-4xl px-6 py-12">

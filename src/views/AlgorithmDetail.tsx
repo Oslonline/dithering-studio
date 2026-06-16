@@ -78,7 +78,7 @@ const AlgorithmDetailPage: React.FC = () => {
   return (
     <>
       <div className="flex h-screen w-full flex-col overflow-hidden">
-        <Header page="explorer" />
+        <Header activeNav="algorithms" />
         <main id="main-content" className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto w-full max-w-4xl">
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -97,7 +97,12 @@ const AlgorithmDetailPage: React.FC = () => {
             </div>
 
             <h1 className="font-anton text-3xl leading-tight text-gray-100">{algorithm.name}</h1>
-            {algorithm.overview && <p className="mt-2 text-[12px] text-gray-400">{algorithm.overview}</p>}
+            {algorithm.technicalSummary && (
+              <p className="mt-3 text-[13px] leading-relaxed text-gray-300">{algorithm.technicalSummary}</p>
+            )}
+            {algorithm.overview && (
+              <p className="mt-2 text-[12px] text-gray-400">{algorithm.overview}</p>
+            )}
 
             <div className="mt-3 flex flex-wrap gap-2 font-mono text-[10px] text-gray-500">
               {algorithm.year && <span className="rounded border border-neutral-800 px-2 py-0.5">{t('explorer.year')}: {algorithm.year}</span>}

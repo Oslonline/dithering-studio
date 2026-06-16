@@ -15,6 +15,9 @@ export function getTranslatedAlgorithmDetails(): AlgorithmDetail[] {
     category: t(`algoData.categories.${algo.category.toLowerCase().replace(/\s+/g, '')}`, { defaultValue: algo.category }),
     // Translate overview
     overview: t(`algoData.${algo.id}.overview`, { defaultValue: algo.overview }),
+    ...(algo.technicalSummary && {
+      technicalSummary: t(`technicalSummaries.${algo.id}`, { defaultValue: algo.technicalSummary }),
+    }),
     // Translate characteristics array
     characteristics: algo.characteristics.map((_, idx) => 
       t(`algoData.${algo.id}.characteristics.${idx}`, { defaultValue: algo.characteristics[idx] })

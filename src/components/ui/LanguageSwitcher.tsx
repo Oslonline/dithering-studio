@@ -47,11 +47,13 @@ const LanguageSwitcher: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-md border border-neutral-800 bg-neutral-900/60 px-3 py-1.5 text-[10px] text-gray-300 transition-colors hover:border-neutral-700 hover:bg-neutral-800/60 hover:text-gray-100"
+        className="header-utility-btn font-mono uppercase tracking-wide"
         aria-label={t('tool.ariaSelectLanguage')}
       >
-        <span className="text-sm">{currentLanguage.flag}</span>
-        <span className="hidden sm:inline">{currentLanguage.name}</span>
+        <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center text-[14px] leading-none">
+          {currentLanguage.flag}
+        </span>
+        <span>{currentLanguage.code}</span>
         <svg
           className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"

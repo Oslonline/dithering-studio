@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { backgroundProcessor } from '../utils/backgroundProcessor';
-import { validateImage, validateVideo } from '../utils/validation';
+import { validateImage, validateVideo, isVideoFile } from '../utils/validation';
 import { useErrorTracking } from './useErrorTracking';
 
 type FileResult = { url: string; name: string; file: File };
@@ -81,7 +81,7 @@ export const useFileProcessor = () => {
     files: File[],
     onComplete: (results: FileResult[]) => void
   ) => {
-    const videoFiles = files.filter(f => f.type.startsWith('video/'));
+    const videoFiles = files.filter(isVideoFile);
     if (videoFiles.length === 0) return;
 
     setProcessing(prev => prev + videoFiles.length);

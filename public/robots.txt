@@ -1,9 +1,10 @@
-# Allow all crawlers
+# Served by Next.js app/robots.ts in production. This file is a fallback for static hosts.
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /api/
+Disallow: /auth/
 
-# Point to the sitemap
 Sitemap: https://ditheringstudio.com/sitemap.xml
 
-# Machine-readable summary for AI systems and coding agents (llmstxt.org convention)
+# LLM / AI discovery (llmstxt.org)
 # https://ditheringstudio.com/llms.txt

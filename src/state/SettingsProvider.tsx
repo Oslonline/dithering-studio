@@ -3,32 +3,32 @@ import { SettingsContext } from './SettingsContext';
 import type { UploadedImage } from '../components/panels/ImagesPanel';
 import type { UploadedVideo } from '../components/panels/VideosPanel';
 import type { SerpentinePattern } from '../types/serpentinePatterns';
-import { loadSettings, persistSettings } from './settingsPersistence';
+import { defaultSettings, loadSettings, persistSettings } from './settingsPersistence';
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const initial = loadSettings();
-  const [images, setImages] = useState<UploadedImage[]>(() => initial.images as UploadedImage[]);
-  const [activeImageId, setActiveImageId] = useState<string | null>(() => initial.activeImageId);
+  const [storageReady, setStorageReady] = useState(false);
+  const [images, setImages] = useState<UploadedImage[]>(() => defaultSettings.images as UploadedImage[]);
+  const [activeImageId, setActiveImageId] = useState<string | null>(() => defaultSettings.activeImageId);
   const [videos, setVideos] = useState<UploadedVideo[]>([]);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-  const [pattern, setPattern] = useState<number>(() => initial.pattern);
-  const [threshold, setThreshold] = useState<number>(() => initial.threshold);
-  const [workingResolution, setWorkingResolution] = useState<number>(() => initial.workingResolution);
-  const [workingResInput, setWorkingResInput] = useState<string>(() => String(initial.workingResolution));
-  const [contrast, setContrast] = useState<number>(() => initial.contrast);
-  const [midtones, setMidtones] = useState<number>(() => initial.midtones);
-  const [highlights, setHighlights] = useState<number>(() => initial.highlights);
-  const [blurRadius, setBlurRadius] = useState<number>(() => initial.blurRadius);
+  const [pattern, setPattern] = useState<number>(() => defaultSettings.pattern);
+  const [threshold, setThreshold] = useState<number>(() => defaultSettings.threshold);
+  const [workingResolution, setWorkingResolution] = useState<number>(() => defaultSettings.workingResolution);
+  const [workingResInput, setWorkingResInput] = useState<string>(() => String(defaultSettings.workingResolution));
+  const [contrast, setContrast] = useState<number>(() => defaultSettings.contrast);
+  const [midtones, setMidtones] = useState<number>(() => defaultSettings.midtones);
+  const [highlights, setHighlights] = useState<number>(() => defaultSettings.highlights);
+  const [blurRadius, setBlurRadius] = useState<number>(() => defaultSettings.blurRadius);
   const [webpSupported, setWebpSupported] = useState(true);
-  const [paletteId, setPaletteId] = useState<string | null>(() => initial.paletteId);
-  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => initial.customPalette);
-  const [invert, setInvert] = useState<boolean>(() => initial.invert);
-  const [serpentine, setSerpentine] = useState<boolean>(() => initial.serpentine);
+  const [paletteId, setPaletteId] = useState<string | null>(() => defaultSettings.paletteId);
+  const [activePaletteColors, setActivePaletteColors] = useState<[number, number, number][] | null>(() => defaultSettings.customPalette);
+  const [invert, setInvert] = useState<boolean>(() => defaultSettings.invert);
+  const [serpentine, setSerpentine] = useState<boolean>(() => defaultSettings.serpentine);
   const [serpentinePattern, setSerpentinePattern] = useState<SerpentinePattern>('standard');
   const [errorDiffusionStrength, setErrorDiffusionStrength] = useState<number>(100);
-  const [asciiRamp, setAsciiRamp] = useState<string>(() => initial.asciiRamp);
-  const [showGrid, setShowGrid] = useState<boolean>(() => initial.showGrid);
-  const [gridSize, setGridSize] = useState<number>(() => initial.gridSize);
+  const [asciiRamp, setAsciiRamp] = useState<string>(() => defaultSettings.asciiRamp);
+  const [showGrid, setShowGrid] = useState<boolean>(() => defaultSettings.showGrid);
+  const [gridSize, setGridSize] = useState<number>(() => defaultSettings.gridSize);
   const [focusMode, setFocusMode] = useState(false);
   const [customKernel, setCustomKernel] = useState<number[][] | null>(null);
   const [customKernelDivisor, setCustomKernelDivisor] = useState<number>(16);
@@ -39,6 +39,29 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [showDownload, setShowDownload] = useState(false);
 
   useEffect(() => {
+    const initial = loadSettings();
+    setImages(initial.images as UploadedImage[]);
+    setActiveImageId(initial.activeImageId);
+    setPattern(initial.pattern);
+    setThreshold(initial.threshold);
+    setWorkingResolution(initial.workingResolution);
+    setWorkingResInput(String(initial.workingResolution));
+    setContrast(initial.contrast);
+    setMidtones(initial.midtones);
+    setHighlights(initial.highlights);
+    setBlurRadius(initial.blurRadius);
+    setPaletteId(initial.paletteId);
+    setActivePaletteColors(initial.customPalette);
+    setInvert(initial.invert);
+    setSerpentine(initial.serpentine);
+    setAsciiRamp(initial.asciiRamp);
+    setShowGrid(initial.showGrid);
+    setGridSize(initial.gridSize);
+    setStorageReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady) return;
     persistSettings({
       version: 1,
       images,
@@ -58,7 +81,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       showGrid,
       gridSize,
     });
-  }, [images, activeImageId, pattern, threshold, workingResolution, contrast, midtones, highlights, blurRadius, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize]);
+  }, [storageReady, images, activeImageId, pattern, threshold, workingResolution, contrast, midtones, highlights, blurRadius, paletteId, activePaletteColors, invert, serpentine, asciiRamp, showGrid, gridSize]);
 
   const value = useMemo(() => ({
     images, setImages,

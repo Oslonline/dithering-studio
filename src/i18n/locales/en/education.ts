@@ -5,6 +5,16 @@ const education = {
       description:
         'Learn what dithering is, when to use it, and how Bayer ordered dithering compares to Floyd-Steinberg error diffusion. Practical guide with examples and tool links.',
     },
+    techArticle: {
+      headline: 'What Is Dithering? Complete Guide to Ordered & Error Diffusion',
+      description:
+        'An interactive educational reference guide explaining digital image and video dithering math, covering 30+ algorithms including Floyd-Steinberg, Bayer, and Blue Noise.',
+      audienceType: 'Developers, Graphic Designers, Pixel Artists',
+      aboutDithering: 'Dithering',
+      aboutFloydSteinberg: 'Floyd–Steinberg algorithm',
+      aboutErrorDiffusion: 'Error diffusion',
+      aboutOrderedDithering: 'Ordered dithering',
+    },
 
     header: {
       title: 'Education',
@@ -41,6 +51,60 @@ const education = {
       tryImage: 'Try it on an image',
       tryVideo: 'Try it on a video',
       exploreAlgorithms: 'Explore algorithms',
+    },
+
+    hero: {
+      kicker: 'Learn dithering',
+      subtitle:
+        'Understand ordered matrices, error diffusion, and palettes—then apply what you learn in the tool with companion examples.',
+      ctaBasics: 'Start with Basics',
+      ctaAlgorithms: 'Explore algorithms',
+      ctaTool: 'Open the tool',
+    },
+
+    paths: {
+      title: 'Choose your path',
+      subtitle: 'Three entry points depending on how deep you want to go on the first visit.',
+      beginner: {
+        title: 'Beginner',
+        body: 'Core definitions, the two algorithm families, and a short FAQ—no math required.',
+        cta: 'Start with Basics',
+      },
+      creator: {
+        title: 'Practical creator',
+        body: 'Recipes for gradients, retro looks, and video—threshold, serpentine, and palette tips.',
+        cta: 'Go to Practice',
+      },
+      technical: {
+        title: 'Technical explorer',
+        body: 'Per-algorithm reference, kernels, complexity notes, and deep links into the workspace.',
+        cta: 'Algorithm reference',
+      },
+    },
+
+    visual: {
+      title: 'See it, don’t just read it',
+      subtitle: 'Compare before/after on sample media, then contrast ordered vs error-diffusion textures.',
+      beforeAfter: 'Before / after (live preview)',
+      patterns: 'Pattern comparison',
+      orderedLabel: 'Ordered (Bayer)',
+      orderedHint: 'Repeating matrix—fast, crisp, pixel-friendly grid.',
+      errorLabel: 'Error diffusion (Floyd–Steinberg)',
+      errorHint: 'Error spread to neighbors—often smoother gradients.',
+      seeOrdered: 'See Bayer 4×4',
+      seeError: 'See Floyd–Steinberg',
+    },
+
+    external: {
+      title: 'Recommended deep reads',
+      intro:
+        'The best visual explanations we found live off-site. Read them for intuition, then return here to try the same ideas in-app.',
+      part1Title: 'Dithering, part 1',
+      part1Desc: 'Foundations and visual intuition for how dither patterns emerge.',
+      part2Title: 'Dithering, part 2',
+      part2Desc: 'Blue noise, modern ordered approaches, and quality trade-offs.',
+      returnCta: 'Back to education hub',
+      tryCta: 'Try in the tool',
     },
 
     preview: {

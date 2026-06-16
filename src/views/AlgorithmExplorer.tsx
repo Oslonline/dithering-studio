@@ -211,7 +211,7 @@ const AlgorithmExplorer: React.FC = () => {
   return (
     <>
       <div className="flex h-screen w-full flex-col overflow-hidden">
-      <Header page="explorer" />
+      <Header activeNav="algorithms" />
       <div id="main-content" className="flex flex-1 flex-col overflow-hidden md:flex-row">
         <aside className="flex w-full flex-shrink-0 flex-col border-b border-neutral-800 bg-[#0d0d0d] md:h-full md:w-80 md:border-r md:border-b-0">
           <div className="flex-1 space-y-2 overflow-y-auto px-4 pt-4 pb-4">

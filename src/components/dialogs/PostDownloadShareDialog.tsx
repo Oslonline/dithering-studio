@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createFocusTrap } from "../../utils/a11y";
+import { features } from "../../lib/features";
+import { getDitheredResultCanvas } from "../../lib/gallery/captureImages";
 
 interface PostDownloadShareDialogProps {
   open: boolean;
@@ -9,6 +11,7 @@ interface PostDownloadShareDialogProps {
   processedCanvasRef: React.RefObject<HTMLCanvasElement | null>;
   lastFormat?: string;
   isVideo?: boolean;
+  onGalleryPublish?: () => void;
 }
 
 const CAPTIONS = [
@@ -23,7 +26,7 @@ const CAPTIONS = [
 ];
 const randomCaption = () => CAPTIONS[Math.floor(Math.random() * CAPTIONS.length)];
 
-const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open, onClose, canvasRef, processedCanvasRef, lastFormat, isVideo }) => {
+const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open, onClose, canvasRef, processedCanvasRef, lastFormat, isVideo, onGalleryPublish }) => {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -32,7 +35,7 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
 
   useEffect(() => {
     if (open) {
-      const c = processedCanvasRef.current || canvasRef.current;
+      const c = getDitheredResultCanvas(!!isVideo, canvasRef.current, processedCanvasRef.current);
       if (c) {
         try {
           setPreview(c.toDataURL("image/png"));
@@ -76,7 +79,7 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
   if (!open) return null;
 
   const share = () => {
-    const c = processedCanvasRef.current || canvasRef.current;
+    const c = getDitheredResultCanvas(!!isVideo, canvasRef.current, processedCanvasRef.current);
     if (!c) return;
     setSharing(true);
     setNotice(null);
@@ -153,6 +156,15 @@ const PostDownloadShareDialog: React.FC<PostDownloadShareDialogProps> = ({ open,
         >
           {sharing ? t('tool.shareDialog.preparing') : t('tool.shareDialog.shareOnX')}
         </button>
+        {features.gallery && onGalleryPublish && (
+          <button
+            type="button"
+            onClick={onGalleryPublish}
+            className="clean-btn mb-3 w-full justify-center text-[11px]"
+          >
+            Share to gallery
+          </button>
+        )}
         {notice && <p className="mb-2 text-center text-[10px] text-amber-400">{notice}</p>}
         <p className="text-center text-[10px] text-gray-500">{t('tool.shareDialog.autoAttach')}</p>
         <div className="mt-4 border-t border-neutral-800 pt-3 text-center">

@@ -5,6 +5,16 @@ const education = {
             description:
               '学习抖动的定义与常见方法：有序抖动（拜耳矩阵）和误差扩散（Floyd–Steinberg）。了解何时使用彩色抖动，并在线快速试用。',
           },
+          techArticle: {
+            headline: '什么是抖动？有序抖动与误差扩散完整指南',
+            description:
+              '交互式教育参考指南，讲解数字图像与视频抖动的数学原理，涵盖 30 多种算法，包括 Floyd-Steinberg、Bayer 和 Blue Noise。',
+            audienceType: '开发者、平面设计师、像素艺术家',
+            aboutDithering: '抖动',
+            aboutFloydSteinberg: 'Floyd–Steinberg 算法',
+            aboutErrorDiffusion: '误差扩散',
+            aboutOrderedDithering: '有序抖动',
+          },
 
           header: {
             title: '学习',

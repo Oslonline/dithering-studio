@@ -24,6 +24,7 @@ export interface AlgorithmDetail {
   implementationNotes?: string[];
   references?: string[];
   notes?: string[];
+  technicalSummary?: string;
 }
 
 export const algorithmDetails: AlgorithmDetail[] = [
@@ -59,7 +60,14 @@ export const algorithmDetails: AlgorithmDetail[] = [
   ,{ id: 30, name: "Stipple", category: "Other", overview: "Density-based dot placement creating stippling/engraving effects. Darker areas receive more dots. Threshold controls dot density.", characteristics: ["Dot-based", "Density variation", "Drawing-like"], artifacts: ["Grainy texture", "Sparse in bright areas"], bestFor: ["Engraving effects", "Artistic illustrations", "Pen & ink style"], complexity: "O(N)", year: 2025, origin: "Artistic", deterministic: false, errorConserving: false, neighborhood: "Independent dots" }
 ];
 
+import enTechnicalSummaries from '../i18n/locales/en/technicalSummaries';
 import { algorithms } from './algorithms';
+
+const algorithmTechnicalSummaries = enTechnicalSummaries.technicalSummaries as Record<number, string>;
+
+function getAlgorithmTechnicalSummary(id: number): string | undefined {
+  return algorithmTechnicalSummaries[id];
+}
 
 /**
  * Returns algorithm details in the same order as the runtime algorithm registry.
@@ -71,11 +79,13 @@ export function getOrderedAlgorithmDetails(): AlgorithmDetail[] {
   return algorithms.map((meta) => {
     const existing = byId.get(meta.id);
     if (existing) {
+      const technicalSummary = getAlgorithmTechnicalSummary(meta.id);
+      const merged = technicalSummary ? { ...existing, technicalSummary } : existing;
       // Ensure name/category stay consistent with the registry.
-      if (existing.name !== meta.name || existing.category !== meta.category) {
-        return { ...existing, name: meta.name, category: meta.category };
+      if (merged.name !== meta.name || merged.category !== meta.category) {
+        return { ...merged, name: meta.name, category: meta.category };
       }
-      return existing;
+      return merged;
     }
 
     // Fallback: registry algorithm exists but has no long-form info entry yet.

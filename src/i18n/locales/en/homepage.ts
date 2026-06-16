@@ -7,7 +7,91 @@ const homepage = {
     algorithmReference: 'View algorithm reference',
     liveGenerated: 'Generated live • No account • No uploads leave your browser',
   },
+  videoAuthority: {
+    title: 'Client-Side Video Dithering — Frame by Frame in Your Browser',
+    body: 'Dithering Studio is a privacy-first web application designed to dither video files frame-by-frame entirely in your browser. Convert MP4 or WebM formats into retro 8-bit, vaporwave, or pixelized animations without uploading data to an external server.',
+    cta: 'Dither a video now',
+  },
+  mediaProcessing: {
+    title: 'Image & video — processed entirely in your browser',
+    subtitle: 'Same algorithms, same privacy model. Pick the workflow that matches your media.',
+    image: {
+      label: 'Image',
+      title: 'Per-pixel dithering',
+      body: 'Load PNG, JPEG, or WebP and preview every algorithm instantly. Tune threshold, palettes, and scale — then export without uploading.',
+      formats: 'PNG · JPEG · WEBP · SVG',
+      cta: 'Open image tool',
+    },
+    video: {
+      label: 'Video',
+      title: 'Frame-by-frame in-browser',
+      body: 'Drop MP4 or WebM and dither each frame locally. Build retro 8-bit, vaporwave, or pixel-loop animations — nothing leaves your device.',
+      formats: 'MP4 · WebM · GIF',
+      cta: 'Open video tool',
+    },
+  },
   home: {
+    proof: {
+      aria: 'Product highlights',
+      algorithms: 'Algorithms',
+      formats: 'Export formats',
+      formatsValue: '7+',
+      local: 'Processing',
+      localValue: 'In-browser',
+      opensource: 'License',
+      opensourceValue: 'Open source',
+    },
+    value: {
+      title: 'Why Dithering Studio',
+      subtitle: 'A focused workspace for retro textures, halftone looks, and client-side privacy.',
+    },
+    why: {
+      title: 'Why',
+      body: 'One place to compare 30+ dithering techniques on images and videos with real-time preview and instant export.',
+    },
+    who: {
+      title: 'Who it is for',
+      body: 'Pixel artists, motion designers, developers prototyping shaders, and anyone curious about how ordered and error-diffusion patterns behave.',
+    },
+    privacy: {
+      title: 'Private by design',
+      body: 'Media stays on your device. No upload pipeline for processing. Optional accounts and gallery sharing are separate, explicit choices.',
+    },
+    learnBuiltIn: {
+      title: 'Learn built in',
+      body: 'Basics, practice recipes, and per-algorithm reference live inside the app — understand the pattern before you export.',
+    },
+    gallery: {
+      title: 'Community gallery',
+      subtitle: 'See what others publish and open their exact settings as a starting point in the tool.',
+      useTemplate: 'Use these settings',
+      browse: 'Browse gallery',
+    },
+    learn: {
+      title: 'Learning path',
+      subtitle: 'Start with concepts, practice with recipes, then dive into algorithm reference.',
+      basics: {
+        title: 'Basics',
+        body: 'Definitions, ordered vs error diffusion, and when dithering helps.',
+      },
+      practice: {
+        title: 'Practice',
+        body: 'Threshold, serpentine, palettes, and fixes for common artifacts.',
+      },
+      reference: {
+        title: 'Algorithms',
+        body: 'Per-algorithm notes, history snapshots, and deep links into the tool.',
+      },
+      cta: 'Open section',
+      hub: 'Full education hub',
+    },
+    ctaBand: {
+      title: 'Ready to try it?',
+      subtitle: 'Load media, pick an algorithm, export in seconds.',
+      tool: 'Open the tool',
+      learn: 'Learn dithering',
+      algorithms: 'Explore algorithms',
+    },
     education: {
       title: 'Learn dithering',
       subtitle: 'History, key ideas, and how the algorithms differ.',

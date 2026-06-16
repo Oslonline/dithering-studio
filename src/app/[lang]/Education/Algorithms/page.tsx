@@ -4,10 +4,13 @@ import { baseMetadata, t } from "../../../../lib/metadata";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  const qs = await searchParams;
   return baseMetadata({
     lang,
     path: "/Education/Algorithms",
@@ -21,6 +24,7 @@ export async function generateMetadata({
       "explorer.seo.description",
       "Explore dithering algorithms with practical guidance and visual examples.",
     ),
+    noindex: Object.keys(qs).length > 0,
   });
 }
 

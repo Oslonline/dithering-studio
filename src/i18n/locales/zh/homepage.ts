@@ -21,6 +21,11 @@ const homepage = {
     },
     algorithmTileTitle: '查看 {{name}} 详情',
   },
+  videoAuthority: {
+    title: '客户端视频抖动 — 在浏览器中逐帧处理',
+    body: 'Dithering Studio 是一款注重隐私的 Web 应用，可在浏览器中逐帧对视频文件进行抖动处理。将 MP4 或 WebM 转换为复古 8 位、蒸汽波或像素化动画，无需将数据上传到外部服务器。',
+    cta: '立即抖动视频',
+  },
   features: {
     title: '核心功能',
     subtitle: '四大支柱——其余一切都不碍事。',

@@ -22,6 +22,9 @@ import VideoControls from "../components/ui/VideoControls";
 import CanvasViewport from "../components/canvas/CanvasViewport";
 import ExportDialog from "../components/dialogs/ExportDialog";
 import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDialog";
+import ShareOptionsModal from "../components/gallery/ShareOptionsModal";
+import { blobToDataUrl } from "../lib/gallery/captureImages";
+import { createGalleryPreviewGif } from "../utils/gifEncoder";
 import Header from "../components/ui/Header";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
 import useClipboardPaste from "../hooks/useClipboardPaste";
@@ -31,6 +34,7 @@ import useApplyUrlParams from "../hooks/useApplyUrlParams";
 import { useKeyboardShortcutsModal } from "../hooks/useKeyboardShortcutsModal";
 import KeyboardShortcutsModal from "../components/dialogs/KeyboardShortcutsModal";
 import { perf } from "../utils/perf";
+import { isVideoFile } from "../utils/validation";
 import { predefinedPalettes } from "../utils/palettes";
 import { algorithms } from "../utils/algorithms";
 import { triggerHaptic } from "../utils/haptic";
@@ -39,6 +43,7 @@ import CustomKernelEditor from "../components/panels/CustomKernelEditor";
 import RandomizeButton from "../components/ui/RandomizeButton";
 import ResizableSidebar from "../components/ui/ResizableSidebar";
 import { normalizeLang, withLangPrefix } from "../utils/localePath";
+import { features } from "../lib/features";
 
 const isErrorDiffusion = (p: number) => algorithms.some((a) => a.id === p && a.category === "Error Diffusion");
 
@@ -458,39 +463,36 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     if (midtones && midtones !== 1.0) params.set("g", String(midtones));
     if (highlights) params.set("h", String(highlights));
     if (blurRadius) params.set("b", String(blurRadius));
-    if (asciiRamp && asciiRamp.trim().length >= 2) {
+    if (isAscii && asciiRamp && asciiRamp.trim().length >= 2) {
       // limit length to keep URL manageable
       const enc = encodeURIComponent(asciiRamp.slice(0, 64));
       params.set("ramp", enc);
     }
+    if (videoMode) params.set("mode", "video");
     const qs = params.toString();
     return `${base}?${qs}`;
   };
 
-  const [shareCopied, setShareCopied] = useState(false);
-  const copyShareUrl = async () => {
-    const url = buildShareUrl();
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 1500);
-    } catch {
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = url;
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        setShareCopied(true);
-        setTimeout(() => setShareCopied(false), 1500);
-      } catch {
-        // Optional: silent fail to avoid extra UI noise; could add inline error state if desired
-      }
+  const captureVideoGalleryResult = useCallback(async () => {
+    const videoEl = (videoHook as { videoElRef?: React.RefObject<HTMLVideoElement | null> }).videoElRef?.current;
+    const canvas = canvasRef.current;
+    if (!videoEl || !canvas?.width) {
+      throw new Error("Process a video frame before publishing.");
     }
-  };
+
+    const wasPlaying = videoPlaying;
+    setVideoPlaying(true);
+    try {
+      await new Promise((resolve) => window.setTimeout(resolve, 120));
+      const { blob, width, height } = await createGalleryPreviewGif(canvas, videoEl);
+      const dataUrl = await blobToDataUrl(blob);
+      return { dataUrl, width, height, mime: "image/gif" as const };
+    } finally {
+      setVideoPlaying(wasPlaying);
+    }
+  }, [videoHook, canvasRef, videoPlaying, setVideoPlaying]);
+
+  const [showShareOptions, setShowShareOptions] = useState(false);
 
   const [showPostShare, setShowPostShare] = useState(false);
   const [lastDownloadFormat, setLastDownloadFormat] = useState<string | undefined>(undefined);
@@ -601,7 +603,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
       } catch (error) {
         console.error('Export failed:', error);
         // Fallback to current canvas
-        const canvas = processedCanvasRef.current || canvasRef.current;
+        const canvas = videoMode ? canvasRef.current : processedCanvasRef.current || canvasRef.current;
         if (canvas) {
           const url = canvas.toDataURL(`image/${fmt}`);
           const link = document.createElement("a");
@@ -705,7 +707,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
       } catch (error) {
         console.error('SVG export failed:', error);
         // Fallback to current canvas
-        const canvas = processedCanvasRef.current || canvasRef.current;
+        const canvas = videoMode ? canvasRef.current : processedCanvasRef.current || canvasRef.current;
         if (canvas) {
           const { svg } = canvasToSVG(canvas, { mergeRuns: true });
           const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
@@ -736,7 +738,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
     <>
       <div id="tool" className={`flex min-h-screen w-full flex-col overflow-hidden ${focusMode ? "focus-mode" : ""}`}>
         <div ref={headerRef as React.RefObject<HTMLDivElement>} className={focusMode ? "hidden" : ""}>
-          <Header page="tool" videoMode={videoMode} onModeSwitch={switchMode} />
+          <Header activeNav="tool" videoMode={videoMode} onModeSwitch={switchMode} />
         </div>
         <div id="main-content" className="flex flex-1 flex-col overflow-hidden md:flex-row">
           {!focusMode && (
@@ -843,7 +845,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                             removeVideo={removeVideo}
                             addVideos={(files) => {
                               const items = Array.from(files)
-                                .filter(f => f.type.startsWith('video/'))
+                                .filter(isVideoFile)
                                 .map(f => ({ url: URL.createObjectURL(f), name: f.name, file: f }));
                               addVideos(items);
                             }}
@@ -893,8 +895,13 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                 <div ref={footerRef} className="border-t border-neutral-800 p-4">
                   {mediaActive ? (
                     <div className="flex gap-2">
-                      <button type="button" onClick={copyShareUrl} className="clean-btn basis-1/3 justify-center text-[11px]" title={t('tool.shareSettingsTitle')}>
-                        {shareCopied ? t('tool.copied') : t('tool.share')}
+                      <button
+                        type="button"
+                        onClick={() => setShowShareOptions(true)}
+                        className="clean-btn basis-1/3 justify-center text-[11px]"
+                        title={t("tool.shareSettingsTitle")}
+                      >
+                        {t("tool.share")}
                       </button>
                       <button 
                         onClick={() => {
@@ -1063,7 +1070,43 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           processedCanvasRef={processedCanvasRef}
           lastFormat={lastDownloadFormat}
           isVideo={videoMode}
+          onGalleryPublish={
+            features.gallery
+              ? () => {
+                  setShowPostShare(false);
+                  setShowShareOptions(true);
+                }
+              : undefined
+          }
         />
+        {features.gallery && (
+          <ShareOptionsModal
+            open={showShareOptions}
+            onClose={() => setShowShareOptions(false)}
+            buildShareUrl={buildShareUrl}
+            canvasRef={canvasRef}
+            processedCanvasRef={processedCanvasRef}
+            sourceImageUrl={videoMode ? null : image}
+            sourceVideoRef={videoMode ? (videoHook as any).videoElRef : undefined}
+            captureVideoGalleryResult={videoMode ? captureVideoGalleryResult : undefined}
+            hasApplied={hasApplied}
+            toolState={{
+              pattern,
+              threshold,
+              workingResolution,
+              contrast,
+              midtones,
+              highlights,
+              blurRadius,
+              paletteId,
+              customPalette: paletteId === "__custom" ? activePaletteColors : null,
+              invert,
+              serpentine,
+              asciiRamp,
+              videoMode,
+            }}
+          />
+        )}
         <PerformanceOverlay hasImage={!!image || !!currentVideo} originalBytes={image ? images.find((i) => i.id === activeImageId)?.size || null : currentVideo?.size || null} processedBytes={processedSizeBytes} />
         <ProcessingOverlay 
           isProcessing={busy || isExporting || false} 
