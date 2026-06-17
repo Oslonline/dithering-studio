@@ -1,66 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { AVATARS_BUCKET } from "../../lib/gallery/types";
 import type { ProfileSocialLinks } from "../../lib/gallery/types";
-import { normalizeLang } from "../../utils/localePath";
 
 interface ProfileSettingsPanelProps {
-  lang: string;
   username: string;
-  usernameSaved: boolean;
-  usernameError: string | null;
-  saveUsernameAction: (formData: FormData) => Promise<void>;
   bio: string;
   socialLinks: ProfileSocialLinks;
   avatarUrl: string | null;
   embedded?: boolean;
 }
 
-function UsernameFeedback({
-  usernameSaved,
-  usernameError,
-}: {
-  usernameSaved: boolean;
-  usernameError: string | null;
-}) {
-  if (usernameSaved) {
-    return <p className="text-xs text-emerald-300">Username saved.</p>;
-  }
-  if (usernameError === "format") {
-    return <p className="text-xs text-red-300">Invalid username format.</p>;
-  }
-  if (usernameError === "taken") {
-    return <p className="text-xs text-red-300">Username is unavailable. Please choose another one.</p>;
-  }
-  if (usernameError === "missing_table") {
-    return <p className="text-xs text-red-300">Profile setup is unavailable right now. Please try again later.</p>;
-  }
-  if (usernameError === "rls_denied" || usernameError === "unknown") {
-    return <p className="text-xs text-red-300">Could not save username. Please try again.</p>;
-  }
-  return null;
+function profileErrorMessage(code: string | null): string | null {
+  if (!code) return null;
+  if (code === "username_format") return "Invalid username format.";
+  if (code === "username_taken") return "Username is unavailable. Please choose another one.";
+  return "Could not save profile. Please try again.";
 }
 
 export default function ProfileSettingsPanel({
-  lang,
-  username,
-  usernameSaved,
-  usernameError,
-  saveUsernameAction,
+  username: initialUsername,
   bio: initialBio,
   socialLinks: initialLinks,
   avatarUrl,
   embedded = false,
 }: ProfileSettingsPanelProps) {
-  const normalizedLang = normalizeLang(lang);
+  const router = useRouter();
+  const [username, setUsername] = useState(initialUsername);
   const [bio, setBio] = useState(initialBio);
   const [links, setLinks] = useState<ProfileSocialLinks>(initialLinks);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(avatarUrl);
+
+  useEffect(() => {
+    setUsername(initialUsername);
+    setBio(initialBio);
+    setLinks(initialLinks);
+    setAvatarPreview(avatarUrl);
+  }, [initialUsername, initialBio, initialLinks, avatarUrl]);
 
   const save = async () => {
     setLoading(true);
@@ -70,15 +52,16 @@ export default function ProfileSettingsPanel({
       const response = await fetch("/api/profile/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bio, social_links: links }),
+        body: JSON.stringify({ username: username.trim(), bio, social_links: links }),
       });
       const payload = (await response.json().catch(() => null)) as { error?: string } | null;
       if (!response.ok) {
-        setError(payload?.error ?? "Could not save profile.");
+        setError(profileErrorMessage(payload?.error ?? null));
         setLoading(false);
         return;
       }
       setMessage("Profile saved.");
+      router.refresh();
     } catch {
       setError("Could not save profile.");
     }
@@ -94,6 +77,7 @@ export default function ProfileSettingsPanel({
     } = await supabase.auth.getUser();
     if (!user) return;
 
+    setError(null);
     const path = `${user.id}/avatar.webp`;
     const { error: uploadError } = await supabase.storage.from(AVATARS_BUCKET).upload(path, file, {
       upsert: true,
@@ -112,26 +96,57 @@ export default function ProfileSettingsPanel({
 
     setAvatarPreview(URL.createObjectURL(file));
     setMessage("Avatar updated.");
+    router.refresh();
   };
 
   return (
-    <section className={embedded ? "space-y-5" : "rounded-lg border border-neutral-800 bg-neutral-900/40 p-6"}>
+    <section className={embedded ? "space-y-6" : "rounded-lg border border-neutral-800 bg-neutral-900/40 p-6"}>
       <div className={embedded ? "space-y-1" : "mb-5 space-y-1"}>
-        <h2 className={embedded ? "text-[13px] font-medium tracking-wide text-gray-100 sm:text-[14px]" : "text-sm font-medium tracking-wide text-gray-200"}>
+        <h2
+          className={
+            embedded
+              ? "text-[13px] font-medium tracking-wide text-gray-100 sm:text-[14px]"
+              : "text-sm font-medium tracking-wide text-gray-200"
+          }
+        >
           Public profile
         </h2>
         <p className={embedded ? "text-[11px] leading-relaxed text-gray-500 sm:text-[12px]" : "text-xs text-gray-500"}>
-          Username, avatar, and links shown on gallery posts and your public profile page.
+          How you appear on gallery posts and your public profile page.
         </p>
       </div>
 
-      <div className="space-y-5">
-        <form action={saveUsernameAction} className="space-y-2">
-          <input type="hidden" name="lang" value={normalizedLang} />
+      <div className="mb-5 flex items-center gap-4">
+        {avatarPreview ? (
+          <img src={avatarPreview} alt="" className="h-16 w-16 rounded-full border border-neutral-700 object-cover" />
+        ) : (
+          <span className="flex h-16 w-16 items-center justify-center rounded-full border border-neutral-700 bg-neutral-900 text-sm text-gray-400">
+            ?
+          </span>
+        )}
+        <label className="clean-btn cursor-pointer px-3 py-1.5 text-[10px]">
+          Upload avatar
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void uploadAvatar(file);
+            }}
+          />
+        </label>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-1.5">
           <label htmlFor="account-username" className="block text-[10px] uppercase tracking-wide text-gray-500">
             Username
           </label>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <div className="flex overflow-hidden rounded-md border border-neutral-700 bg-neutral-900 focus-within:border-neutral-500">
+            <span className="flex items-center border-r border-neutral-700 px-3 font-mono text-sm text-gray-500" aria-hidden="true">
+              @
+            </span>
             <input
               id="account-username"
               type="text"
@@ -140,85 +155,72 @@ export default function ProfileSettingsPanel({
               minLength={3}
               maxLength={20}
               pattern="[A-Za-z0-9_]{3,20}"
-              defaultValue={username}
+              value={username}
+              onChange={(e) => setUsername(e.target.value.replace(/[^A-Za-z0-9_]/g, "").slice(0, 20))}
               placeholder="your_handle"
-              className="min-w-0 flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
+              className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-gray-100 outline-none"
+              autoComplete="username"
             />
-            <button type="submit" className="clean-btn clean-btn-primary shrink-0 px-4 py-2 text-[11px]">
-              Save username
-            </button>
           </div>
-          <p className="text-[10px] text-gray-600">3–20 characters: letters, numbers, underscores.</p>
-          <UsernameFeedback usernameSaved={usernameSaved} usernameError={usernameError} />
-        </form>
-
-        <div className="border-t border-neutral-800 pt-5">
-          <p className="mb-3 text-[10px] uppercase tracking-wide text-gray-500">Avatar and bio</p>
-          <div className="mb-4 flex items-center gap-4">
-            {avatarPreview ? (
-              <img src={avatarPreview} alt="" className="h-14 w-14 rounded-full border border-neutral-700 object-cover" />
-            ) : (
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-neutral-700 bg-neutral-900 text-sm text-gray-400">
-                ?
-              </span>
-            )}
-            <label className="clean-btn cursor-pointer px-3 py-1.5 text-[10px]">
-              Upload avatar
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) uploadAvatar(file);
-                }}
-              />
-            </label>
-          </div>
-
-          <div className="space-y-3">
-            <textarea
-              value={bio}
-              onChange={(event) => setBio(event.target.value.slice(0, 280))}
-              rows={3}
-              placeholder="Short bio..."
-              className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
-            />
-            <input
-              type="url"
-              value={links.x ?? ""}
-              onChange={(event) => setLinks((prev) => ({ ...prev, x: event.target.value }))}
-              placeholder="X profile URL"
-              className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
-            />
-            <input
-              type="url"
-              value={links.figma ?? ""}
-              onChange={(event) => setLinks((prev) => ({ ...prev, figma: event.target.value }))}
-              placeholder="Figma profile URL"
-              className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
-            />
-            <input
-              type="url"
-              value={links.cosmos ?? ""}
-              onChange={(event) => setLinks((prev) => ({ ...prev, cosmos: event.target.value }))}
-              placeholder="Cosmos profile URL"
-              className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
-            />
-            <button
-              type="button"
-              className="clean-btn clean-btn-primary px-4 py-2 text-[11px]"
-              onClick={save}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save profile"}
-            </button>
-          </div>
+          <p className="text-[10px] leading-relaxed text-gray-600">
+            Your unique public handle — shown as{" "}
+            <span className="font-mono text-gray-500">@{username || "username"}</span> on your profile and gallery
+            posts. 3–20 characters; letters, numbers, and underscores only.
+          </p>
         </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="account-bio" className="block text-[10px] uppercase tracking-wide text-gray-500">
+            Bio
+          </label>
+          <textarea
+            id="account-bio"
+            value={bio}
+            onChange={(event) => setBio(event.target.value.slice(0, 280))}
+            rows={3}
+            placeholder="Short bio..."
+            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
+          />
+          <p className="text-[10px] text-gray-600">{bio.length}/280</p>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500">Social links</p>
+          <input
+            type="url"
+            value={links.x ?? ""}
+            onChange={(event) => setLinks((prev) => ({ ...prev, x: event.target.value }))}
+            placeholder="X profile URL"
+            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
+          />
+          <input
+            type="url"
+            value={links.figma ?? ""}
+            onChange={(event) => setLinks((prev) => ({ ...prev, figma: event.target.value }))}
+            placeholder="Figma profile URL"
+            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
+          />
+          <input
+            type="url"
+            value={links.cosmos ?? ""}
+            onChange={(event) => setLinks((prev) => ({ ...prev, cosmos: event.target.value }))}
+            placeholder="Cosmos profile URL"
+            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-gray-100"
+          />
+        </div>
+
+        <button
+          type="button"
+          className="clean-btn clean-btn-primary px-4 py-2 text-[11px]"
+          onClick={() => void save()}
+          disabled={loading || username.trim().length < 3}
+        >
+          {loading ? "Saving..." : "Save profile"}
+        </button>
       </div>
 
-      {message && <p className="mt-4 text-xs text-emerald-300">{message}</p>}
-      {error && <p className="mt-4 text-xs text-red-300">{error}</p>}
+      {message && <p className="text-xs text-emerald-300">{message}</p>}
+      {error && <p className="text-xs text-red-300">{error}</p>}
     </section>
   );
 }

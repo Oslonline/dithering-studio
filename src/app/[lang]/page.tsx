@@ -3,6 +3,7 @@ import JsonLd from "../../components/seo/JsonLd";
 import Home from "../../views/Home";
 import { features } from "../../lib/features";
 import { listPublicGalleryItems } from "../../lib/gallery/queries";
+import { getActiveHomeBannerPost } from "../../lib/devblog/queries";
 import { HOME_GALLERY_TEASER_COUNT, HOME_GALLERY_TEASER_POOL_SIZE } from "../../lib/gallery/teaser";
 import { pickRandomItems } from "../../lib/shuffle";
 import { baseMetadata } from "../../lib/metadata";
@@ -34,11 +35,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
     ? await listPublicGalleryItems("popular", HOME_GALLERY_TEASER_POOL_SIZE)
     : [];
   const galleryItems = pickRandomItems(galleryPool, HOME_GALLERY_TEASER_COUNT);
+  const whatsNew = await getActiveHomeBannerPost();
 
   return (
     <>
       <JsonLd data={sitewideJsonLd(normalized)} />
-      <Home galleryItems={galleryItems} />
+      <Home galleryItems={galleryItems} whatsNew={whatsNew} />
     </>
   );
 }

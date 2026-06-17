@@ -1,6 +1,11 @@
 const header = {
   header: {
     brand: 'DitheringStudio',
+    menu: {
+      open: 'Open menu',
+      close: 'Close menu',
+      label: 'Navigation',
+    },
     nav: {
       home: 'Home',
       tool: 'Tool',

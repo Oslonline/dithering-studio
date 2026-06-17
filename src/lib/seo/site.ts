@@ -17,6 +17,7 @@ export const INDEXABLE_PATHS = [
   "/Privacy",
   "/Cookies",
   "/Gallery",
+  "/Updates",
 ] as const;
 
 export const ALGORITHM_SLUGS = Object.values(algorithmSlugsById as Record<string, string>);

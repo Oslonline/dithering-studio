@@ -28,6 +28,7 @@ import ExportDialog from "../components/dialogs/ExportDialog";
 import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDialog";
 import ShareOptionsModal from "../components/gallery/ShareOptionsModal";
 import { blobToDataUrl } from "../lib/gallery/captureImages";
+import { trackMediaDownload } from "../lib/user/trackDownload";
 import { createGalleryPreviewGif } from "../utils/gifEncoder";
 import Header from "../components/ui/Header";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
@@ -643,6 +644,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         setIsExporting(false);
       }
     }
+    trackMediaDownload("image");
     setLastDownloadFormat(fmt);
     setShowDownload(false);
     // only show post share dialog for image mode (not video) and when image present
@@ -752,6 +754,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
         setIsExporting(false);
       }
     }
+    trackMediaDownload("svg");
     setShowDownload(false);
     setLastDownloadFormat("svg");
     if (!videoMode && image) {
@@ -760,6 +763,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   };
 
   const handleVideoDownloaded = (fmt: string) => {
+    trackMediaDownload("video");
     setLastDownloadFormat(fmt);
     setTimeout(() => setShowPostShare(true), 150);
   };

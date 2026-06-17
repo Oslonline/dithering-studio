@@ -12,17 +12,20 @@ import GalleryTeaser from "../components/marketing/GalleryTeaser";
 import LearningPathPreview from "../components/marketing/LearningPathPreview";
 import HomeCtaBand from "../components/marketing/HomeCtaBand";
 import Header from "../components/ui/Header";
+import WhatsNewFloater from "../components/marketing/WhatsNewFloater";
 import { Link } from "../lib/nextRouterCompat";
 import { useTranslation } from "react-i18next";
 import { normalizeLang, withLangPrefix } from "../utils/localePath";
 import { algorithms } from "../utils/algorithms";
 import type { GalleryItemPublic } from "../lib/gallery/types";
+import type { HomeBannerPost } from "../lib/devblog/types";
 
 interface HomeProps {
   galleryItems?: GalleryItemPublic[];
+  whatsNew?: HomeBannerPost | null;
 }
 
-const Home: React.FC<HomeProps> = ({ galleryItems = [] }) => {
+const Home: React.FC<HomeProps> = ({ galleryItems = [], whatsNew = null }) => {
   const { t, i18n } = useTranslation();
   const activeLang = normalizeLang(i18n.language);
   const algorithmCount = algorithms.length;
@@ -207,6 +210,7 @@ const Home: React.FC<HomeProps> = ({ galleryItems = [] }) => {
           <SiteFooter />
         </div>
       </div>
+      {whatsNew && <WhatsNewFloater lang={activeLang} post={whatsNew} />}
     </div>
   );
 };

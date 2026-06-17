@@ -4,7 +4,9 @@ import Header from "../components/ui/Header";
 import SiteFooter from "../components/ui/SiteFooter";
 import AuthPanel from "../components/auth/AuthPanel";
 import AccountDashboard from "../components/auth/AccountDashboard";
+import type { DevBlogPostRow } from "../lib/devblog/types";
 import type { GalleryItemPublic, ProfileSocialLinks } from "../lib/gallery/types";
+import type { UserActivityStats } from "../lib/user/stats";
 
 interface AccountViewProps {
   lang: string;
@@ -14,8 +16,6 @@ interface AccountViewProps {
   username: string;
   memberSince: string;
   confirmDeleteText: string;
-  usernameSaved: boolean;
-  usernameError: string | null;
   authError: string | null;
   myGalleryItems?: GalleryItemPublic[];
   isAdmin?: boolean;
@@ -24,8 +24,12 @@ interface AccountViewProps {
   profileBio?: string;
   profileSocialLinks?: ProfileSocialLinks;
   profileAvatarUrl?: string | null;
-  saveUsernameAction: (formData: FormData) => Promise<void>;
+  activityStats?: UserActivityStats;
   notice?: { title: string; body: string };
+  initialPanel?: string;
+  pendingModerationItems?: GalleryItemPublic[];
+  recentModerationItems?: GalleryItemPublic[];
+  devBlogPosts?: DevBlogPostRow[];
 }
 
 export default function AccountView({
@@ -36,8 +40,6 @@ export default function AccountView({
   username,
   memberSince,
   confirmDeleteText,
-  usernameSaved,
-  usernameError,
   authError,
   myGalleryItems = [],
   isAdmin = false,
@@ -46,13 +48,17 @@ export default function AccountView({
   profileBio = "",
   profileSocialLinks = {},
   profileAvatarUrl = null,
-  saveUsernameAction,
+  activityStats,
   notice,
+  initialPanel,
+  pendingModerationItems = [],
+  recentModerationItems = [],
+  devBlogPosts = [],
 }: AccountViewProps) {
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
       <Header activeNav="account" />
-      <main id="main-content" className="flex flex-1 flex-col px-4 py-8 md:px-8 md:py-10">
+      <main id="main-content" className="flex flex-1 flex-col px-4 pt-8 md:px-8 md:pt-10">
         {notice ? (
           <div className="mx-auto w-full max-w-lg">
             <section className="rounded-lg border border-neutral-800 bg-neutral-900/40 p-6">
@@ -61,7 +67,7 @@ export default function AccountView({
             </section>
           </div>
         ) : !signedIn ? (
-          <div className="mx-auto flex w-full max-w-md flex-col gap-6 py-4 sm:py-8">
+          <div className="mx-auto flex w-full max-w-md flex-col gap-6 py-4 sm:pt-8">
             <header className="space-y-3 text-center">
               <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Account</p>
               <h1 className="font-anton text-3xl tracking-tight text-gray-100 sm:text-4xl">Welcome</h1>
@@ -77,23 +83,25 @@ export default function AccountView({
         ) : (
           <div className="mx-auto w-full max-w-6xl flex-1">
             <AccountDashboard
-            lang={lang}
-            email={email}
-            provider={provider}
-            username={username}
-            confirmDeleteText={confirmDeleteText}
-            memberSince={memberSince}
-            usernameSaved={usernameSaved}
-            usernameError={usernameError}
-            authError={authError}
-            myGalleryItems={myGalleryItems}
-            isAdmin={isAdmin}
-            isActualAdmin={isActualAdmin}
-            adminUserPreview={adminUserPreview}
-            profileBio={profileBio}
-            profileSocialLinks={profileSocialLinks}
-            profileAvatarUrl={profileAvatarUrl}
-            saveUsernameAction={saveUsernameAction}
+              lang={lang}
+              email={email}
+              provider={provider}
+              username={username}
+              confirmDeleteText={confirmDeleteText}
+              memberSince={memberSince}
+              authError={authError}
+              myGalleryItems={myGalleryItems}
+              isAdmin={isAdmin}
+              isActualAdmin={isActualAdmin}
+              adminUserPreview={adminUserPreview}
+              profileBio={profileBio}
+              profileSocialLinks={profileSocialLinks}
+              profileAvatarUrl={profileAvatarUrl}
+              activityStats={activityStats ?? { mediaDownloadsTotal: 0, imageDownloads: 0, videoDownloads: 0, galleryPostsCount: myGalleryItems.length, lastDownloadAt: null }}
+              initialPanel={initialPanel}
+              pendingModerationItems={pendingModerationItems}
+              recentModerationItems={recentModerationItems}
+              devBlogPosts={devBlogPosts}
             />
           </div>
         )}

@@ -82,7 +82,7 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
       <Header activeNav="gallery" />
-      <main id="main-content" className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 md:px-8">
+      <main id="main-content" className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 pt-10 md:px-8">
         <header className="space-y-2">
           <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">Gallery</p>
           <h1 className="font-anton text-3xl tracking-tight text-gray-100">Confirm publication</h1>

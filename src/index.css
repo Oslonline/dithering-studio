@@ -19,12 +19,6 @@
   --site-header-height: 3.625rem;
 }
 
-@media (max-width: 767px) {
-  :root {
-    --site-header-height: 5.75rem;
-  }
-}
-
 html, body {
   background: var(--c-bg);
   color: var(--c-text);

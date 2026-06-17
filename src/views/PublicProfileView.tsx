@@ -19,7 +19,7 @@ export default function PublicProfileView({ profile, items }: PublicProfileViewP
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
       <Header />
-      <main id="main-content" className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-8 px-4 py-10 md:px-8">
+      <main id="main-content" className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-8 px-4 pt-10 md:px-8">
         <section className="flex flex-col gap-4 sm:flex-row sm:items-start">
           {profile.avatar_url ? (
             <img src={profile.avatar_url} alt="" className="h-20 w-20 rounded-full border border-neutral-700 object-cover" />
