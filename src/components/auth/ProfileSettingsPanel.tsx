@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { normalizeUsernameInput } from "../../lib/auth/username";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { AVATARS_BUCKET } from "../../lib/gallery/types";
 import type { ProfileSocialLinks } from "../../lib/gallery/types";
@@ -52,7 +53,11 @@ export default function ProfileSettingsPanel({
       const response = await fetch("/api/profile/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), bio, social_links: links }),
+        body: JSON.stringify({
+          username: normalizeUsernameInput(username),
+          bio,
+          social_links: links,
+        }),
       });
       const payload = (await response.json().catch(() => null)) as { error?: string } | null;
       if (!response.ok) {
@@ -154,9 +159,9 @@ export default function ProfileSettingsPanel({
               required
               minLength={3}
               maxLength={20}
-              pattern="[A-Za-z0-9_]{3,20}"
+              pattern="[a-z0-9_]{3,20}"
               value={username}
-              onChange={(e) => setUsername(e.target.value.replace(/[^A-Za-z0-9_]/g, "").slice(0, 20))}
+              onChange={(e) => setUsername(normalizeUsernameInput(e.target.value))}
               placeholder="your_handle"
               className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-gray-100 outline-none"
               autoComplete="username"
@@ -165,7 +170,7 @@ export default function ProfileSettingsPanel({
           <p className="text-[10px] leading-relaxed text-gray-600">
             Your unique public handle — shown as{" "}
             <span className="font-mono text-gray-500">@{username || "username"}</span> on your profile and gallery
-            posts. 3–20 characters; letters, numbers, and underscores only.
+            posts. 3–20 lowercase characters; letters, numbers, and underscores only.
           </p>
         </div>
 
@@ -213,7 +218,7 @@ export default function ProfileSettingsPanel({
           type="button"
           className="clean-btn clean-btn-primary px-4 py-2 text-[11px]"
           onClick={() => void save()}
-          disabled={loading || username.trim().length < 3}
+          disabled={loading || normalizeUsernameInput(username).length < 3}
         >
           {loading ? "Saving..." : "Save profile"}
         </button>

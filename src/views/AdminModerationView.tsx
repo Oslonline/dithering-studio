@@ -110,7 +110,7 @@ export default function AdminModerationView({
 
       <Header />
 
-      <main id="main-content" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 md:px-8">
+      <main id="main-content" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 pt-10 md:px-8">
 
         <header className="space-y-2">
 

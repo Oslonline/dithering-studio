@@ -200,7 +200,7 @@ export default function GalleryDetailView({
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
       <Header activeNav="gallery" />
-      <main id="main-content" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 md:px-8">
+      <main id="main-content" className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 pt-10 md:px-8">
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {item.original_url && (

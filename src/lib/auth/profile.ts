@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import type { AccountProfile } from "./types";
+import { normalizeUsername } from "./username";
 
 type SupabaseLike = {
   from: (table: string) => {
@@ -26,21 +27,26 @@ export async function getProfile(supabase: unknown, userId: string) {
 export async function ensureProfileFromUser(supabase: unknown, user: User) {
   const client = asSupabaseLike(supabase);
   const existing = await getProfile(supabase, user.id);
-  if (existing.data || existing.error?.code !== "PGRST116") {
+  if (existing.data) {
+    return existing;
+  }
+  if (existing.error && existing.error.code !== "PGRST116") {
     return existing;
   }
 
-  const fallbackUsername =
+  const rawFallback =
     (user.user_metadata?.user_name as string | undefined) ||
     (user.user_metadata?.preferred_username as string | undefined) ||
     (user.email?.split("@")[0] ?? null);
+
+  const username = rawFallback ? normalizeUsername(rawFallback) : null;
 
   return client
     .from("profiles")
     .upsert(
       {
         id: user.id,
-        username: fallbackUsername,
+        username,
       },
       { onConflict: "id" },
     )

@@ -43,8 +43,7 @@ interface AccountDashboardProps {
   profileAvatarUrl: string | null;
   activityStats: UserActivityStats;
   initialPanel?: string;
-  pendingModerationItems?: GalleryItemPublic[];
-  recentModerationItems?: GalleryItemPublic[];
+  pendingModerationCount?: number;
   devBlogPosts?: DevBlogPostRow[];
 }
 
@@ -182,18 +181,22 @@ export default function AccountDashboard({
   profileAvatarUrl,
   activityStats,
   initialPanel,
-  pendingModerationItems = [],
-  recentModerationItems = [],
+  pendingModerationCount: initialPendingModerationCount = 0,
   devBlogPosts = [],
 }: AccountDashboardProps) {
   const router = useRouter();
   const normalizedLang = normalizeLang(lang);
+  const [pendingModerationCount, setPendingModerationCount] = useState(initialPendingModerationCount);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<AccountSectionId>(() =>
     resolveAccountPanel(initialPanel, isActualAdmin),
   );
+
+  useEffect(() => {
+    setPendingModerationCount(initialPendingModerationCount);
+  }, [initialPendingModerationCount]);
 
   const mainNavItems = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [
@@ -358,7 +361,7 @@ export default function AccountDashboard({
           <AdminHubPanel
             lang={lang}
             adminUserPreview={adminUserPreview}
-            pendingCount={pendingModerationItems.length}
+            pendingCount={pendingModerationCount}
             devBlogCount={devBlogPosts.length}
             onNavigate={setActiveSection}
           />
@@ -366,10 +369,9 @@ export default function AccountDashboard({
       case "admin-moderation":
         return (
           <AdminModerationPanel
-            pendingItems={pendingModerationItems}
-            recentItems={recentModerationItems}
             lang={lang}
             canModerate={isAdmin}
+            onPendingCountChange={setPendingModerationCount}
           />
         );
       case "admin-devblog":

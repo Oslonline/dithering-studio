@@ -10,9 +10,16 @@ import PixelUserIcon from "./PixelUserIcon";
 interface HeaderAccountLinkProps {
   lang: string;
   isActive: boolean;
+  variant?: "default" | "menu";
+  onNavigate?: () => void;
 }
 
-export default function HeaderAccountLink({ lang, isActive }: HeaderAccountLinkProps) {
+export default function HeaderAccountLink({
+  lang,
+  isActive,
+  variant = "default",
+  onNavigate,
+}: HeaderAccountLinkProps) {
   const { t } = useTranslation();
   const activeLang = normalizeLang(lang);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
@@ -42,13 +49,19 @@ export default function HeaderAccountLink({ lang, isActive }: HeaderAccountLinkP
       ? t("header.nav.account", { defaultValue: "Account" })
       : t("header.nav.createAccount", { defaultValue: "Create an account" });
 
-  const accountBtnClass = `header-utility-btn header-account-btn${isActive ? " is-active" : ""}`;
+  const accountBtnClass =
+    variant === "menu"
+      ? `flex w-full items-center gap-3 rounded-md px-3 py-3 text-left font-mono text-[13px] transition-colors ${
+          isActive ? "bg-neutral-800 text-gray-100" : "text-gray-300 hover:bg-neutral-900 hover:text-gray-100"
+        }`
+      : `header-utility-btn header-account-btn${isActive ? " is-active" : ""}`;
 
   return (
     <Link
       to={withLangPrefix("/Account", activeLang)}
       className={accountBtnClass}
       aria-current={isActive ? "page" : undefined}
+      onClick={onNavigate}
     >
       <PixelUserIcon />
       <span>{label}</span>

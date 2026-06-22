@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { NormalizedCropRect } from '../../utils/cropImage';
 
 export interface UploadedVideo {
   id: string;
@@ -9,6 +10,7 @@ export interface UploadedVideo {
   height?: number;
   size?: number; // bytes
   duration?: number; // seconds
+  crop?: NormalizedCropRect;
 }
 
 interface VideosPanelProps {

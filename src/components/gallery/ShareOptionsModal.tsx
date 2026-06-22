@@ -14,6 +14,7 @@ import { buildToolUrlFromSettings, snapshotFromToolState, type ToolSettingsSnaps
 import { savePublishDraft } from "../../lib/gallery/publishDraft";
 import { getSupabaseBrowserClient } from "../../lib/supabase/client";
 import { normalizeLang, withLangPrefix } from "../../utils/localePath";
+import type { NormalizedCropRect } from "../../utils/cropImage";
 
 interface ShareOptionsModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface ShareOptionsModalProps {
   processedCanvasRef: React.RefObject<HTMLCanvasElement | null>;
   sourceImageUrl: string | null;
   sourceVideoRef?: React.RefObject<HTMLVideoElement | null>;
+  sourceVideoCrop?: NormalizedCropRect | null;
   toolState: ToolSettingsSnapshot;
   hasApplied?: boolean;
   captureVideoGalleryResult?: () => Promise<{
@@ -41,6 +43,7 @@ export default function ShareOptionsModal({
   processedCanvasRef,
   sourceImageUrl,
   sourceVideoRef,
+  sourceVideoCrop,
   toolState,
   hasApplied = true,
   captureVideoGalleryResult,
@@ -108,13 +111,6 @@ export default function ShareOptionsModal({
       return;
     }
 
-    const { data: profile } = await supabase.from("profiles").select("username").eq("id", user.id).maybeSingle();
-    if (!profile?.username?.trim()) {
-      navigate(withLangPrefix("/Account", lang));
-      setLoading(false);
-      return;
-    }
-
     if (!hasApplied) {
       setError(
         toolState.videoMode
@@ -154,7 +150,7 @@ export default function ShareOptionsModal({
           setLoading(false);
           return;
         }
-        original = await captureVideoFrameAsync(videoEl);
+        original = await captureVideoFrameAsync(videoEl, undefined, undefined, sourceVideoCrop);
 
         if (!captureVideoGalleryResult) {
           setError("Video gallery preview is unavailable.");

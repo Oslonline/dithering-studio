@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { NormalizedCropRect } from '../../utils/cropImage';
+import { resolveCropRegion } from '../../utils/cropImage';
+
 interface MediaComparisonProps {
   beforeImage?: string;
   beforeVideo?: HTMLVideoElement;
+  beforeCrop?: NormalizedCropRect | null;
   beforeLabel?: string;
   afterLabel?: string;
   width?: string;
@@ -14,6 +18,7 @@ interface MediaComparisonProps {
 const MediaComparison: React.FC<MediaComparisonProps> = ({
   beforeImage,
   beforeVideo,
+  beforeCrop,
   beforeLabel,
   afterLabel,
   width,
@@ -102,7 +107,11 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
       const renderFrame = () => {
         if (beforeVideo && ctx) {
           try {
-            ctx.drawImage(beforeVideo, 0, 0, canvas.width, canvas.height);
+            const vw = beforeVideo.videoWidth || canvas.width;
+            const vh = beforeVideo.videoHeight || canvas.height;
+            const { sx, sy, sw, sh } = resolveCropRegion(vw, vh, beforeCrop);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(beforeVideo, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
           } catch (e) {
             // Video might not be ready yet
           }
@@ -117,7 +126,7 @@ const MediaComparison: React.FC<MediaComparisonProps> = ({
         container.innerHTML = '';
       };
     }
-  }, [beforeVideo, width, height]);
+  }, [beforeVideo, beforeCrop, width, height]);
 
   const handleContainerMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent CanvasViewport from starting pan on any click inside

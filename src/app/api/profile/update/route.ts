@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getProfile } from "../../../../lib/auth/profile";
-import { USERNAME_REGEX } from "../../../../lib/auth/types";
+import { ensureProfileFromUser, getProfile } from "../../../../lib/auth/profile";
+import { normalizeUsername } from "../../../../lib/auth/username";
 import type { ProfileSocialLinks } from "../../../../lib/gallery/types";
 import { getSupabaseServerClient } from "../../../../lib/supabase/server";
 
@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  await ensureProfileFromUser(supabase, user);
+
   let body: { bio?: string; social_links?: ProfileSocialLinks; username?: string };
   try {
     body = (await request.json()) as {
@@ -41,30 +43,46 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const bio = typeof body.bio === "string" ? body.bio.trim().slice(0, 280) : null;
-  const social_links: ProfileSocialLinks = {
-    x: sanitizeUrl(body.social_links?.x),
-    figma: sanitizeUrl(body.social_links?.figma),
-    cosmos: sanitizeUrl(body.social_links?.cosmos),
-  };
+  const bio =
+    typeof body.bio === "string" ? body.bio.trim().slice(0, 280) || null : undefined;
+  const social_links: ProfileSocialLinks | undefined =
+    body.social_links !== undefined
+      ? {
+          x: sanitizeUrl(body.social_links?.x),
+          figma: sanitizeUrl(body.social_links?.figma),
+          cosmos: sanitizeUrl(body.social_links?.cosmos),
+        }
+      : undefined;
 
   const patch: {
-    bio: string | null;
-    social_links: ProfileSocialLinks;
+    bio?: string | null;
+    social_links?: ProfileSocialLinks;
     username?: string;
-  } = { bio: bio || null, social_links };
+  } = {};
+
+  if (bio !== undefined) patch.bio = bio;
+  if (social_links !== undefined) patch.social_links = social_links;
 
   if (typeof body.username === "string") {
-    const username = body.username.trim();
-    if (!USERNAME_REGEX.test(username)) {
+    const username = normalizeUsername(body.username);
+    if (!username) {
       return NextResponse.json({ error: "username_format" }, { status: 400 });
     }
 
     const existing = await getProfile(supabase, user.id);
-    const currentUsername = existing.data?.username?.trim() ?? "";
-    if (!currentUsername || currentUsername.toLowerCase() !== username.toLowerCase()) {
+    const currentUsername = existing.data?.username?.trim().toLowerCase() ?? "";
+    if (!currentUsername || currentUsername !== username) {
       patch.username = username;
     }
+  }
+
+  if (Object.keys(patch).length === 0) {
+    const current = await getProfile(supabase, user.id);
+    const savedUsername = current.data?.username?.trim() ?? "";
+    if (savedUsername) {
+      return NextResponse.json({ ok: true, username: savedUsername });
+    }
+    return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
   const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
@@ -76,5 +94,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Could not update profile." }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  const updated = await getProfile(supabase, user.id);
+  return NextResponse.json({
+    ok: true,
+    username: updated.data?.username?.trim() ?? patch.username ?? null,
+  });
 }

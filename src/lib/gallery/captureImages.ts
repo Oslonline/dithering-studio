@@ -1,3 +1,6 @@
+import type { NormalizedCropRect } from "../../utils/cropImage";
+import { resolveCropRegion } from "../../utils/cropImage";
+
 const PREVIEW_MAX = 1400;
 
 export const GALLERY_PREVIEW_MAX = 640;
@@ -17,16 +20,18 @@ function drawToPreviewCanvas(
   sourceWidth: number,
   sourceHeight: number,
   maxSize = PREVIEW_MAX,
+  crop?: NormalizedCropRect | null,
 ) {
-  const scale = Math.min(1, maxSize / Math.max(sourceWidth, sourceHeight));
-  const width = Math.max(1, Math.round(sourceWidth * scale));
-  const height = Math.max(1, Math.round(sourceHeight * scale));
+  const { sx, sy, sw, sh } = resolveCropRegion(sourceWidth, sourceHeight, crop);
+  const scale = Math.min(1, maxSize / Math.max(sw, sh));
+  const width = Math.max(1, Math.round(sw * scale));
+  const height = Math.max(1, Math.round(sh * scale));
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not prepare image.");
-  ctx.drawImage(source, 0, 0, width, height);
+  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, width, height);
   return { canvas, width, height };
 }
 
@@ -53,11 +58,12 @@ export function captureVideoFrame(
   video: HTMLVideoElement,
   maxSize = PREVIEW_MAX,
   quality = GALLERY_PREVIEW_QUALITY,
+  crop?: NormalizedCropRect | null,
 ): { dataUrl: string; width: number; height: number } {
   const sourceWidth = video.videoWidth || video.clientWidth;
   const sourceHeight = video.videoHeight || video.clientHeight;
   if (!sourceWidth || !sourceHeight) throw new Error("Video frame is not ready.");
-  const { canvas, width, height } = drawToPreviewCanvas(video, sourceWidth, sourceHeight, maxSize);
+  const { canvas, width, height } = drawToPreviewCanvas(video, sourceWidth, sourceHeight, maxSize, crop);
   return { dataUrl: canvas.toDataURL("image/webp", quality), width, height };
 }
 
@@ -99,6 +105,7 @@ export async function captureVideoFrameAsync(
   video: HTMLVideoElement,
   maxSize = GALLERY_PREVIEW_MAX,
   quality = GALLERY_PREVIEW_QUALITY,
+  crop?: NormalizedCropRect | null,
 ): Promise<{ dataUrl: string; width: number; height: number }> {
   await waitForVideoDimensions(video);
 
@@ -135,7 +142,7 @@ export async function captureVideoFrameAsync(
   }
 
   try {
-    return captureVideoFrame(video, maxSize, quality);
+    return captureVideoFrame(video, maxSize, quality, crop);
   } finally {
     if (wasPlaying) {
       void video.play().catch(() => {});

@@ -27,8 +27,7 @@ interface AccountViewProps {
   activityStats?: UserActivityStats;
   notice?: { title: string; body: string };
   initialPanel?: string;
-  pendingModerationItems?: GalleryItemPublic[];
-  recentModerationItems?: GalleryItemPublic[];
+  pendingModerationCount?: number;
   devBlogPosts?: DevBlogPostRow[];
 }
 
@@ -51,8 +50,7 @@ export default function AccountView({
   activityStats,
   notice,
   initialPanel,
-  pendingModerationItems = [],
-  recentModerationItems = [],
+  pendingModerationCount = 0,
   devBlogPosts = [],
 }: AccountViewProps) {
   return (
@@ -99,8 +97,7 @@ export default function AccountView({
               profileAvatarUrl={profileAvatarUrl}
               activityStats={activityStats ?? { mediaDownloadsTotal: 0, imageDownloads: 0, videoDownloads: 0, galleryPostsCount: myGalleryItems.length, lastDownloadAt: null }}
               initialPanel={initialPanel}
-              pendingModerationItems={pendingModerationItems}
-              recentModerationItems={recentModerationItems}
+              pendingModerationCount={pendingModerationCount}
               devBlogPosts={devBlogPosts}
             />
           </div>

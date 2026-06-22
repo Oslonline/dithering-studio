@@ -16,7 +16,7 @@ import {
 
 } from "./settings";
 
-import type { GalleryItemPublic, GalleryItemRow, GallerySettingsV1, GallerySort, ProfilePublic } from "./types";
+import type { GalleryItemPublic, GalleryItemRow, GalleryItemStatus, GallerySettingsV1, GallerySort, ProfilePublic } from "./types";
 
 
 
@@ -415,6 +415,138 @@ export async function listRecentGalleryItems(limit = 12): Promise<GalleryItemPub
     })
 
     .filter((item): item is GalleryItemPublic => item !== null);
+
+}
+
+
+
+export async function countPendingGalleryItems(): Promise<number> {
+
+  const admin = getSupabaseAdminClient();
+
+  if (!admin) return 0;
+
+
+
+  const { count, error } = await admin
+
+    .from("gallery_items")
+
+    .select("id", { count: "exact", head: true })
+
+    .eq("status", "pending");
+
+
+
+  if (error) {
+
+    logGalleryQueryError("countPendingGalleryItems", error);
+
+    return 0;
+
+  }
+
+
+
+  return count ?? 0;
+
+}
+
+
+
+export async function listGalleryItemsForModeration(params: {
+
+  status: GalleryItemStatus;
+
+  limit: number;
+
+  offset: number;
+
+  search?: string;
+
+}): Promise<{ items: GalleryItemPublic[]; total: number }> {
+
+  const admin = getSupabaseAdminClient();
+
+  if (!admin) return { items: [], total: 0 };
+
+
+
+  const search = params.search?.trim();
+
+  let authorIds: string[] = [];
+
+  if (search) {
+
+    const { data: profiles } = await admin
+
+      .from("profiles")
+
+      .select("id")
+
+      .ilike("username", `%${search}%`)
+
+      .limit(100);
+
+    authorIds = profiles?.map((profile) => profile.id) ?? [];
+
+  }
+
+
+
+  let query = admin
+
+    .from("gallery_items")
+
+    .select("*", { count: "exact" })
+
+    .eq("status", params.status);
+
+
+
+  if (search) {
+
+    const clauses = [`description.ilike.%${search}%`];
+
+    if (authorIds.length > 0) {
+
+      clauses.push(`author_id.in.(${authorIds.join(",")})`);
+
+    }
+
+    query = query.or(clauses.join(","));
+
+  }
+
+
+
+  const ascending = params.status === "pending";
+
+  const { data, error, count } = await query
+
+    .order("created_at", { ascending })
+
+    .range(params.offset, params.offset + params.limit - 1);
+
+
+
+  if (error || !data) {
+
+    logGalleryQueryError("listGalleryItemsForModeration", error);
+
+    return { items: [], total: 0 };
+
+  }
+
+
+
+  return {
+
+    items: await enrichGalleryRows(admin, data as GalleryItemRow[]),
+
+    total: count ?? 0,
+
+  };
 
 }
 

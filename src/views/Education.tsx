@@ -15,7 +15,7 @@ export default function Education() {
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
       <Header activeNav="education" />
       <main id="main-content" className="flex-1">
-        <div className="mx-auto w-full max-w-4xl px-6 py-10 md:px-8 md:py-12">
+        <div className="mx-auto w-full max-w-4xl px-6 pt-10 md:px-8 md:pt-12">
           <EducationHero />
 
           <div className="my-10 lg:my-14">

@@ -18,21 +18,24 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({
   className = ''
 }) => {
   const storageKey = `sidebar-width-${side}`;
-  const [width, setWidth] = useState(() => {
+  const [width, setWidth] = useState(defaultWidth);
+
+  const [isDragging, setIsDragging] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = parseInt(saved, 10);
         if (!isNaN(parsed) && parsed >= minWidth && parsed <= maxWidth) {
-          return parsed;
+          setWidth(parsed);
         }
       }
-    } catch {}
-    return defaultWidth;
-  });
-
-  const [isDragging, setIsDragging] = useState(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
+    } catch {
+      /* ignore */
+    }
+  }, [storageKey, minWidth, maxWidth]);
 
   useEffect(() => {
     if (!isDragging) return;

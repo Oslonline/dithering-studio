@@ -35,16 +35,14 @@ export default function GalleryPublishClient({ lang }: { lang: string }) {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("username").eq("id", user.id).maybeSingle();
-      if (!profile?.username?.trim()) {
-        router.replace(withLangPrefix("/Account", normalizedLang));
-        return;
+      if (profile?.username?.trim()) {
+        setUsername(profile.username.trim());
       }
-      setUsername(profile.username.trim());
       setReady(true);
     });
   }, [normalizedLang, router]);
 
-  if (!ready || !draft || !username) {
+  if (!ready || !draft) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-sm text-gray-400">
         Preparing publication...
@@ -52,5 +50,12 @@ export default function GalleryPublishClient({ lang }: { lang: string }) {
     );
   }
 
-  return <GalleryPublishConfirmView lang={normalizedLang} username={username} draft={draft} />;
+  return (
+    <GalleryPublishConfirmView
+      lang={normalizedLang}
+      username={username}
+      draft={draft}
+      onUsernameSet={setUsername}
+    />
+  );
 }

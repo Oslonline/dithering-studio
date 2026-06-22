@@ -5,4 +5,4 @@ export interface AccountProfile {
   updated_at?: string;
 }
 
-export const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+export const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;

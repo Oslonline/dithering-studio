@@ -22,6 +22,8 @@ import ToolCanvasHints from "../components/ui/ToolCanvasHints";
 import ProcessingOverlay from "../components/ui/ProcessingOverlay";
 import MediaComparison from "../components/ui/MediaComparison";
 import CompareToggleButton from "../components/ui/CompareToggleButton";
+import CropToggleButton from "../components/ui/CropToggleButton";
+import ImageCropOverlay from "../components/canvas/ImageCropOverlay";
 import VideoControls from "../components/ui/VideoControls";
 import CanvasViewport from "../components/canvas/CanvasViewport";
 import ExportDialog from "../components/dialogs/ExportDialog";
@@ -29,6 +31,7 @@ import PostDownloadShareDialog from "../components/dialogs/PostDownloadShareDial
 import ShareOptionsModal from "../components/gallery/ShareOptionsModal";
 import { blobToDataUrl } from "../lib/gallery/captureImages";
 import { trackMediaDownload } from "../lib/user/trackDownload";
+import { cropImageFromUrl, captureVideoFrameDataUrl, isFullCrop, type NormalizedCropRect } from "../utils/cropImage";
 import { createGalleryPreviewGif } from "../utils/gifEncoder";
 import Header from "../components/ui/Header";
 import useToolKeyboardShortcuts from "../hooks/useToolKeyboardShortcuts";
@@ -124,6 +127,9 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   const currentVideo = activeVideoId ? videos.find((v: UploadedVideo) => v.id === activeVideoId) || null : null;
   const [localWebpChecked, setLocalWebpChecked] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [showCropMode, setShowCropMode] = useState(false);
+  const [cropApplying, setCropApplying] = useState(false);
+  const [videoCropPreviewUrl, setVideoCropPreviewUrl] = useState<string | null>(null);
   const [canvasDimensions, setCanvasDimensions] = useState<{ width: string; height: string }>({ width: 'auto', height: 'auto' });
   const [imageLimitNotice, setImageLimitNotice] = useState<string | null>(null);
 
@@ -267,6 +273,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   });
   const videoHook = useVideoDithering({
     video: currentVideo?.url || null,
+    cropRect: currentVideo?.crop,
     pattern,
     threshold,
     workingResolution,
@@ -317,6 +324,82 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
   useEffect(() => {
     perf.reset();
   }, [activeImageId, activeVideoId]);
+
+  useEffect(() => {
+    setShowCropMode(false);
+    setShowComparison(false);
+    setVideoCropPreviewUrl(null);
+  }, [activeImageId, activeVideoId]);
+
+  const handleCropApply = useCallback(
+    async (rect: NormalizedCropRect) => {
+      if (!activeImageId || !image) return;
+      setCropApplying(true);
+      try {
+        const cropped = await cropImageFromUrl(image, rect);
+        setImages((prev: UploadedImage[]) =>
+          prev.map((img) => {
+            if (img.id !== activeImageId) return img;
+            if (img.url.startsWith("blob:")) URL.revokeObjectURL(img.url);
+            return {
+              ...img,
+              url: cropped.url,
+              width: cropped.width,
+              height: cropped.height,
+              size: undefined,
+            };
+          }),
+        );
+        setShowCropMode(false);
+        setShowComparison(false);
+      } catch {
+        setImageLimitNotice(t("tool.cropFailed", { defaultValue: "Could not crop image. Please try again." }));
+      } finally {
+        setCropApplying(false);
+      }
+    },
+    [activeImageId, image, setImages, t],
+  );
+
+  const handleVideoCropApply = useCallback(
+    (rect: NormalizedCropRect) => {
+      if (!activeVideoId) return;
+      setCropApplying(true);
+      try {
+        const crop = isFullCrop(rect) ? undefined : rect;
+        setVideos((prev: UploadedVideo[]) =>
+          prev.map((item) => (item.id === activeVideoId ? { ...item, crop } : item)),
+        );
+        setShowCropMode(false);
+        setShowComparison(false);
+        setVideoCropPreviewUrl(null);
+      } catch {
+        setImageLimitNotice(t("tool.cropVideoFailed", { defaultValue: "Could not set video crop. Please try again." }));
+      } finally {
+        setCropApplying(false);
+      }
+    },
+    [activeVideoId, setVideos, t],
+  );
+
+  const toggleVideoCropMode = useCallback(() => {
+    triggerHaptic("light");
+    if (showCropMode) {
+      setShowCropMode(false);
+      setVideoCropPreviewUrl(null);
+      return;
+    }
+    const videoEl = (videoHook as { videoElRef?: React.RefObject<HTMLVideoElement | null> }).videoElRef?.current;
+    if (!videoEl?.videoWidth) return;
+    setVideoPlaying(false);
+    try {
+      setVideoCropPreviewUrl(captureVideoFrameDataUrl(videoEl));
+      setShowComparison(false);
+      setShowCropMode(true);
+    } catch {
+      setImageLimitNotice(t("tool.cropVideoFailed", { defaultValue: "Could not set video crop. Please try again." }));
+    }
+  }, [showCropMode, videoHook, setVideoPlaying, t]);
 
   // Update canvas dimensions for MediaComparison sizing
   useEffect(() => {
@@ -552,7 +635,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           midtones,
           highlights,
           blurRadius,
-          workingResolution
+          workingResolution,
+          cropRect: currentVideo?.crop,
         });
         
         let mime = `image/${fmt}`;
@@ -676,7 +760,8 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
           midtones,
           highlights,
           blurRadius,
-          workingResolution
+          workingResolution,
+          cropRect: currentVideo?.crop,
         });
         
         const { svg } = canvasToSVG(exportCanvas, { mergeRuns: true });
@@ -800,13 +885,22 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                   {/* Canvas always renders - this is the source of truth for the processed (dithered) image */}
                   <canvas 
                     ref={canvasRef} 
-                    className={`${isAscii ? 'ascii-canvas' : 'pixelated'} ${canvasUpdatedFlag ? "updated" : ""}`} 
+                    className={`${isAscii ? 'ascii-canvas' : 'pixelated'} ${canvasUpdatedFlag ? "updated" : ""} ${showCropMode ? "opacity-0" : ""}`} 
                     aria-label={t('tool.ariaDitheredImagePreview')} 
                   />
                   
+                  {showCropMode && image && (
+                    <ImageCropOverlay
+                      imageUrl={image}
+                      applying={cropApplying}
+                      onApply={(rect) => void handleCropApply(rect)}
+                      onCancel={() => setShowCropMode(false)}
+                    />
+                  )}
+
                   {/* Comparison overlay - reveals original image on the left side via slider */}
                   {/* The right side is transparent, showing the canvas (processed image) underneath */}
-                  {showComparison && (
+                  {showComparison && !showCropMode && (
                     <div className="absolute inset-0 pointer-events-auto">
                       <MediaComparison
                         beforeImage={image}
@@ -817,7 +911,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                   )}
                   
                   {/* Grid overlay */}
-                  {showGrid && !showComparison && (
+                  {showGrid && !showComparison && !showCropMode && (
                     <>
                       <div className="grid-overlay pointer-events-none absolute inset-0" aria-hidden style={{ backgroundSize: `${gridSize}px ${gridSize}px` }} />
                       <button
@@ -834,16 +928,30 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
                   )}
                   </div>
                   
-                  {/* Compare toggle — sits outside the image, top-right */}
-                  {hasApplied && (
-                    <CompareToggleButton
-                      active={showComparison}
+                  <div className="pointer-events-none absolute left-full top-0 z-30 ml-2 flex flex-col gap-1.5">
+                    <CropToggleButton
+                      active={showCropMode}
                       onToggle={() => {
                         triggerHaptic("light");
-                        setShowComparison(!showComparison);
+                        setShowCropMode((open) => {
+                          if (!open) setShowComparison(false);
+                          return !open;
+                        });
                       }}
                     />
-                  )}
+                    {hasApplied && (
+                      <CompareToggleButton
+                        active={showComparison}
+                        onToggle={() => {
+                          triggerHaptic("light");
+                          setShowComparison((open) => {
+                            if (!open) setShowCropMode(false);
+                            return !open;
+                          });
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
               </CanvasViewport>
               <FloatingImagesStrip
@@ -863,29 +971,59 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
               <CanvasViewport>
                 <div className="relative inline-block">
                   <div className="relative">
-                  <canvas ref={canvasRef} className={`${isAscii ? 'ascii-canvas' : 'pixelated'} ${canvasUpdatedFlag ? "updated" : ""}`} aria-label={t('tool.ariaDitheredVideoFrame')} />
-                  
+                  <canvas
+                    ref={canvasRef}
+                    className={`${isAscii ? 'ascii-canvas' : 'pixelated'} ${canvasUpdatedFlag ? "updated" : ""} ${showCropMode ? "opacity-0" : ""}`}
+                    aria-label={t('tool.ariaDitheredVideoFrame')}
+                  />
+
+                  {showCropMode && videoCropPreviewUrl && (
+                    <ImageCropOverlay
+                      imageUrl={videoCropPreviewUrl}
+                      applying={cropApplying}
+                      initialCrop={currentVideo.crop}
+                      allowFullApply
+                      hintKey="tool.cropHintVideo"
+                      onApply={handleVideoCropApply}
+                      onCancel={() => {
+                        setShowCropMode(false);
+                        setVideoCropPreviewUrl(null);
+                      }}
+                    />
+                  )}
+
                   {/* Comparison overlay for video - shows original video on left side */}
-                  {showComparison && (videoHook as any).videoElRef?.current && (
+                  {showComparison && !showCropMode && (videoHook as any).videoElRef?.current && (
                     <div className="absolute inset-0 pointer-events-auto">
                       <MediaComparison
                         beforeVideo={(videoHook as any).videoElRef.current}
+                        beforeCrop={currentVideo.crop}
                         width={canvasDimensions.width}
                         height={canvasDimensions.height}
                       />
                     </div>
                   )}
                   </div>
-                  
-                  {hasApplied && (
-                    <CompareToggleButton
-                      active={showComparison}
-                      onToggle={() => {
-                        triggerHaptic("light");
-                        setShowComparison(!showComparison);
-                      }}
+
+                  <div className="pointer-events-none absolute left-full top-0 z-30 ml-2 flex flex-col gap-1.5">
+                    <CropToggleButton
+                      active={showCropMode}
+                      mode="video"
+                      onToggle={toggleVideoCropMode}
                     />
-                  )}
+                    {hasApplied && (
+                      <CompareToggleButton
+                        active={showComparison}
+                        onToggle={() => {
+                          triggerHaptic("light");
+                          setShowComparison((open) => {
+                            if (!open) setShowCropMode(false);
+                            return !open;
+                          });
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
               </CanvasViewport>
             )}
@@ -1187,6 +1325,7 @@ const DitheringTool: React.FC<DitheringToolProps> = ({ initialMode = "image" }) 
             processedCanvasRef={processedCanvasRef}
             sourceImageUrl={videoMode ? null : image}
             sourceVideoRef={videoMode ? (videoHook as any).videoElRef : undefined}
+            sourceVideoCrop={videoMode ? currentVideo?.crop : undefined}
             captureVideoGalleryResult={videoMode ? captureVideoGalleryResult : undefined}
             hasApplied={hasApplied}
             toolState={{

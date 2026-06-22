@@ -3,6 +3,7 @@ import { GALLERY_PREVIEW_BUCKET, GALLERY_SETTINGS_VERSION, type GallerySettingsV
 import { checkPublishRateLimit, hashIp, logPublishEvent } from "../../../../lib/gallery/rateLimit";
 import { isGalleryDescriptionAllowed, sanitizeGalleryDescription } from "../../../../lib/gallery/sanitize";
 import { shouldAutoApproveGalleryPublish } from "../../../../lib/auth/admin";
+import { ensureProfileFromUser } from "../../../../lib/auth/profile";
 import { getSupabaseAdminClient } from "../../../../lib/supabase/admin";
 import { getSupabaseServerClient } from "../../../../lib/supabase/server";
 
@@ -41,6 +42,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Sign in to publish." }, { status: 401 });
   }
 
+  await ensureProfileFromUser(supabase, user);
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("username, role")
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (!profile?.username?.trim()) {
-    return NextResponse.json({ error: "Set a username before publishing." }, { status: 400 });
+    return NextResponse.json({ error: "username_required" }, { status: 400 });
   }
 
   const ipHash = hashIp(clientIp(request));

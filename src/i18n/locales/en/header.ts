@@ -5,6 +5,8 @@ const header = {
       open: 'Open menu',
       close: 'Close menu',
       label: 'Navigation',
+      language: 'Language',
+      accountSection: 'Account',
     },
     nav: {
       home: 'Home',

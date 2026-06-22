@@ -4,9 +4,12 @@ import { findPalette } from '../utils/palettes';
 import { findAlgorithm, ASCII_MOSAIC_PATTERN } from '../utils/algorithms';
 import { applyLuminancePreprocess } from '../utils/preprocess';
 import type { SerpentinePattern } from '../types/serpentinePatterns';
+import { resolveCropRegion } from '../utils/cropImage';
+import type { NormalizedCropRect } from '../utils/cropImage';
 
 interface Params {
   video: string | null;
+  cropRect?: NormalizedCropRect | null;
   pattern: number;
   threshold: number;
   workingResolution: number;
@@ -26,7 +29,7 @@ interface Params {
 
 type ExtraParams = { contrast?: number; midtones?: number; highlights?: number; blurRadius?: number };
 
-const useVideoDithering = ({ video, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, asciiCellSize, fps = 12, playing, loop = true, ...extras }: Params & ExtraParams) => {
+const useVideoDithering = ({ video, cropRect, pattern, threshold, workingResolution, invert, serpentine, serpentinePattern, errorDiffusionStrength, isErrorDiffusion, paletteId, paletteColors, asciiRamp, asciiCellSize, fps = 12, playing, loop = true, ...extras }: Params & ExtraParams) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoElRef = useRef<HTMLVideoElement | null>(null);
@@ -72,7 +75,8 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
     v.onloadedmetadata = () => {
       setDuration(v.duration || 0);
       if (v.videoWidth && v.videoHeight) {
-        setNaturalDims({ width: v.videoWidth, height: v.videoHeight });
+        const { sw, sh } = resolveCropRegion(v.videoWidth, v.videoHeight, cropRect);
+        setNaturalDims({ width: sw, height: sh });
       }
       setReady(true);
       if (playing) {
@@ -90,6 +94,13 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       v.pause();
     };
   }, [video, loop]);
+
+  useEffect(() => {
+    const v = videoElRef.current;
+    if (!v?.videoWidth || !v.videoHeight) return;
+    const { sw, sh } = resolveCropRegion(v.videoWidth, v.videoHeight, cropRect);
+    setNaturalDims({ width: sw, height: sh });
+  }, [cropRect, ready]);
 
   useEffect(() => {
     const v = videoElRef.current;
@@ -122,10 +133,11 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       const vw = v.videoWidth;
       const vh = v.videoHeight;
       if (!vw || !vh) return false;
-      const maxDim = Math.max(vw, vh);
+      const { sx, sy, sw, sh } = resolveCropRegion(vw, vh, cropRect);
+      const maxDim = Math.max(sw, sh);
       const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
-      const width = Math.max(1, Math.round(vw * scale));
-      const height = Math.max(1, Math.round(vh * scale));
+      const width = Math.max(1, Math.round(sw * scale));
+      const height = Math.max(1, Math.round(sh * scale));
       if (procCanvas.width !== width || procCanvas.height !== height) {
         procCanvas.width = width; procCanvas.height = height;
       }
@@ -138,10 +150,10 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
       if (extras.blurRadius && extras.blurRadius > 0) {
         const prev = (procCtx as any).filter as string | undefined;
         (procCtx as any).filter = `blur(${Math.min(10, Math.max(0, extras.blurRadius)).toFixed(1)}px)`;
-        procCtx.drawImage(v, 0, 0, width, height);
+        procCtx.drawImage(v, sx, sy, sw, sh, 0, 0, width, height);
         (procCtx as any).filter = prev || 'none';
       } else {
-        procCtx.drawImage(v, 0, 0, width, height);
+        procCtx.drawImage(v, sx, sy, sw, sh, 0, 0, width, height);
       }
       perf.phaseEnd('scale-draw');
       const src = procCtx.getImageData(0, 0, width, height);
@@ -187,8 +199,8 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
           } else {
-            const ow = vw;
-            const oh = vh;
+            const ow = sw;
+            const oh = sh;
             const aside = document.querySelector('aside');
             const sidebarWidth = aside ? aside.getBoundingClientRect().width : 0;
             const viewportW = window.innerWidth;
@@ -243,7 +255,7 @@ const useVideoDithering = ({ video, pattern, threshold, workingResolution, inver
     
     requestAnimationFrame(run);
     return () => { active = false; };
-  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, asciiCellSize, fps, playing, ready, extras.contrast, extras.midtones, extras.highlights, extras.blurRadius]);
+  }, [pattern, threshold, workingResolution, invert, serpentine, isErrorDiffusion, paletteId, paletteColors, asciiRamp, asciiCellSize, fps, playing, ready, cropRect, extras.contrast, extras.midtones, extras.highlights, extras.blurRadius]);
 
   return { canvasRef, processedCanvasRef, videoElRef, hasApplied, canvasUpdatedFlag, ready, duration, currentTime, processedSizeBytes, naturalDims };
 };

@@ -11,7 +11,7 @@ export default function EducationArticleShell({ children }: { children: React.Re
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
       <Header activeNav="education" />
       <main id="main-content" className="flex-1">
-        <div className="mx-auto w-full max-w-3xl px-4 py-10 md:px-8 md:py-12">{children}</div>
+        <div className="mx-auto w-full max-w-3xl px-4 pt-10 md:px-8 md:pt-12">{children}</div>
         <div className="mx-auto w-full max-w-3xl px-4 md:px-8">
           <SiteFooter />
         </div>

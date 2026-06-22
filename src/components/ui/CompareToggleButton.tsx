@@ -15,7 +15,7 @@ export default function CompareToggleButton({ active, onToggle }: CompareToggleB
     <button
       type="button"
       onClick={onToggle}
-      className={`clean-btn pointer-events-auto absolute left-full top-0 z-30 ml-2 bg-neutral-900/90 p-2 hover:bg-neutral-800/90 ${
+      className={`clean-btn pointer-events-auto bg-neutral-900/90 p-2 hover:bg-neutral-800/90 ${
         active ? "ring-1 ring-blue-500/50" : ""
       }`}
       title={active ? t("tool.showDitheredOnly") : t("tool.compareBeforeAfter")}

@@ -3,7 +3,7 @@ import AccountView from "../../../views/AccountView";
 import { isAdminUserPreviewEnabled } from "../../../lib/auth/admin";
 import { ensureProfileFromUser, getProfile } from "../../../lib/auth/profile";
 import { features } from "../../../lib/features";
-import { listGalleryItemsByAuthor, listPendingGalleryItems, listRecentGalleryItems } from "../../../lib/gallery/queries";
+import { countPendingGalleryItems, listGalleryItemsByAuthor } from "../../../lib/gallery/queries";
 import { listAllDevBlogPostsForAdmin } from "../../../lib/devblog/queries";
 import { getAvatarPublicUrl, resolveProfileLinks } from "../../../lib/gallery/settings";
 import { baseMetadata } from "../../../lib/metadata";
@@ -157,16 +157,12 @@ export default async function AccountPage({
 
   const panelParam = typeof qs.panel === "string" ? qs.panel : undefined;
 
-  let pendingModerationItems: Awaited<ReturnType<typeof listPendingGalleryItems>> = [];
-  let recentModerationItems: Awaited<ReturnType<typeof listRecentGalleryItems>> = [];
+  let pendingModerationCount = 0;
   let devBlogPosts: Awaited<ReturnType<typeof listAllDevBlogPostsForAdmin>> = [];
 
   if (isActualAdminUser) {
     if (features.gallery) {
-      [pendingModerationItems, recentModerationItems] = await Promise.all([
-        listPendingGalleryItems(50),
-        listRecentGalleryItems(12),
-      ]);
+      pendingModerationCount = await countPendingGalleryItems();
     }
     devBlogPosts = await listAllDevBlogPostsForAdmin();
   }
@@ -190,8 +186,7 @@ export default async function AccountPage({
       profileAvatarUrl={profileAvatarUrl}
       activityStats={activityStats}
       initialPanel={panelParam}
-      pendingModerationItems={pendingModerationItems}
-      recentModerationItems={recentModerationItems}
+      pendingModerationCount={pendingModerationCount}
       devBlogPosts={devBlogPosts}
     />
   );

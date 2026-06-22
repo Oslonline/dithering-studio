@@ -89,25 +89,7 @@ const Header: React.FC<HeaderProps> = ({ activeNav }) => {
     <header className="site-header relative shrink-0 border-b border-neutral-900 bg-[#0b0b0b] px-4 py-3">
       <div className="mx-auto w-full max-w-4/5">
         <div className="flex items-center justify-between md:grid md:grid-cols-3 md:items-center">
-          <div className="flex items-center gap-2 md:justify-start">
-            <button
-              type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-800 text-gray-300 transition-colors hover:border-neutral-700 hover:bg-neutral-900 hover:text-gray-100 md:hidden"
-              aria-expanded={menuOpen}
-              aria-controls="mobile-nav-drawer"
-              aria-label={menuOpen ? t("header.menu.close", { defaultValue: "Close menu" }) : t("header.menu.open", { defaultValue: "Open menu" })}
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              {menuOpen ? (
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                  <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                  <path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              )}
-            </button>
+          <div className="flex items-center md:justify-start">
             <Link
               to={withLangPrefix("/", activeLang)}
               className="font-anton text-md tracking-wide text-gray-300 transition-colors hover:text-gray-100 lg:text-lg xl:text-xl"
@@ -133,36 +115,74 @@ const Header: React.FC<HeaderProps> = ({ activeNav }) => {
           </nav>
 
           <div className="flex items-center justify-end gap-2 sm:gap-3">
-            {features.accounts && (
-              <HeaderAccountLink lang={activeLang} isActive={activeNav === "account"} />
-            )}
-            <LanguageSwitcher />
+            <div className="hidden items-center gap-2 sm:gap-3 md:flex">
+              {features.accounts && (
+                <HeaderAccountLink lang={activeLang} isActive={activeNav === "account"} />
+              )}
+              <LanguageSwitcher />
+            </div>
+
+            <button
+              type="button"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-800 text-gray-300 transition-colors hover:border-neutral-700 hover:bg-neutral-900 hover:text-gray-100 md:hidden"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav-overlay"
+              aria-label={
+                menuOpen
+                  ? t("header.menu.close", { defaultValue: "Close menu" })
+                  : t("header.menu.open", { defaultValue: "Open menu" })
+              }
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              {menuOpen ? (
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                  <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                  <path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
       {menuOpen && (
-        <>
-          <button
-            type="button"
-            className="fixed inset-0 z-40 bg-black/60 md:hidden"
-            aria-label={t("header.menu.close", { defaultValue: "Close menu" })}
-            onClick={closeMenu}
-          />
-          <nav
-            id="mobile-nav-drawer"
-            className="fixed inset-y-0 left-0 z-50 flex w-[min(100vw-16rem,18rem)] flex-col border-r border-neutral-800 bg-[#0b0b0b] px-4 py-5 shadow-2xl md:hidden"
-            aria-label="Main"
-          >
-            <p className="mb-4 text-[10px] uppercase tracking-[0.2em] text-gray-500">
-              {t("header.menu.label", { defaultValue: "Navigation" })}
-            </p>
+        <div
+          id="mobile-nav-overlay"
+          className="fixed inset-0 z-50 flex flex-col bg-[#0b0b0b] md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("header.menu.label", { defaultValue: "Navigation" })}
+        >
+          <div className="flex items-center justify-between border-b border-neutral-900 px-4 py-3">
+            <Link
+              to={withLangPrefix("/", activeLang)}
+              className="font-anton text-md tracking-wide text-gray-300"
+              onClick={closeMenu}
+            >
+              {t("header.brand", { defaultValue: "DitheringStudio" })}
+            </Link>
+            <button
+              type="button"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-800 text-gray-300"
+              aria-label={t("header.menu.close", { defaultValue: "Close menu" })}
+              onClick={closeMenu}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto px-4 py-6" aria-label="Main">
             <ul className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <li key={item.key}>
                   <Link
                     to={withLangPrefix(item.href, activeLang)}
-                    className={`block rounded-md px-3 py-2.5 font-mono text-[13px] transition-colors ${
+                    className={`block rounded-md px-3 py-3 font-mono text-[15px] transition-colors ${
                       activeNav === item.key
                         ? "bg-neutral-800 text-gray-100"
                         : "text-gray-300 hover:bg-neutral-900 hover:text-gray-100"
@@ -175,24 +195,27 @@ const Header: React.FC<HeaderProps> = ({ activeNav }) => {
                   </Link>
                 </li>
               ))}
-              {features.accounts && (
-                <li className="mt-2 border-t border-neutral-800 pt-3">
-                  <Link
-                    to={withLangPrefix("/Account", activeLang)}
-                    className={`block rounded-md px-3 py-2.5 font-mono text-[13px] transition-colors ${
-                      activeNav === "account"
-                        ? "bg-neutral-800 text-gray-100"
-                        : "text-gray-300 hover:bg-neutral-900 hover:text-gray-100"
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    {t("header.nav.account", { defaultValue: "Account" })}
-                  </Link>
-                </li>
-              )}
             </ul>
+
+            <div className="mt-8 space-y-6 border-t border-neutral-900 pt-6">
+              {features.accounts && (
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">
+                    {t("header.menu.accountSection", { defaultValue: "Account" })}
+                  </p>
+                  <HeaderAccountLink
+                    lang={activeLang}
+                    isActive={activeNav === "account"}
+                    variant="menu"
+                    onNavigate={closeMenu}
+                  />
+                </div>
+              )}
+
+              <LanguageSwitcher variant="list" onAfterChange={closeMenu} />
+            </div>
           </nav>
-        </>
+        </div>
       )}
     </header>
   );

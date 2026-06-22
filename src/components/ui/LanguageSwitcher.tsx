@@ -13,7 +13,10 @@ const languages = [
   { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
 ];
 
-const LanguageSwitcher: React.FC = () => {
+const LanguageSwitcher: React.FC<{
+  variant?: "dropdown" | "list";
+  onAfterChange?: () => void;
+}> = ({ variant = "dropdown", onAfterChange }) => {
   const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
@@ -41,7 +44,36 @@ const LanguageSwitcher: React.FC = () => {
 
     i18n.changeLanguage(normalizedLng);
     setIsOpen(false);
+    onAfterChange?.();
   };
+
+  if (variant === "list") {
+    return (
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500">
+          {t("header.menu.language", { defaultValue: "Language" })}
+        </p>
+        <ul className="grid grid-cols-2 gap-1.5">
+          {languages.map((lang) => (
+            <li key={lang.code}>
+              <button
+                type="button"
+                onClick={() => changeLanguage(lang.code)}
+                className={`flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm transition-colors ${
+                  activeLang === lang.code
+                    ? "bg-blue-600/20 text-blue-300"
+                    : "text-gray-300 hover:bg-neutral-900 hover:text-gray-100"
+                }`}
+              >
+                <span className="text-base">{lang.flag}</span>
+                <span className="truncate">{lang.name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

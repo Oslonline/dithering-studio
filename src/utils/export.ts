@@ -3,6 +3,8 @@
 import { findAlgorithm, ASCII_MOSAIC_PATTERN } from './algorithms';
 import { applyLuminancePreprocess } from './preprocess';
 import type { SerpentinePattern } from '../types/serpentinePatterns';
+import { resolveCropRegion } from './cropImage';
+import type { NormalizedCropRect } from './cropImage';
 
 export interface ExportAtOriginalResolutionParams {
   imageUrl: string;
@@ -171,6 +173,7 @@ export interface ExportVideoFrameParams {
   highlights?: number;
   blurRadius?: number;
   workingResolution: number;
+  cropRect?: NormalizedCropRect | null;
 }
 
 /**
@@ -197,7 +200,8 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
     midtones = 1.0,
     highlights = 0,
     blurRadius = 0,
-    workingResolution
+    workingResolution,
+    cropRect,
   } = params;
 
   const originalWidth = videoElement.videoWidth;
@@ -207,11 +211,13 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
     throw new Error('Video dimensions not available');
   }
 
+  const { sx, sy, sw, sh } = resolveCropRegion(originalWidth, originalHeight, cropRect);
+
   // Calculate working dimensions (same logic as useVideoDithering)
-  const maxDim = Math.max(originalWidth, originalHeight);
+  const maxDim = Math.max(sw, sh);
   const scale = Math.min(1, Math.max(16, workingResolution) / maxDim);
-  const workingWidth = Math.max(1, Math.round(originalWidth * scale));
-  const workingHeight = Math.max(1, Math.round(originalHeight * scale));
+  const workingWidth = Math.max(1, Math.round(sw * scale));
+  const workingHeight = Math.max(1, Math.round(sh * scale));
 
   // Create canvas at working resolution (same as preview)
   const workingCanvas = document.createElement('canvas');
@@ -223,10 +229,10 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
   // Apply blur if needed and draw video frame at working resolution
   if (blurRadius && blurRadius > 0) {
     (workingCtx as any).filter = `blur(${Math.min(10, Math.max(0, blurRadius)).toFixed(1)}px)`;
-    workingCtx.drawImage(videoElement, 0, 0, workingWidth, workingHeight);
+    workingCtx.drawImage(videoElement, sx, sy, sw, sh, 0, 0, workingWidth, workingHeight);
     (workingCtx as any).filter = 'none';
   } else {
-    workingCtx.drawImage(videoElement, 0, 0, workingWidth, workingHeight);
+    workingCtx.drawImage(videoElement, sx, sy, sw, sh, 0, 0, workingWidth, workingHeight);
   }
 
   // Get image data and apply preprocessing
@@ -283,15 +289,15 @@ export function exportVideoFrameAtOriginalResolution(params: ExportVideoFramePar
       out,
       workingWidth,
       workingHeight,
-      originalWidth,
-      originalHeight,
+      sw,
+      sh,
       pattern,
       workingCanvas,
       workingCtx
     );
   }
 
-  return upscaleCanvasNearestNeighbor(workingCanvas, originalWidth, originalHeight);
+  return upscaleCanvasNearestNeighbor(workingCanvas, sw, sh);
 }
 
 function finalizeExportCanvas(

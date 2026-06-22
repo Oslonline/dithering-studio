@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import GalleryUsernameRequiredOverlay from "../components/gallery/GalleryUsernameRequiredOverlay";
 import Header from "../components/ui/Header";
 import SiteFooter from "../components/ui/SiteFooter";
 import { Link } from "../lib/nextRouterCompat";
@@ -16,11 +17,17 @@ import { normalizeLang, withLangPrefix } from "../utils/localePath";
 
 interface GalleryPublishConfirmViewProps {
   lang: string;
-  username: string;
+  username: string | null;
   draft: GalleryPublishDraft;
+  onUsernameSet: (username: string | null) => void;
 }
 
-export default function GalleryPublishConfirmView({ lang, username, draft }: GalleryPublishConfirmViewProps) {
+export default function GalleryPublishConfirmView({
+  lang,
+  username,
+  draft,
+  onUsernameSet,
+}: GalleryPublishConfirmViewProps) {
   const router = useRouter();
   const normalizedLang = normalizeLang(lang);
   const [description, setDescription] = useState("");
@@ -33,6 +40,8 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
   const toolPath = galleryToolBasePath(draft.settings, normalizedLang);
 
   const submit = async () => {
+    if (!username?.trim()) return;
+
     const allowed = isGalleryDescriptionAllowed(description);
     if (!allowed.ok) {
       setError(allowed.reason ?? "Invalid description.");
@@ -65,7 +74,14 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
       } | null;
 
       if (!response.ok || !payload?.id) {
-        setError(payload?.error ?? "Could not publish.");
+        if (payload?.error === "username_required") {
+          onUsernameSet(null);
+        }
+        setError(
+          payload?.error === "username_required"
+            ? "Your username could not be verified. Please set it again."
+            : (payload?.error ?? "Could not publish."),
+        );
         setLoading(false);
         return;
       }
@@ -79,8 +95,12 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
     }
   };
 
+  const needsUsername = !username?.trim();
+
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
+    <div className="relative flex min-h-screen flex-col bg-neutral-950 text-neutral-50">
+      {!needsUsername ? null : <GalleryUsernameRequiredOverlay onComplete={onUsernameSet} />}
+      <div className={needsUsername ? "pointer-events-none select-none blur-[2px]" : undefined} aria-hidden={needsUsername}>
       <Header activeNav="gallery" />
       <main id="main-content" className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 pt-10 md:px-8">
         <header className="space-y-2">
@@ -144,7 +164,7 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
               <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
                 <div>
                   <dt className="text-[10px] uppercase tracking-wide text-gray-500">Publisher</dt>
-                  <dd className="mt-1 text-gray-200">@{username}</dd>
+                  <dd className="mt-1 text-gray-200">@{username?.trim() || "…"}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] uppercase tracking-wide text-gray-500">Date</dt>
@@ -178,7 +198,7 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
                   type="button"
                   className="clean-btn clean-btn-primary px-4 py-2 text-[11px]"
                   onClick={submit}
-                  disabled={loading}
+                  disabled={loading || needsUsername}
                 >
                   {loading ? "Submitting..." : "Submit for publication"}
                 </button>
@@ -197,6 +217,7 @@ export default function GalleryPublishConfirmView({ lang, username, draft }: Gal
 
         <SiteFooter />
       </main>
+      </div>
     </div>
   );
 }

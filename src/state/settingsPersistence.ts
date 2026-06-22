@@ -53,6 +53,21 @@ function coerceBool(b: any, fallback: boolean) { return typeof b === 'boolean' ?
 function coerceArray(a: any) { return Array.isArray(a) ? a : []; }
 function coercePalette(p: any) { return Array.isArray(p) ? p.filter((c: any) => Array.isArray(c) && c.length === 3) : null; }
 
+/** Blob URLs are session-only and become invalid after reload — drop them on restore. */
+function sanitizePersistedImages(
+  images: any[],
+  activeImageId: string | null,
+): { images: any[]; activeImageId: string | null } {
+  const valid = coerceArray(images).filter(
+    (img) => img && typeof img.id === "string" && typeof img.url === "string" && !img.url.startsWith("blob:"),
+  );
+  const activeId =
+    activeImageId && valid.some((img) => img.id === activeImageId)
+      ? activeImageId
+      : (valid[0]?.id ?? null);
+  return { images: valid, activeImageId: activeId };
+}
+
 // Attempt migration from legacy scattered keys if unified key missing.
 function readLegacy(): PersistedSettingsV1 | null {
   if (!canUseStorage()) return null;
@@ -94,10 +109,11 @@ export function loadSettings(): PersistedSettingsV1 {
       const parsed: any = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
   const v = parsed.version === SETTINGS_VERSION ? SETTINGS_VERSION : SETTINGS_VERSION;
+        const sanitized = sanitizePersistedImages(coerceArray(parsed.images), typeof parsed.activeImageId === 'string' && parsed.activeImageId ? parsed.activeImageId : null);
         return {
           version: v,
-            images: coerceArray(parsed.images),
-            activeImageId: typeof parsed.activeImageId === 'string' && parsed.activeImageId ? parsed.activeImageId : null,
+            images: sanitized.images,
+            activeImageId: sanitized.activeImageId,
             pattern: coerceNumber(parsed.pattern, 1),
             threshold: coerceNumber(parsed.threshold, 128),
             workingResolution: coerceNumber(parsed.workingResolution, 512),
@@ -119,10 +135,10 @@ export function loadSettings(): PersistedSettingsV1 {
     
     const legacy = readLegacy();
     if (legacy) {
-      
-      persistSettings(legacy);
-      
-      return legacy;
+      const sanitized = sanitizePersistedImages(legacy.images, legacy.activeImageId);
+      const cleaned = { ...legacy, ...sanitized };
+      persistSettings(cleaned);
+      return cleaned;
     }
   } catch {}
   return { ...defaultSettings };
